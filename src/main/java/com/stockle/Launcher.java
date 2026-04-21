@@ -1,4 +1,6 @@
-package com.stockle.stockle;
+package com.stockle;
+
+import com.stockle.ui.HelloApplication;
 
 import javafx.application.Application;
 

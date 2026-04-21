@@ -1,4 +1,4 @@
-package com.stockle.stockle;
+package com.stockle.ui;
 
 import java.io.IOException;
 

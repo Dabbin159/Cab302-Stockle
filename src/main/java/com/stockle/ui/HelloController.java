@@ -1,4 +1,4 @@
-package com.stockle.stockle;
+package com.stockle.ui;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;

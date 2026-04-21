@@ -1,4 +1,4 @@
-package com.stockle.stockle;
+package com.stockle.model;
 
 public class Trade {
 
