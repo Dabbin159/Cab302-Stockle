@@ -1,6 +1,7 @@
 module com.stockle {
     requires javafx.controls;
     requires javafx.fxml;
+    requires java.sql;
 
     opens com.stockle to javafx.fxml;
     opens com.stockle.ui to javafx.fxml;
