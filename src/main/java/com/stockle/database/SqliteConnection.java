@@ -27,8 +27,8 @@ public class SqliteConnection {
      */
     public static Connection getInstance() {
         if (instance ==null) {
-            new SqliteConnection();
-            databaseSetup();
+            new SqliteConnection(); // Create new connection if it doesn't exist
+            databaseSetup(); // Ensure database is set up when connection is first created
         }
         return instance;
     }
