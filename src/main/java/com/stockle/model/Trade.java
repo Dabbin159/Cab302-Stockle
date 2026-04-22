@@ -4,7 +4,7 @@ public class Trade {
 
     // Fields
     private Double userNumber;
-    private String stock;
+    private Stock stock;
     private Boolean type; // Buy or Sell
     private int priceAtTrade;
     private Long totalValue;
