@@ -1,0 +1,298 @@
+/* ── Branding ── */
+.logo-box {
+    -fx-background-radius: 16;
+    -fx-border-color: rgba(0, 0, 0, 0.10);
+    -fx-border-width: 1;
+    -fx-border-radius: 16;
+    -fx-background-radius: 16;
+}
+
+.logo-icon {
+    -fx-text-fill: white;
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+}
+
+.brand-title {
+    -fx-font-size: 42px;
+    -fx-font-weight: bold;
+}
+
+.headline {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+}
+
+.body-text {
+    -fx-font-size: 15px;
+    -fx-text-fill: #4b5563;
+    -fx-line-spacing: 3;
+}
+
+/* ── Feature Icons ── */
+.feature-box-blue {
+    -fx-background-color: #dbeafe;
+    -fx-background-radius: 10;
+}
+
+.feature-box-purple {
+    -fx-background-color: #f3e8ff;
+    -fx-background-radius: 10;
+}
+
+.feature-box-green {
+    -fx-background-color: #dcfce7;
+    -fx-background-radius: 10;
+}
+
+.feature-box-blue .feature-icon { -fx-text-fill: #2563eb; }
+.feature-box-purple .feature-icon { -fx-text-fill: #9333ea; }
+.feature-box-green .feature-icon { -fx-text-fill: #16a34a; }
+
+.feature-icon {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.feature-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+}
+
+/* ── Card ── */
+.card {
+    -fx-background-color: white;
+    -fx-background-radius: 14;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 32, 0, 0, 8);
+}
+
+.card-header {
+    -fx-padding: 24 24 18 24;
+    -fx-border-color: transparent transparent #e5e7eb transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.card-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+}
+
+.card-description {
+    -fx-font-size: 13px;
+    -fx-text-fill: #6b7280;
+}
+
+.card-content {
+    -fx-padding: 0;
+}
+
+/* ── Tabs ── */
+.auth-tabs {
+    -fx-background-color: transparent;
+    -fx-tab-min-height: 38;
+    -fx-tab-max-height: 38;
+}
+
+.auth-tabs .tab-header-area {
+    -fx-padding: 16 24 0 24;
+}
+
+.auth-tabs .tab-header-background {
+    -fx-background-color: #f3f4f6;
+    -fx-background-radius: 8;
+    -fx-background-insets: 0;
+}
+
+.auth-tabs .tab {
+    -fx-background-color: transparent;
+    -fx-background-radius: 6;
+    -fx-padding: 6 16;
+    -fx-font-size: 14px;
+    -fx-text-fill: #6b7280;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.auth-tabs .tab .tab-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #6b7280;
+    -fx-font-weight: normal;
+}
+
+.auth-tabs .tab:selected {
+    -fx-background-color: white;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 6, 0, 0, 1);
+}
+
+.auth-tabs .tab:selected .tab-label {
+    -fx-text-fill: #111827;
+    -fx-font-weight: bold;
+}
+
+.auth-tabs .tab-content-area {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.tab-content {
+    -fx-padding: 16 24 24 24;
+}
+
+/* ── Form Inputs ── */
+.field-label {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #374151;
+}
+
+.auth-input {
+    -fx-background-color: #f3f3f5;
+    -fx-background-radius: 8;
+    -fx-border-color: rgba(0,0,0,0.1);
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-padding: 9 12;
+    -fx-pref-height: 40;
+    -fx-font-size: 14px;
+    -fx-prompt-text-fill: #9ca3af;
+}
+
+.auth-input:focused {
+    -fx-border-color: #2563eb;
+    -fx-border-width: 1.5;
+    -fx-background-color: white;
+}
+
+/* Password field group */
+.password-container {
+    -fx-background-color: #f3f3f5;
+    -fx-background-radius: 8;
+    -fx-border-color: rgba(0,0,0,0.1);
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-pref-height: 40;
+}
+
+.password-container:focused-within {
+    -fx-border-color: #2563eb;
+    -fx-border-width: 1.5;
+    -fx-background-color: white;
+}
+
+.auth-input-inner {
+    -fx-background-color: transparent;
+    -fx-background-radius: 8 0 0 8;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-padding: 9 4 9 12;
+    -fx-font-size: 14px;
+    -fx-prompt-text-fill: #9ca3af;
+    -fx-pref-height: 38;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.toggle-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #9ca3af;
+    -fx-font-size: 15px;
+    -fx-padding: 6 10;
+    -fx-cursor: hand;
+    -fx-background-radius: 0 8 8 0;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.toggle-btn:hover {
+    -fx-text-fill: #6b7280;
+    -fx-background-color: rgba(0,0,0,0.04);
+}
+
+/* ── Buttons ── */
+.outline-btn {
+    -fx-background-color: white;
+    -fx-text-fill: #374151;
+    -fx-font-size: 14px;
+    -fx-background-radius: 8;
+    -fx-border-color: rgba(0,0,0,0.15);
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-padding: 10 16;
+    -fx-pref-height: 40;
+    -fx-cursor: hand;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.outline-btn:hover {
+    -fx-background-color: #f9fafb;
+}
+
+.link-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #2563eb;
+    -fx-font-size: 13px;
+    -fx-padding: 0;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.link-btn:hover {
+    -fx-underline: true;
+}
+
+/* ── Checkbox ── */
+.auth-checkbox {
+    -fx-font-size: 13px;
+    -fx-text-fill: #374151;
+}
+
+.auth-checkbox .box {
+    -fx-background-color: white;
+    -fx-border-color: rgba(0,0,0,0.2);
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+}
+
+.auth-checkbox:selected .box {
+    -fx-background-color: #2563eb;
+    -fx-border-color: #2563eb;
+}
+
+.auth-checkbox:selected .mark {
+    -fx-background-color: white;
+}
+
+/* ── OR Divider ── */
+.or-divider {
+    -fx-padding: 6 0;
+}
+
+.divider-line {
+    -fx-background-color: #e5e7eb;
+    -fx-pref-height: 1;
+    -fx-max-height: 1;
+    -fx-min-height: 1;
+}
+
+.divider-label {
+    -fx-font-size: 11px;
+    -fx-text-fill: #9ca3af;
+}
+
+
+/* ── Misc ──  */
+.hint-text {
+    -fx-font-size: 12px;
+    -fx-text-fill: #9ca3af;
+}
+
+.terms-text {
+  -fx-font-size: 13px;
+    -fx-text-fill: #374151;
+}

@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<StackPane xmlns:fx="http://javafx.com/fxml"
+           xmlns="http://javafx.com/javafx/21"
+           fx:controller="com.stockle.ui.AuthController"
+           styleClass="root-pane"
+           stylesheets="@auth.css">
+
+    <HBox alignment="CENTER" spacing="40" maxWidth="1060" StackPane.alignment="CENTER">
+        <padding><Insets top="40" bottom="40" left="40" right="40"/></padding>
+
+        <!-- Left: Branding Panel -->
+        <VBox spacing="28" HBox.hgrow="ALWAYS" prefWidth="480" maxWidth="480">
+
+            <HBox alignment="CENTER_LEFT" spacing="14">
+                <StackPane styleClass="logo-box" minWidth="64" minHeight="64" maxWidth="64" maxHeight="64">
+                    <Label text=":)" styleClass="logo-icon"/>
+                </StackPane>
+                <Label text="Stockle" styleClass="brand-title"/>
+            </HBox>
+
+            <Label text="Master Stock Trading Without Risk"
+                   styleClass="headline" wrapText="true"/>
+
+            <Label text="lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                   styleClass="body-text" wrapText="true"/>
+
+            <VBox spacing="20">
+                <HBox alignment="TOP_LEFT" spacing="14">
+                    <StackPane styleClass="feature-box-blue" minWidth="40" minHeight="40" maxWidth="40" maxHeight="40">
+                        <Label text=":)" styleClass="feature-icon"/>
+                    </StackPane>
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label text="Real Market Data" styleClass="feature-title"/>
+                    </VBox>
+                </HBox>
+
+                <HBox alignment="TOP_LEFT" spacing="14">
+                    <StackPane styleClass="feature-box-purple" minWidth="40" minHeight="40" maxWidth="40" maxHeight="40">
+                        <Label text=":)" styleClass="feature-icon"/>
+                    </StackPane>
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label text="AI-Powered Insights" styleClass="feature-title"/>
+                    </VBox>
+                </HBox>
+
+                <HBox alignment="TOP_LEFT" spacing="14">
+                    <StackPane styleClass="feature-box-green" minWidth="40" minHeight="40" maxWidth="40" maxHeight="40">
+                        <Label text=":)" styleClass="feature-icon"/>
+                    </StackPane>
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label text="Zero Financial Risk" styleClass="feature-title"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+        </VBox>
+
+        <!-- Right: Auth Card -->
+        <VBox styleClass="card" HBox.hgrow="ALWAYS" prefWidth="480" minWidth="400" maxWidth="500">
+
+            <VBox styleClass="card-header" spacing="10">
+                <Label text="Welcome to Stockle" styleClass="card-title"/>
+                <Label text="Sign in to your account or create a new one to start trading"
+                       styleClass="card-description" wrapText="true"/>
+            </VBox>
+
+            <VBox styleClass="card-content" VBox.vgrow="ALWAYS">
+                <TabPane fx:id="authTabPane" styleClass="auth-tabs"
+                         tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+
+                    <!-- LOGIN TAB -->
+                    <Tab text="Login">
+                        <VBox spacing="14" styleClass="tab-content">
+
+                            <VBox spacing="4">
+                                <Label text="Email" styleClass="field-label"/>
+                                <TextField fx:id="loginEmail" promptText="you@example.com" styleClass="auth-input"/>
+                            </VBox>
+
+                            <VBox spacing="4">
+                                <Label text="Password" styleClass="field-label"/>
+                                <HBox styleClass="password-container">
+                                    <StackPane HBox.hgrow="ALWAYS">
+                                        <PasswordField fx:id="loginPasswordField" styleClass="auth-input-inner" maxWidth="Infinity"/>
+                                        <TextField fx:id="loginPasswordText" styleClass="auth-input-inner" maxWidth="Infinity" visible="false" managed="false"/>
+                                    </StackPane>
+                                    <Button text="Show/Hide" styleClass="toggle-btn" onAction="#toggleLoginPassword"/>
+                                </HBox>
+                            </VBox>
+
+                            <HBox alignment="CENTER_LEFT" spacing="8">
+                                <CheckBox fx:id="rememberMe" text="Remember me" styleClass="auth-checkbox"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Button text="Forgot password?" styleClass="link-btn" onAction="#forgotPassword"/>
+                            </HBox>
+
+                            <Button text="Sign In" styleClass="outline-btn" maxWidth="Infinity" onAction="#handleLogin"/>
+
+                            <HBox alignment="CENTER" spacing="10" styleClass="or-divider">
+                                <Region HBox.hgrow="ALWAYS" styleClass="divider-line"/>
+                                <Label text="Or continue with" styleClass="divider-label"/>
+                                <Region HBox.hgrow="ALWAYS" styleClass="divider-line"/>
+                            </HBox>
+
+                            <HBox spacing="12">
+                                <Button text="Google" styleClass="outline-btn" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                                <Button text="GitHub" styleClass="outline-btn" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                            </HBox>
+
+                        </VBox>
+                    </Tab>
+
+                    <!-- SIGN UP TAB -->
+                    <Tab text="Sign Up">
+                        <VBox spacing="12" styleClass="tab-content">
+
+                            <VBox spacing="4">
+                                <Label text="Full Name" styleClass="field-label"/>
+                                <TextField fx:id="signupName" promptText="John Doe" styleClass="auth-input"/>
+                            </VBox>
+
+                            <VBox spacing="4">
+                                <Label text="Email" styleClass="field-label"/>
+                                <TextField fx:id="signupEmail" promptText="you@example.com" styleClass="auth-input"/>
+                            </VBox>
+
+                            <VBox spacing="4">
+                                <Label text="Password" styleClass="field-label"/>
+                                <HBox styleClass="password-container">
+                                    <StackPane HBox.hgrow="ALWAYS">
+                                        <PasswordField fx:id="signupPasswordField" styleClass="auth-input-inner" maxWidth="Infinity"/>
+                                        <TextField fx:id="signupPasswordText" styleClass="auth-input-inner" maxWidth="Infinity" visible="false" managed="false"/>
+                                    </StackPane>
+                                    <Button text="Show/Hide" styleClass="toggle-btn" onAction="#toggleSignupPassword"/>
+                                </HBox>
+                                <Label text="Must be at least 8 characters" styleClass="hint-text"/>
+                            </VBox>
+
+                            <VBox spacing="4">
+                                <Label text="Confirm Password" styleClass="field-label"/>
+                                <PasswordField fx:id="signupConfirmPassword" styleClass="auth-input"/>
+                            </VBox>
+
+                            <HBox alignment="TOP_LEFT" spacing="8">
+                                <CheckBox fx:id="agreeToTerms" styleClass="auth-checkbox"/>
+                                <Label text="I agree to the Terms of Service and Privacy Policy"
+                                        styleClass="terms-text" wrapText="true" HBox.hgrow="ALWAYS"/>
+                            </HBox>
+
+                            <Button text="Create Account" styleClass="outline-btn"
+                                    maxWidth="Infinity" onAction="#handleSignup"/>
+
+                            <Label text="By signing up, you'll receive $100,000 in virtual currency to start trading"
+                                    styleClass="hint-text" wrapText="true" maxWidth="Infinity" textAlignment="CENTER"/>
+
+                        </VBox>
+                    </Tab>
+
+                </TabPane>
+            </VBox>
+        </VBox>
+
+    </HBox>
+</StackPane>

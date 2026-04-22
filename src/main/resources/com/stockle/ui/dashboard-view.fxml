@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml/1"
+            xmlns="http://javafx.com/javafx/21"
+            fx:controller="com.stockle.ui.DashboardController">
+
+    <!-- Main content -->
+   <center>
+        <VBox spacing="24">
+            <Label text="Dashboard" style="-fx-font-size: 30px;"/>
+            <Button text="Sign Out" maxWidth="Infinity" onAction="#handleSignOut"
+                    style="-fx-background-color: transparent; -fx-text-fill: #ef4444; -fx-background-radius: 8; -fx-padding: 10 12; -fx-alignment: CENTER_LEFT; -fx-cursor: hand;"/>
+        </VBox>
+    </center>
+
+</BorderPane>
