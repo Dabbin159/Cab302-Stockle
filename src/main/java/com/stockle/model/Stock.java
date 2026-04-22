@@ -34,7 +34,7 @@ public class Stock {
         return json;
     }
 
-    public Stock fromJSON(JSONObject json) {
+    public static Stock fromJSON(JSONObject json) {
         Long stockNumber = json.getLong("stockNumber");
         String companyName = json.getString("companyName");
         String sector = json.getString("sector");
