@@ -15,6 +15,7 @@ public class DB_Test {
         UpdateUserTestValidate(randomId);
         UpdateUserTest(randomId);
         UpdateUserTestValidate(randomId);
+        // UniqueUserTest();
     }
 
     public static void AddUserTest() {
@@ -53,6 +54,24 @@ public class DB_Test {
             System.out.println("User found: " + user.getEmail());
         } else {
             System.out.println("User not found.");
+        }
+    }
+
+    public static void UniqueUserTest() {
+        SQLUserDAO userDAO = SQLUserDAO.getInstance();
+        User user1 = new User("UniqueUsername", "TestPassword", "test1@example.com", "Test", "User", LocalDate.now());
+        User user2 = new User("UniqueUsername", "TestPassword", "test2@example.com", "Test", "User", LocalDate.now());
+        try {
+            userDAO.addUser(user1);
+            System.out.println("First user added with ID: " + user1.getId());
+        } catch (Exception e) {
+            System.out.println("Failed to add first user: " + e.getMessage());
+        }
+        try {
+            userDAO.addUser(user2);
+            System.out.println("Second user added with ID: This should not happen");
+        } catch (Exception e) {
+            System.out.println("Failed to add second user: This is good unique constraint is working");
         }
     }
 }
