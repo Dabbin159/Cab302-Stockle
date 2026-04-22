@@ -1,5 +1,7 @@
 package com.stockle.ui;
 
+import java.io.IOException;
+
 import javafx.fxml.FXML;
 import javafx.scene.chart.AreaChart;
 import javafx.scene.chart.XYChart;
@@ -99,7 +101,6 @@ public class DashboardController {
         return row;
     }
 
-
     // Helper method to create a trading row
     private HBox tradeRow(String type, String symbol, String detail, String time) {
         HBox row = new HBox();
@@ -126,5 +127,17 @@ public class DashboardController {
 
         row.getChildren().addAll(badge, info, spacer, t);
         return row;
+    }
+
+    // Navigation handlers (placeholders for now)
+    @FXML private void navDashboard() {}
+
+    @FXML private void navTrading() {}
+
+    @FXML private void navAI() {}
+
+    @FXML
+    private void handleSignOut() throws IOException {
+        SceneManager.switchTo("auth/auth-view.fxml");
     }
 }
