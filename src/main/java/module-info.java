@@ -1,6 +1,8 @@
 module com.stockle {
     requires javafx.controls;
     requires javafx.fxml;
+    requires okhttp3;
+    requires com.fasterxml.jackson.databind;
 
     opens com.stockle to javafx.fxml;
     opens com.stockle.ui to javafx.fxml;
