@@ -10,7 +10,7 @@ public class DB_Test {
 
     public static void main(String[] args) {
         AddUserTest();
-        int randomId = new Random().nextInt(SQLUserDAO.getInstance().getAllUsers().size()) + 1; // Get a random user ID from the database
+        int randomId = new Random().nextInt(SQLUserDAO.getInstance().getAllUsers().size()) + 1; // Get a random user ID from the database (Selects Random User)
         GetUserByIdTest(randomId);
         UpdateUserTestValidate(randomId);
         UpdateUserTest(randomId);
@@ -19,7 +19,7 @@ public class DB_Test {
 
     public static void AddUserTest() {
         SQLUserDAO userDAO = SQLUserDAO.getInstance();
-        User user = new User("TestUsername", "TestPassword", "test@example.com", "Test", "User",LocalDate.now());
+        User user = new User("TestUsername" + new Random().nextInt(100000), "TestPassword", "test@example.com", "Test", "User",LocalDate.now());
         userDAO.addUser(user);
         System.out.println("User added with ID: " + user.getId());
     }

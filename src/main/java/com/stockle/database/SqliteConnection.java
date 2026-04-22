@@ -35,7 +35,7 @@ public class SqliteConnection {
 
     private static final String USER_TABLE = "CREATE TABLE IF NOT EXISTS users ("
             + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-            + "username TEXT NOT NULL,"
+            + "username TEXT NOT NULL UNIQUE,"
             + "password TEXT NOT NULL,"
             + "email TEXT NOT NULL,"
             + "firstName TEXT NOT NULL,"
