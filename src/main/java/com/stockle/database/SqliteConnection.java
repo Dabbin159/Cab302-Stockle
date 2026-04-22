@@ -3,6 +3,7 @@ package com.stockle.database;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 public class SqliteConnection {
 
@@ -27,7 +28,28 @@ public class SqliteConnection {
     public static Connection getInstance() {
         if (instance ==null) {
             new SqliteConnection();
+            databaseSetup();
         }
         return instance;
+    }
+
+    private static final String USER_TABLE = "CREATE TABLE IF NOT EXISTS users ("
+            + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            + "username TEXT NOT NULL,"
+            + "password TEXT NOT NULL,"
+            + "email TEXT NOT NULL,"
+            + "firstName TEXT NOT NULL,"
+            + "lastName TEXT NOT NULL,"
+            + "dateOfBirth TEXT NOT NULL"
+            + ")";
+
+
+    private static void databaseSetup() {
+        try {
+            Statement statement = instance.createStatement();
+            statement.execute(USER_TABLE);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
     }
 }

@@ -1,5 +1,7 @@
 package com.stockle.classes;
 
+import java.time.LocalDate;
+
 public class User {
 
     private int id;
@@ -8,14 +10,16 @@ public class User {
     private String email;
     private String firstName;
     private String lastName;
+    private LocalDate dateOfBirth;
 
-    public User(int id, String username, String password, String email, String firstName, String lastName) {
+    public User(int id, String username, String password, String email, String firstName, String lastName, LocalDate dateOfBirth) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.dateOfBirth = dateOfBirth;
     }
 
     public int getId() {
@@ -42,6 +46,10 @@ public class User {
         return lastName;
     }
 
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
+    }
+
     public void setUsername(String username) {
         this.username = username;
     }
@@ -62,7 +70,7 @@ public class User {
         this.lastName = lastName;
     }
 
-    
-
-
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
 }

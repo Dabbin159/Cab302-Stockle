@@ -2,6 +2,7 @@ package com.stockle.database;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.LocalDate;
 
 import com.stockle.model.User;
 
@@ -32,7 +33,7 @@ public class SqliteUserDAO implements UserDAO {
 
 
     @Override
-    public void addUser(String username, String password, String email, String firstName, String lastName) {
+    public void addUser(String username, String password, String email, String firstName, String lastName, LocalDate dateOfBirth) {
         // TODO Auto-generated method stub
 
     }
@@ -44,8 +45,7 @@ public class SqliteUserDAO implements UserDAO {
     }
 
     @Override
-    public void updateUser(int id, String username, String password, String email, String firstName,
-            String lastName) {
+    public void updateUser(int id, String username, String password, String email, String firstName, String lastName, LocalDate dateOfBirth) {
         // TODO Auto-generated method stub
 
     }
