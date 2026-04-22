@@ -43,11 +43,20 @@ public class SqliteConnection {
             + "dateOfBirth TEXT NOT NULL"
             + ")";
 
+    private static final String STOCK_TABLE = "CREATE TABLE IF NOT EXISTS stocks ("
+            + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            + "userID INTEGER NOT NULL,"
+            + "stockData TEXT NOT NULL,"
+            + "createdAt TEXT NOT NULL,"
+            + "FOREIGN KEY (userID) REFERENCES users(id)"
+            + ")";
+
 
     private static void databaseSetup() {
         try {
             Statement statement = instance.createStatement();
             statement.execute(USER_TABLE);
+            statement.execute(STOCK_TABLE);
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
