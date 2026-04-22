@@ -293,6 +293,6 @@
 }
 
 .terms-text {
-  -fx-font-size: 13px;
+    -fx-font-size: 13px;
     -fx-text-fill: #374151;
 }
