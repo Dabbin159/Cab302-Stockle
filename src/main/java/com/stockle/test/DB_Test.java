@@ -38,7 +38,7 @@ public class DB_Test {
         SQLUserDAO userDAO = SQLUserDAO.getInstance();
         User user = userDAO.getUserById(id);
         if (user != null) {
-            user.setEmail("updated@example.com");
+            user.setEmail("updated" + new Random().nextInt(100000) + "@example.com");
             userDAO.updateUser(user);
             System.out.println("User updated.");
         } else {
