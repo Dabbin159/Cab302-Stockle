@@ -1,4 +1,4 @@
-package com.stockle.database;
+package com.stockle.classes;
 
 public class User {
 
