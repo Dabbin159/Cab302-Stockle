@@ -1,6 +1,7 @@
 package com.stockle.test;
 
 import java.time.LocalDate;
+import java.util.Random;
 
 import com.stockle.database.SQLUserDAO;
 import com.stockle.model.User;
@@ -9,10 +10,11 @@ public class DB_Test {
 
     public static void main(String[] args) {
         AddUserTest();
-        GetUserByIdTest();
-        UpdateUserTestValidate();
-        UpdateUserTest();
-        UpdateUserTestValidate();
+        int randomId = new Random().nextInt(SQLUserDAO.getInstance().getAllUsers().size()) + 1; // Get a random user ID from the database
+        GetUserByIdTest(randomId);
+        UpdateUserTestValidate(randomId);
+        UpdateUserTest(randomId);
+        UpdateUserTestValidate(randomId);
     }
 
     public static void AddUserTest() {
@@ -22,9 +24,9 @@ public class DB_Test {
         System.out.println("User added with ID: " + user.getId());
     }
 
-    public static void GetUserByIdTest() {
+    public static void GetUserByIdTest(int id) {
         SQLUserDAO userDAO = SQLUserDAO.getInstance();
-        User user = userDAO.getUserById(1);
+        User user = userDAO.getUserById(id);
         if (user != null) {
             System.out.println("User found: " + user.getUsername());
         } else {
@@ -32,9 +34,9 @@ public class DB_Test {
         }
     }
 
-    public static void UpdateUserTest() {
+    public static void UpdateUserTest(int id) {
         SQLUserDAO userDAO = SQLUserDAO.getInstance();
-        User user = userDAO.getUserById(1);
+        User user = userDAO.getUserById(id);
         if (user != null) {
             user.setEmail("updated@example.com");
             userDAO.updateUser(user);
@@ -44,9 +46,9 @@ public class DB_Test {
         }
     }
 
-    public static void UpdateUserTestValidate() {
+    public static void UpdateUserTestValidate(int id) {
         SQLUserDAO userDAO = SQLUserDAO.getInstance();
-        User user = userDAO.getUserById(1);
+        User user = userDAO.getUserById(id);
         if (user != null) {
             System.out.println("User found: " + user.getEmail());
         } else {
