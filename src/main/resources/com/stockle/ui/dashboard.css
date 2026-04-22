@@ -1,0 +1,281 @@
+/* ── Sidebar ── */
+.sidebar {
+    -fx-background-color: white;
+    -fx-pref-width: 220;
+    -fx-min-width: 220;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 8, 0, 2, 0);
+}
+
+.sidebar-logo {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 8 20 8;
+}
+
+.nav-section {
+    -fx-padding: 4 0 0 0;
+}
+
+.nav-item {
+    -fx-background-color: transparent;
+    -fx-text-fill: #374151;
+    -fx-font-size: 14px;
+    -fx-background-radius: 8;
+    -fx-padding: 9 12;
+    -fx-alignment: CENTER_LEFT;
+    -fx-cursor: hand;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.nav-item:hover {
+    -fx-background-color: #f3f4f6;
+}
+
+.nav-item-active {
+    -fx-background-color: #eff6ff;
+    -fx-text-fill: #2563eb;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-padding: 9 12;
+    -fx-alignment: CENTER_LEFT;
+    -fx-cursor: hand;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.nav-signout {
+    -fx-background-color: transparent;
+    -fx-text-fill: #ef4444;
+    -fx-font-size: 14px;
+    -fx-background-radius: 8;
+    -fx-padding: 9 12;
+    -fx-alignment: CENTER_LEFT;
+    -fx-cursor: hand;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.nav-signout:hover {
+    -fx-background-color: #fef2f2;
+}
+
+/* ── Scroll / Main ── */
+.main-scroll {
+    -fx-background-color: #f9fafb;
+    -fx-background: #f9fafb;
+    -fx-border-color: transparent;
+}
+
+.main-scroll .viewport {
+    -fx-background-color: #f9fafb;
+}
+
+.main-content {
+    -fx-background-color: #f9fafb;
+}
+
+/* ── Header ── */
+.page-title {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+}
+
+.page-subtitle {
+    -fx-font-size: 14px;
+    -fx-text-fill: #6b7280;
+}
+
+.market-badge {
+    -fx-font-size: 12px;
+    -fx-text-fill: #374151;
+    -fx-background-color: white;
+    -fx-background-radius: 20;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 20;
+    -fx-border-width: 1;
+    -fx-padding: 4 12;
+}
+
+/* ── Stat Cards ── */
+.stat-card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 2);
+    -fx-padding: 16;
+}
+
+.stat-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: #6b7280;
+}
+
+.stat-value {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+}
+
+.stat-positive {
+    -fx-font-size: 12px;
+    -fx-text-fill: #16a34a;
+}
+
+.stat-neutral {
+    -fx-font-size: 12px;
+    -fx-text-fill: #6b7280;
+}
+
+.stat-icon-blue  { -fx-font-size: 16px; -fx-text-fill: #2563eb; }
+.stat-icon-green { -fx-font-size: 16px; -fx-text-fill: #16a34a; }
+.stat-icon-gray  { -fx-font-size: 16px; -fx-text-fill: #9ca3af; }
+
+/* ── Cards ── */
+.card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 2);
+}
+
+.card-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+}
+
+/* ── Chart ── */
+.portfolio-chart {
+    -fx-background-color: transparent;
+    -fx-padding: 0 16 8 16;
+}
+
+.portfolio-chart .chart-plot-background {
+    -fx-background-color: transparent;
+}
+
+.portfolio-chart .chart-content {
+    -fx-padding: 0;
+}
+
+.portfolio-chart .axis {
+    -fx-tick-label-fill: #9ca3af;
+    -fx-font-size: 11px;
+}
+
+.portfolio-chart .chart-horizontal-grid-lines {
+    -fx-stroke: #f3f4f6;
+}
+
+.portfolio-chart .chart-vertical-grid-lines {
+    -fx-stroke: transparent;
+}
+
+.portfolio-chart .chart-series-area-line {
+    -fx-stroke: #3b82f6;
+    -fx-stroke-width: 2;
+}
+
+.portfolio-chart .chart-series-area-fill {
+    -fx-fill: linear-gradient(from 0% 0% to 0% 100%, rgba(59, 130, 246, 0.25), rgba(59, 130, 246, 0.0));
+}
+
+.portfolio-chart .chart-symbol {
+    -fx-background-color: #3b82f6, white;
+    -fx-background-radius: 5;
+    -fx-padding: 4;
+}
+
+/* ── Holdings / Trades rows ── */
+.row-card {
+    -fx-background-color: #f9fafb;
+    -fx-background-radius: 8;
+    -fx-padding: 10 12;
+}
+
+.row-symbol {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+}
+
+.row-sub {
+    -fx-font-size: 12px;
+    -fx-text-fill: #6b7280;
+}
+
+.row-price {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+}
+
+.row-positive { -fx-font-size: 12px; -fx-text-fill: #16a34a; }
+.row-negative { -fx-font-size: 12px; -fx-text-fill: #dc2626; }
+
+.badge-buy {
+    -fx-background-color: #2563eb;
+    -fx-text-fill: white;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 4;
+    -fx-padding: 2 8;
+}
+
+.badge-sell {
+    -fx-background-color: #e5e7eb;
+    -fx-text-fill: #374151;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 4;
+    -fx-padding: 2 8;
+}
+
+.trade-time {
+    -fx-font-size: 12px;
+    -fx-text-fill: #9ca3af;
+}
+
+/* ── Quick Action Cards ── */
+.quick-card-blue, .quick-card-purple, .quick-card-green {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 2);
+    -fx-padding: 20;
+    -fx-cursor: hand;
+}
+
+.quick-card-blue:hover   { -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 16, 0, 0, 4); }
+.quick-card-purple:hover { -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 16, 0, 0, 4); }
+.quick-card-green:hover  { -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 16, 0, 0, 4); }
+
+.quick-icon-blue {
+    -fx-background-color: #dbeafe;
+    -fx-background-radius: 24;
+}
+
+.quick-icon-purple {
+    -fx-background-color: #f3e8ff;
+    -fx-background-radius: 24;
+}
+
+.quick-icon-green {
+    -fx-background-color: #dcfce7;
+    -fx-background-radius: 24;
+}
+
+.quick-icon-blue .quick-icon-lbl   { -fx-font-size: 18px; -fx-text-fill: #2563eb; }
+.quick-icon-purple .quick-icon-lbl { -fx-font-size: 18px; -fx-text-fill: #9333ea; }
+.quick-icon-green .quick-icon-lbl  { -fx-font-size: 18px; -fx-text-fill: #16a34a; }
+
+.quick-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+}
+
+.quick-desc {
+    -fx-font-size: 12px;
+    -fx-text-fill: #6b7280;
+}

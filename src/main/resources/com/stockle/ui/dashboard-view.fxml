@@ -1,19 +1,164 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.chart.*?>
 <?import javafx.geometry.Insets?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml/1"
+<BorderPane xmlns:fx="http://javafx.com/fxml"
             xmlns="http://javafx.com/javafx/21"
-            fx:controller="com.stockle.ui.DashboardController">
+            fx:controller="com.stockle.ui.DashboardController"
+            stylesheets="@dashboard.css">
+
+    <!-- Sidebar -->
+    <left>
+        <VBox styleClass="sidebar">
+            <padding><Insets top="24" bottom="16" left="16" right="16"/></padding>
+
+            <Label text="Stockle" styleClass="sidebar-logo"/>
+
+            <VBox spacing="2" styleClass="nav-section">
+                <Button fx:id="navDashboard" text="Dashboard" maxWidth="Infinity" styleClass="nav-item-active" onAction="#navDashboard"/>
+                <Button text="Trading" maxWidth="Infinity" styleClass="nav-item" onAction="#navTrading"/>
+                <Button text="Practice" maxWidth="Infinity" styleClass="nav-item"/>
+                <Button text="Leaderboard" maxWidth="Infinity" styleClass="nav-item"/>
+                <Button text="AI Chat" maxWidth="Infinity" styleClass="nav-item"/>
+                <Button text="News" maxWidth="Infinity" styleClass="nav-item"/>
+                <Button text="Profile" maxWidth="Infinity" styleClass="nav-item"/>
+            </VBox>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <Button text="Sign Out" maxWidth="Infinity" styleClass="nav-signout" onAction="#handleSignOut"/>
+        </VBox>
+    </left>
 
     <!-- Main content -->
-   <center>
-        <VBox spacing="24">
-            <Label text="Dashboard" style="-fx-font-size: 30px;"/>
-            <Button text="Sign Out" maxWidth="Infinity" onAction="#handleSignOut"
-                    style="-fx-background-color: transparent; -fx-text-fill: #ef4444; -fx-background-radius: 8; -fx-padding: 10 12; -fx-alignment: CENTER_LEFT; -fx-cursor: hand;"/>
-        </VBox>
-    </center>
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="main-scroll" hbarPolicy="NEVER">
+            <VBox spacing="20" styleClass="main-content">
+                <padding><Insets top="28" bottom="36" left="28" right="28"/></padding>
 
+                <!-- Header -->
+                <HBox alignment="CENTER_LEFT">
+                    <VBox HBox.hgrow="ALWAYS" spacing="2">
+                        <Label text="Dashboard" styleClass="page-title"/>
+                        <Label text="Welcome back! Here's your portfolio overview." styleClass="page-subtitle"/>
+                    </VBox>
+                    <Label text="  Market Open: 9:30 AM - 4:00 PM EST  " styleClass="market-badge"/>
+                </HBox>
+
+                <!-- Stat Cards -->
+                <GridPane hgap="16" vgap="16">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="25"/>
+                        <ColumnConstraints percentWidth="25"/>
+                        <ColumnConstraints percentWidth="25"/>
+                        <ColumnConstraints percentWidth="25"/>
+                    </columnConstraints>
+
+                    <!-- Total Portfolio Value -->
+                    <VBox styleClass="stat-card" spacing="6" GridPane.columnIndex="0">
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="Total Portfolio Value" styleClass="stat-label" HBox.hgrow="ALWAYS"/>
+                        </HBox>
+                        <Label fx:id="totalValueLabel" text="" styleClass="stat-value"/>
+                        <Label fx:id="totalGainLabel"  text="" styleClass="stat-positive"/>
+                    </VBox>
+
+                    <!-- Buying Power -->
+                    <VBox styleClass="stat-card" spacing="6" GridPane.columnIndex="1">
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="Buying Power" styleClass="stat-label" HBox.hgrow="ALWAYS"/>
+                        </HBox>
+                        <Label fx:id="buyingPowerLabel" text="" styleClass="stat-value"/>
+                        <Label text="Available to trade" styleClass="stat-neutral"/>
+                    </VBox>
+
+                    <!-- Total Trades -->
+                    <VBox styleClass="stat-card" spacing="6" GridPane.columnIndex="2">
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="Total Trades" styleClass="stat-label" HBox.hgrow="ALWAYS"/>
+                        </HBox>
+                        <Label text="127" styleClass="stat-value"/>
+                        <Label text="23 this month" styleClass="stat-neutral"/>
+                    </VBox>
+
+                    <!-- Win Rate -->
+                    <VBox styleClass="stat-card" spacing="6" GridPane.columnIndex="3">
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="Win Rate" styleClass="stat-label" HBox.hgrow="ALWAYS"/>
+                        </HBox>
+                        <Label text="68.5%" styleClass="stat-value"/>
+                        <Label text="+2.3% from last month" styleClass="stat-positive"/>
+                    </VBox>
+                </GridPane>
+
+                <!-- Portfolio Chart -->
+                <VBox styleClass="card">
+                    <Label text="Portfolio Performance" styleClass="card-title"
+                           style="-fx-padding: 16 16 8 16;"/>
+                    <AreaChart fx:id="portfolioChart" styleClass="portfolio-chart"
+                               legendVisible="false" prefHeight="260" animated="false">
+                        <xAxis><CategoryAxis/></xAxis>
+                        <yAxis><NumberAxis/></yAxis>
+                    </AreaChart>
+                </VBox>
+
+                <!-- Holdings + Trades -->
+                <HBox spacing="16">
+                    <VBox styleClass="card" HBox.hgrow="ALWAYS">
+                        <Label text="Current Holdings" styleClass="card-title"
+                               style="-fx-padding: 16 16 12 16;"/>
+                        <VBox fx:id="holdingsContainer" spacing="8"
+                              style="-fx-padding: 0 16 16 16;"/>
+                    </VBox>
+                    <VBox styleClass="card" HBox.hgrow="ALWAYS">
+                        <Label text="Recent Trades" styleClass="card-title"
+                               style="-fx-padding: 16 16 12 16;"/>
+                        <VBox fx:id="tradesContainer" spacing="8"
+                              style="-fx-padding: 0 16 16 16;"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Quick Actions -->
+                <HBox spacing="16">
+                    <VBox styleClass="quick-card-blue" HBox.hgrow="ALWAYS">
+                        <HBox spacing="14" alignment="CENTER_LEFT">
+                            <StackPane styleClass="quick-icon-blue" minWidth="48" minHeight="48" maxWidth="48" maxHeight="48">
+                                <Label text=":)" styleClass="quick-icon-lbl"/>
+                            </StackPane>
+                            <VBox spacing="2">
+                                <Label text="Compare Stocks" styleClass="quick-title"/>
+                                <Label text="Side-by-side analysis" styleClass="quick-desc"/>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+
+                    <VBox styleClass="quick-card-purple" HBox.hgrow="ALWAYS">
+                        <HBox spacing="14" alignment="CENTER_LEFT">
+                            <StackPane styleClass="quick-icon-purple" minWidth="48" minHeight="48" maxWidth="48" maxHeight="48">
+                                <Label text=":)" styleClass="quick-icon-lbl"/>
+                            </StackPane>
+                            <VBox spacing="2">
+                                <Label text="Trade Summary" styleClass="quick-title"/>
+                                <Label text="View analytics" styleClass="quick-desc"/>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+
+                    <VBox styleClass="quick-card-green" HBox.hgrow="ALWAYS">
+                        <HBox spacing="14" alignment="CENTER_LEFT">
+                            <StackPane styleClass="quick-icon-green" minWidth="48" minHeight="48" maxWidth="48" maxHeight="48">
+                                <Label text=":)" styleClass="quick-icon-lbl"/>
+                            </StackPane>
+                            <VBox spacing="2">
+                                <Label text="Price Alerts" styleClass="quick-title"/>
+                                <Label text="Set notifications" styleClass="quick-desc"/>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+                </HBox>
+            </VBox>
+        </ScrollPane>
+    </center>
 </BorderPane>
