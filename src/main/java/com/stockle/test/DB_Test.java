@@ -1,6 +1,6 @@
 package com.stockle.test;
 
-import com.stockle.database.SqliteConnectionDAO;
+import com.stockle.database.SqliteUserDAO;
 
 public class DB_Test {
 
@@ -10,7 +10,7 @@ public class DB_Test {
 
     public static void testDatabaseConnection() {
         try {
-            SqliteConnectionDAO Database = new SqliteConnectionDAO();
+            SqliteUserDAO Database = SqliteUserDAO.getInstance();
             if (Database.isConnected()) {
                 System.out.println("Database connected successfully!");
             } else {

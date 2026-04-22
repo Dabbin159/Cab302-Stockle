@@ -7,10 +7,18 @@ import com.stockle.model.User;
 
 public class SqliteUserDAO implements UserDAO {
 
+    private static SqliteUserDAO instance;
     private Connection connection;
 
-    public SqliteUserDAO() {
+    private SqliteUserDAO() {
         connection = SqliteConnection.getInstance();
+    }
+
+    public static SqliteUserDAO getInstance() {
+        if (instance == null) {
+            instance = new SqliteUserDAO();
+        }
+        return instance;
     }
 
     public boolean isConnected() {
@@ -21,7 +29,7 @@ public class SqliteUserDAO implements UserDAO {
         }
     }
 
-    
+
 
     @Override
     public void addUser(String username, String password, String email, String firstName, String lastName) {
