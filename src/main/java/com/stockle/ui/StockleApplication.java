@@ -6,16 +6,13 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-
-public class HelloApplication extends Application {
+// random test comment
+public class StockleApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        SceneManager.init(stage);
-        FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("auth/auth-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 1100, 700);
+        FXMLLoader fxmlLoader = new FXMLLoader(StockleApplication.class.getResource("home-view.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 500, 400);
         stage.setTitle("Stockle");
-        stage.setMinWidth(1100);
-        stage.setMinHeight(700);
         stage.setScene(scene);
         stage.show();
     }
