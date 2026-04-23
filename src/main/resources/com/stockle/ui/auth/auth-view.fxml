@@ -4,7 +4,7 @@
 <?import javafx.geometry.Insets?>
 
 <StackPane xmlns:fx="http://javafx.com/fxml"
-           xmlns="http://javafx.com/javafx/21"
+           xmlns="http://javafx.com/javafx"
            fx:controller="com.stockle.ui.AuthController"
            stylesheets="@auth.css">
 
