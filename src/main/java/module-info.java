@@ -1,6 +1,8 @@
 module com.stockle {
     requires javafx.controls;
     requires javafx.fxml;
+    requires okhttp3;
+    requires com.fasterxml.jackson.databind;
     requires java.sql;
     requires org.xerial.sqlitejdbc;
     requires org.json;
