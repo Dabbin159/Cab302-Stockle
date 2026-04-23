@@ -10,8 +10,9 @@ import javafx.stage.Stage;
 public class StockleApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(StockleApplication.class.getResource("home-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 500, 400);
+        SceneManager.init(stage);
+        FXMLLoader fxmlLoader = new FXMLLoader(StockleApplication.class.getResource("auth/auth-view.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 1100, 700);
         stage.setTitle("Stockle");
         stage.setScene(scene);
         stage.show();
