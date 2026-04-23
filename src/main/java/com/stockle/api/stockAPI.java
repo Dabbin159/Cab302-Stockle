@@ -3,6 +3,7 @@ package com.stockle.api;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 import okhttp3.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -33,9 +34,8 @@ public class StockAPI {
      * - APCA_API_SECRET_KEY: Your Alpaca secret key
      */
     public StockAPI() {
-        {
-            throw new RuntimeException("API credentials not found. Set APCA_API_KEY_ID and APCA_API_SECRET_KEY environment variables.");
-        }
+        this.httpClient = new OkHttpClient();
+        this.objectMapper = new ObjectMapper();
     }
     
     /**
@@ -63,7 +63,7 @@ public class StockAPI {
     /**
      * Get latest bar data for multiple symbols.
      * @param symbols List of stock symbols (e.g., ["AAPL", "GOOGL", "MSFT"])
-     * @return Map of symbol to latest bar data
+     * @return Map of symbol to latest bar data 
      */
     public Map<String, BarData> getLatestBars(List<String> symbols) {
         Map<String, BarData> result = new HashMap<>();
@@ -106,15 +106,34 @@ public class StockAPI {
     public Map<String, QuoteData> getLatestQuotes(List<String> symbols) {
         // GET /v1/quotes/latest?symbols=AAPL,GOOGL,MSFT
         Map<String, QuoteData> result = new HashMap<>();
-        // TODO: Implement HTTP request
-        // Example response:
-        // {
-        //   "ap": 151.25,  // ask price
-        //   "as": 1000,    // ask size
-        //   "bp": 151.00,  // bid price
-        //   "bs": 500,     // bid size
-        //   "t": "2024-04-21T14:30:00Z"
-        // }
+        
+        try {
+            String symbolList = String.join(",", symbols);
+            String url = DATA_URL + "/v1/quotes/latest?symbols=" + symbolList;
+            String response = makeRequest(url);
+            
+            JsonNode root = objectMapper.readTree(response);
+            JsonNode quotesData = root.get("quotes");
+            
+            for (String symbol : symbols) {
+                JsonNode quoteNode = quotesData.get(symbol);
+                if (quoteNode != null) {
+                    QuoteData quote = new QuoteData(
+                            LocalDateTime.parse(quoteNode.get("t").asText().replace("Z", "+00:00")),
+                            quoteNode.get("bp").asDouble(),
+                            quoteNode.get("bs").asLong(),
+                            quoteNode.get("ap").asDouble(),
+                            quoteNode.get("as").asLong(),
+                            quoteNode.get("x").asText()
+                    );
+                    result.put(symbol, quote);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error fetching latest quotes: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
         return result;
     }
     
@@ -126,7 +145,57 @@ public class StockAPI {
     public Map<String, SnapshotData> getSnapshots(List<String> symbols) {
         // GET /v1/snapshots?symbols=AAPL,GOOGL,MSFT
         Map<String, SnapshotData> result = new HashMap<>();
-        // TODO: Implement HTTP request
+        
+        try {
+            String symbolList = String.join(",", symbols);
+            String url = DATA_URL + "/v1/snapshots?symbols=" + symbolList;
+            String response = makeRequest(url);
+            
+            JsonNode root = objectMapper.readTree(response);
+            JsonNode snapshotsData = root.get("snapshots");
+            
+            for (String symbol : symbols) {
+                JsonNode snapshotNode = snapshotsData.get(symbol);
+                if (snapshotNode != null) {
+                    // Extract bar data
+                    JsonNode barNode = snapshotNode.get("bar");
+                    BarData bar = null;
+                    if (barNode != null) {
+                        bar = new BarData(
+                                LocalDateTime.parse(barNode.get("t").asText().replace("Z", "+00:00")),
+                                barNode.get("o").asDouble(),
+                                barNode.get("h").asDouble(),
+                                barNode.get("l").asDouble(),
+                                barNode.get("c").asDouble(),
+                                barNode.get("v").asLong()
+                        );
+                    }
+                    
+                    // Extract quote data
+                    JsonNode quoteNode = snapshotNode.get("quote");
+                    QuoteData quote = null;
+                    if (quoteNode != null) {
+                        quote = new QuoteData(
+                                LocalDateTime.parse(quoteNode.get("t").asText().replace("Z", "+00:00")),
+                                quoteNode.get("bp").asDouble(),
+                                quoteNode.get("bs").asLong(),
+                                quoteNode.get("ap").asDouble(),
+                                quoteNode.get("as").asLong(),
+                                quoteNode.get("x").asText()
+                        );
+                    }
+                    
+                    // Create snapshot with both bar and quote data
+                    if (bar != null && quote != null) {
+                        result.put(symbol, new SnapshotData(bar, quote));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error fetching snapshots: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
         return result;
     }
     
@@ -184,11 +253,34 @@ public class StockAPI {
      * @return List of available assets with details
      */
     public List<Asset> getAllAssets() {
-        // GET /v2/assets
         List<Asset> assets = new ArrayList<>();
-        // TODO: Implement HTTP request
-        // Returns all tradeable assets with properties like:
-        // id, class, exchange, symbol, name, status, tradable, shortable, marginable, etc.
+        
+        try {
+            String url = BASE_URL + "/v2/assets?status=active";
+            String response = makeRequest(url);
+            
+            JsonNode root = objectMapper.readTree(response);
+            
+            if (root.isArray()) {
+                for (JsonNode assetNode : root) {
+                    Asset asset = new Asset();
+                    asset.id = assetNode.get("id").asText();
+                    asset.symbol = assetNode.get("symbol").asText();
+                    asset.name = assetNode.get("name").asText();
+                    asset.assetClass = assetNode.get("class").asText();
+                    asset.exchange = assetNode.get("exchange").asText();
+                    asset.tradable = assetNode.get("tradable").asBoolean();
+                    asset.shortable = assetNode.get("shortable").asBoolean();
+                    asset.marginable = assetNode.get("marginable").asBoolean();
+                    
+                    assets.add(asset);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error fetching all assets: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
         return assets;
     }
     
@@ -198,92 +290,106 @@ public class StockAPI {
      * @return Asset details
      */
     public Asset getAsset(String symbolOrId) {
-        // GET /v2/assets/{symbol_or_asset_id}
-        // TODO: Implement HTTP request
-        return null;
-    }
-    
-    // ==================== PAPER TRADING FUNCTIONS ====================
-    
-    /**
-     * Get account information.
-     * @return Account details including buying power, cash, portfolio value
-     */
-    public AccountInfo getAccount() {
         try {
-            String url = BASE_URL + "/v2/account";
+            String url = BASE_URL + "/v2/assets/" + symbolOrId;
             String response = makeRequest(url);
             
             JsonNode root = objectMapper.readTree(response);
             
-            AccountInfo account = new AccountInfo();
-            account.id = root.get("id").asText();
-            account.cash = root.get("cash").asDouble();
-            account.portfolioValue = root.get("portfolio_value").asDouble();
-            account.buyingPower = root.get("buying_power").asDouble();
-            account.status = root.get("status").asText();
+            Asset asset = new Asset();
+            asset.id = root.get("id").asText();
+            asset.symbol = root.get("symbol").asText();
+            asset.name = root.get("name").asText();
+            asset.assetClass = root.get("class").asText();
+            asset.exchange = root.get("exchange").asText();
+            asset.tradable = root.get("tradable").asBoolean();
+            asset.shortable = root.get("shortable").asBoolean();
+            asset.marginable = root.get("marginable").asBoolean();
             
-            return account;
+            return asset;
         } catch (Exception e) {
-            System.err.println("Error fetching account: " + e.getMessage());
+            System.err.println("Error fetching asset " + symbolOrId + ": " + e.getMessage());
             e.printStackTrace();
             return null;
         }
     }
     
     /**
-     * Get all open positions.
-     * @return List of current holdings
+     * Get top stocks by trading volume.
+     * @param limit Number of stocks to return
+     * @return List of symbols sorted by highest volume
      */
-    public List<Position> getOpenPositions() {
-        // GET /v2/positions
-        // TODO: Implement HTTP request
-        return new ArrayList<>();
+    public List<String> getHighestVolumeStocks(int limit) {
+        // Get all tradeable stocks
+        List<Asset> assets = getAllAssets();
+        List<String> symbols = new ArrayList<>();
+        for (Asset asset : assets) {
+            if (asset.tradable) {
+                symbols.add(asset.symbol);
+            }
+        }
+        
+        // Get latest bars to access volume data
+        Map<String, BarData> bars = getLatestBars(symbols);
+        
+        // Sort by volume (highest first)
+        return bars.entrySet().stream()
+            .sorted((a, b) -> Long.compare(b.getValue().volume, a.getValue().volume))
+            .limit(limit)
+            .map(Map.Entry::getKey)
+            .collect(Collectors.toList());
     }
     
     /**
-     * Get portfolio history.
-     * @param period Time period (e.g., "1M", "3M", "1A")
-     * @return Portfolio performance data
+     * Get top stocks by price.
+     * @param limit Number of stocks to return
+     * @return List of symbols sorted by highest close price
      */
-    public PortfolioHistory getPortfolioHistory(String period) {
-        // GET /v2/account/portfolio/history?period={period}
-        // TODO: Implement HTTP request
-        return null;
+    public List<String> getHighestPriceStocks(int limit) {
+        // Get all tradeable stocks
+        List<Asset> assets = getAllAssets();
+        List<String> symbols = new ArrayList<>();
+        for (Asset asset : assets) {
+            if (asset.tradable) {
+                symbols.add(asset.symbol);
+            }
+        }
+        
+        // Get latest bars to access price data
+        Map<String, BarData> bars = getLatestBars(symbols);
+        
+        // Sort by close price (highest first)
+        return bars.entrySet().stream()
+            .sorted((a, b) -> Double.compare(b.getValue().close, a.getValue().close))
+            .limit(limit)
+            .map(Map.Entry::getKey)
+            .collect(Collectors.toList());
     }
     
     /**
-     * Place a market buy order.
-     * @param symbol Stock symbol
-     * @param quantity Number of shares
-     * @return Order confirmation
+     * Get stocks with highest open price.
+     * @param limit Number of stocks to return
+     * @return List of symbols sorted by highest open price
      */
-    public Order buyMarket(String symbol, int quantity) {
-        // POST /v2/orders
-        // TODO: Implement HTTP POST request with order details
-        return null;
-    }
-    
-    /**
-     * Place a market sell order.
-     * @param symbol Stock symbol
-     * @param quantity Number of shares
-     * @return Order confirmation
-     */
-    public Order sellMarket(String symbol, int quantity) {
-        // POST /v2/orders
-        // TODO: Implement HTTP POST request
-        return null;
-    }
-    
-    /**
-     * Get all orders.
-     * @return List of all orders (open and closed)
-     */
-    public List<Order> getAllOrders() {
-        // GET /v2/orders
-        // TODO: Implement HTTP request
-        return new ArrayList<>();
+    public List<String> getHighestOpenStocks(int limit) {
+        // Get all tradeable stocks
+        List<Asset> assets = getAllAssets();
+        List<String> symbols = new ArrayList<>();
+        for (Asset asset : assets) {
+            if (asset.tradable) {
+                symbols.add(asset.symbol);
+            }
+        }
+        
+        // Get latest bars
+        Map<String, BarData> bars = getLatestBars(symbols);
+        
+        // Sort by open price (highest first)
+        return bars.entrySet().stream()
+            .sorted((a, b) -> Double.compare(b.getValue().open, a.getValue().open))
+            .limit(limit)
+            .map(Map.Entry::getKey)
+            .collect(Collectors.toList());
     }
     
     // ==================== DATA CLASSES ====================
@@ -348,6 +454,7 @@ public class StockAPI {
         }
     }
     
+    // maybe remove ------------------------------------
     public static class Asset {
         public String id;
         public String symbol;
@@ -358,37 +465,5 @@ public class StockAPI {
         public boolean shortable;
         public boolean marginable;
     }
-    
-    public static class AccountInfo {
-        public String id;
-        public double cash;
-        public double portfolioValue;
-        public double buyingPower;
-        public String status;
-    }
-    
-    public static class Position {
-        public String symbol;
-        public int quantity;
-        public double currentPrice;
-        public double lastPrice;
-        public double costBasis;
-    }
-    
-    public static class PortfolioHistory {
-        public List<Double> equity;
-        public List<Long> timestamps;
-        public double totalReturn;
-    }
-    
-    public static class Order {
-        public String id;
-        public String symbol;
-        public int quantity;
-        public String side; // "buy" or "sell"
-        public String type; // "market", "limit", etc.
-        public String status;
-        public double filledQty;
-        public LocalDateTime createdAt;
-    }
+
 }
