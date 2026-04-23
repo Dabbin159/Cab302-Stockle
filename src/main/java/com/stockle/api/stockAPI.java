@@ -23,9 +23,26 @@ public class StockAPI {
     private static final String BASE_URL = "https://paper-api.alpaca.markets"; // Paper trading endpoint
     private static final String DATA_URL = "https://data.alpaca.markets";
     
+    // Feed options: sip, iex, delayed_sip, boats, overnight, otc
+    public enum DataFeed {
+        SIP("sip"),                          // All US exchanges
+        IEX("iex"),                          // Investors Exchange
+        DELAYED_SIP("delayed_sip"),          // SIP with 15-minute delay
+        BOATS("boats"),                      // Blue Ocean, overnight US trading data
+        OVERNIGHT("overnight"),              // Derived overnight US trading data
+        OTC("otc");                          // Over-the-counter exchanges
+        
+        public final String value;
+        
+        DataFeed(String value) {
+            this.value = value;
+        }
+    }
+    
     // Reusable HTTP client and JSON parser
     private final OkHttpClient httpClient;
     private final ObjectMapper objectMapper;
+    private DataFeed dataFeed; // Configurable data feed preference
     
     /**
      * Constructor - initializes API client with credentials from environment variables.
@@ -36,6 +53,23 @@ public class StockAPI {
     public StockAPI() {
         this.httpClient = new OkHttpClient();
         this.objectMapper = new ObjectMapper();
+        this.dataFeed = DataFeed.IEX; // Default to SIP feed (or IEX if unlimited subscription not available)
+    }
+    
+    /**
+     * Set the data feed to use for API queries.
+     * @param feed The data feed to use (SIP, IEX, DELAYED_SIP, BOATS, OVERNIGHT, OTC)
+     */
+    public void setDataFeed(DataFeed feed) {
+        this.dataFeed = feed;
+    }
+    
+    /**
+     * Get the current data feed setting.
+     * @return Current data feed
+     */
+    public DataFeed getDataFeed() {
+        return this.dataFeed;
     }
     
     /**
@@ -72,7 +106,7 @@ public class StockAPI {
         
         try {
             String symbolList = String.join(",", symbols);
-            String url = DATA_URL + "/v2/stocks/bars/latest?symbols=" + symbolList;
+            String url = DATA_URL + "/v2/stocks/bars/latest?symbols=" + symbolList + "&feed=" + dataFeed.value;
             String response = makeRequest(url);
             
             JsonNode root = objectMapper.readTree(response);
@@ -115,7 +149,7 @@ public class StockAPI {
         
         try {
             String symbolList = String.join(",", symbols);
-            String url = DATA_URL + "/v2/stocks/quotes/latest?symbols=" + symbolList;
+            String url = DATA_URL + "/v2/stocks/quotes/latest?symbols=" + symbolList + "&feed=" + dataFeed.value;
             String response = makeRequest(url);
             
             JsonNode root = objectMapper.readTree(response);
@@ -158,7 +192,7 @@ public class StockAPI {
         
         try {
             String symbolList = String.join(",", symbols);
-            String url = DATA_URL + "/v2/stocks/snapshots?symbols=" + symbolList;
+            String url = DATA_URL + "/v2/stocks/snapshots?symbols=" + symbolList + "&feed=" + dataFeed.value;
             String response = makeRequest(url);
             
             JsonNode root = objectMapper.readTree(response);
@@ -220,30 +254,182 @@ public class StockAPI {
     /**
      * Get historical bar data for a single stock.
      * @param symbol Stock symbol (e.g., "AAPL")
-     * @param startDate Start date for historical data
-     * @param endDate End date for historical data
-     * @param timeframe Bar timeframe (e.g., "1Min", "1Hour", "1Day")
-     * @return List of bar data points
+     * @param startDate Start date for historical data (YYYY-MM-DD format)
+     * @param endDate End date for historical data (YYYY-MM-DD format)
+     * @param timeframe Bar timeframe (e.g., "1Min", "5Min", "1Hour", "1Day", "1Week", "1Month")
+     * @return List of bar data points sorted by timestamp
      */
     public List<BarData> getHistoricalBars(String symbol, LocalDate startDate, LocalDate endDate, String timeframe) {
-        // GET /v1/bars/{symbol}?start={startDate}&end={endDate}&timeframe={timeframe}
+        // GET /v2/stocks/bars?symbols={symbol}&start={startDate}&end={endDate}&timeframe={timeframe}
         List<BarData> bars = new ArrayList<>();
-        // TODO: Implement HTTP request with pagination if needed
-        // Alpaca returns bars in chronological order
+        String nextPageToken = null;
+        int maxIterations = 100; // Prevent infinite loops
+        int iterations = 0;
+        
+        try {
+            boolean hasMore = true;
+            
+            while (hasMore && iterations < maxIterations) {
+                iterations++;
+                
+                StringBuilder urlBuilder = new StringBuilder(DATA_URL + "/v2/stocks/bars");
+                urlBuilder.append("?symbols=").append(symbol);
+                urlBuilder.append("&timeframe=").append(timeframe);
+                urlBuilder.append("&start=").append(startDate);
+                urlBuilder.append("&end=").append(endDate);
+                urlBuilder.append("&limit=10000"); // Max limit per request
+                urlBuilder.append("&sort=asc"); // Sort by timestamp ascending
+                urlBuilder.append("&feed=").append(dataFeed.value); // Use configured data feed
+                
+                // Add pagination token if present
+                if (nextPageToken != null) {
+                    urlBuilder.append("&page_token=").append(nextPageToken);
+                }
+                
+                String url = urlBuilder.toString();
+                System.out.println("DEBUG: Fetching bars from: " + url);
+                String response = makeRequest(url);
+                System.out.println("DEBUG: Response received, length: " + response.length());
+                
+                JsonNode root = objectMapper.readTree(response);
+                
+                // Extract bars for the requested symbol
+                // The API returns bars as an object: { "bars": { "AAPL": [...], ... } }
+                JsonNode barsObject = root.get("bars");
+                if (barsObject != null && barsObject.isObject()) {
+                    JsonNode barsArray = barsObject.get(symbol);
+                    if (barsArray != null && barsArray.isArray()) {
+                        System.out.println("DEBUG: Found " + barsArray.size() + " bars in response");
+                        for (JsonNode barNode : barsArray) {
+                            String timestamp = barNode.get("t").asText();
+                            LocalDateTime dateTime = java.time.OffsetDateTime.parse(timestamp).toLocalDateTime();
+                            
+                            BarData bar = new BarData(
+                                    dateTime,
+                                    barNode.get("o").asDouble(),
+                                    barNode.get("h").asDouble(),
+                                    barNode.get("l").asDouble(),
+                                    barNode.get("c").asDouble(),
+                                    barNode.get("v").asLong()
+                            );
+                            bars.add(bar);
+                        }
+                    } else {
+                        System.out.println("DEBUG: No bars array found for symbol " + symbol);
+                    }
+                } else {
+                    System.out.println("DEBUG: No bars object found in response");
+                }
+                
+                // Check for pagination token
+                JsonNode nextTokenNode = root.get("next_page_token");
+                if (nextTokenNode != null && !nextTokenNode.isNull()) {
+                    nextPageToken = nextTokenNode.asText();
+                    System.out.println("DEBUG: Found next_page_token, continuing...");
+                } else {
+                    hasMore = false;
+                    System.out.println("DEBUG: No next_page_token found, stopping pagination");
+                }
+            }
+            
+            if (iterations >= maxIterations) {
+                System.err.println("Warning: Reached maximum iterations (" + maxIterations + ") for historical bars");
+            }
+        } catch (Exception e) {
+            System.err.println("Error fetching historical bars for " + symbol + ": " + e.getMessage());
+            e.printStackTrace();
+        }
+        
         return bars;
     }
     
     /**
      * Get historical quote data for a single stock.
-     * @param symbol Stock symbol
-     * @param startDate Start date
-     * @param endDate End date
-     * @return List of quote data points
+     * @param symbol Stock symbol (e.g., "AAPL")
+     * @param startDate Start date for historical data (YYYY-MM-DD format)
+     * @param endDate End date for historical data (YYYY-MM-DD format)
+     * @return List of quote data points sorted by timestamp
      */
     public List<QuoteData> getHistoricalQuotes(String symbol, LocalDate startDate, LocalDate endDate) {
-        // GET /v1/quotes/{symbol}?start={startDate}&end={endDate}
+        // GET /v2/stocks/quotes?symbols={symbol}&start={startDate}&end={endDate}
         List<QuoteData> quotes = new ArrayList<>();
-        // TODO: Implement HTTP request with pagination
+        String nextPageToken = null;
+        int maxIterations = 100; // Prevent infinite loops
+        int iterations = 0;
+        
+        try {
+            boolean hasMore = true;
+            
+            while (hasMore && iterations < maxIterations) {
+                iterations++;
+                
+                StringBuilder urlBuilder = new StringBuilder(DATA_URL + "/v2/stocks/quotes");
+                urlBuilder.append("?symbols=").append(symbol);
+                urlBuilder.append("&start=").append(startDate);
+                urlBuilder.append("&end=").append(endDate);
+                urlBuilder.append("&limit=10000"); // Max limit per request
+                urlBuilder.append("&sort=asc"); // Sort by timestamp ascending
+                urlBuilder.append("&feed=").append(dataFeed.value); // Use configured data feed
+                
+                // Add pagination token if present
+                if (nextPageToken != null) {
+                    urlBuilder.append("&page_token=").append(nextPageToken);
+                }
+                
+                String url = urlBuilder.toString();
+                System.out.println("DEBUG: Fetching quotes from: " + url);
+                String response = makeRequest(url);
+                System.out.println("DEBUG: Response received, length: " + response.length());
+                
+                JsonNode root = objectMapper.readTree(response);
+                
+                // Extract quotes for the requested symbol
+                // The API returns quotes as an object: { "quotes": { "AAPL": [...], ... } }
+                JsonNode quotesObject = root.get("quotes");
+                if (quotesObject != null && quotesObject.isObject()) {
+                    JsonNode quotesArray = quotesObject.get(symbol);
+                    if (quotesArray != null && quotesArray.isArray()) {
+                        System.out.println("DEBUG: Found " + quotesArray.size() + " quotes in response");
+                        for (JsonNode quoteNode : quotesArray) {
+                            String timestamp = quoteNode.get("t").asText();
+                            LocalDateTime dateTime = java.time.OffsetDateTime.parse(timestamp).toLocalDateTime();
+                            
+                            QuoteData quote = new QuoteData(
+                                    dateTime,
+                                    quoteNode.get("bp").asDouble(),
+                                    quoteNode.get("bs").asLong(),
+                                    quoteNode.get("ap").asDouble(),
+                                    quoteNode.get("as").asLong(),
+                                    quoteNode.get("bx").asText()
+                            );
+                            quotes.add(quote);
+                        }
+                    } else {
+                        System.out.println("DEBUG: No quotes array found for symbol " + symbol);
+                    }
+                } else {
+                    System.out.println("DEBUG: No quotes object found in response");
+                }
+                
+                // Check for pagination token
+                JsonNode nextTokenNode = root.get("next_page_token");
+                if (nextTokenNode != null && !nextTokenNode.isNull()) {
+                    nextPageToken = nextTokenNode.asText();
+                    System.out.println("DEBUG: Found next_page_token, continuing...");
+                } else {
+                    hasMore = false;
+                    System.out.println("DEBUG: No next_page_token found, stopping pagination");
+                }
+            }
+            
+            if (iterations >= maxIterations) {
+                System.err.println("Warning: Reached maximum iterations (" + maxIterations + ") for historical quotes");
+            }
+        } catch (Exception e) {
+            System.err.println("Error fetching historical quotes for " + symbol + ": " + e.getMessage());
+            e.printStackTrace();
+        }
+        
         return quotes;
     }
     

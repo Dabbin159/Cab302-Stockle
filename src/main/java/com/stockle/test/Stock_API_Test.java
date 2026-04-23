@@ -1,5 +1,6 @@
 package com.stockle.test;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -30,13 +31,19 @@ public class Stock_API_Test {
         // Test 3: Get latest bars for multiple stocks
         tester.testGetLatestBars();
         
-        // Test 4: Get highest volume stocks
+        // Test 4: Get historical bars
+        tester.testGetHistoricalBars();
+        
+        // Test 5: Get historical quotes
+        tester.testGetHistoricalQuotes();
+        
+        // Test 6: Get highest volume stocks
         tester.testGetHighestVolumeStocks();
         
-        // Test 5: Get highest price stocks
+        // Test 7: Get highest price stocks
         tester.testGetHighestPriceStocks();
         
-        // Test 6: Get highest open stocks
+        // Test 8: Get highest open stocks
         tester.testGetHighestOpenStocks();
         
         System.out.println("\n=== All Tests Complete ===");
@@ -125,10 +132,81 @@ public class Stock_API_Test {
     }
     
     /**
+     * Test getHistoricalBars() - Fetch historical bar data for a stock
+     */
+    private void testGetHistoricalBars() {
+        System.out.println("--- Test 4: getHistoricalBars(\"AAPL\", \"1Day\") ---");
+        try {
+            // Get last 30 days of daily bars for AAPL
+            LocalDate endDate = LocalDate.now();
+            LocalDate startDate = endDate.minusDays(30);
+            
+            List<BarData> bars = api.getHistoricalBars("AAPL", startDate, endDate, "1Day");
+            
+            if (bars != null && !bars.isEmpty()) {
+                System.out.println("Fetched " + bars.size() + " historical bars for AAPL:");
+                System.out.println("  Date Range: " + startDate + " to " + endDate);
+                System.out.println("  Timeframe: 1 Day");
+                System.out.println("  First 3 bars:");
+                for (int i = 0; i < Math.min(3, bars.size()); i++) {
+                    BarData bar = bars.get(i);
+                    System.out.println("    Bar " + (i + 1) + " (" + bar.timestamp + "):");
+                    System.out.println("      Open: $" + String.format("%.2f", bar.open));
+                    System.out.println("      High: $" + String.format("%.2f", bar.high));
+                    System.out.println("      Low: $" + String.format("%.2f", bar.low));
+                    System.out.println("      Close: $" + String.format("%.2f", bar.close));
+                    System.out.println("      Volume: " + bar.volume);
+                }
+            } else {
+                System.out.println("No historical bar data found or null response");
+            }
+        } catch (Exception e) {
+            System.out.println("Exception: " + e.getMessage());
+            e.printStackTrace();
+        }
+        System.out.println();
+    }
+    
+    /**
+     * Test getHistoricalQuotes() - Fetch historical quote data for a stock
+     */
+    private void testGetHistoricalQuotes() {
+        System.out.println("--- Test 5: getHistoricalQuotes(\"AAPL\") ---");
+        try {
+            // Get last 30 days of quotes for AAPL
+            LocalDate endDate = LocalDate.now();
+            LocalDate startDate = endDate.minusDays(30);
+            
+            List<StockAPI.QuoteData> quotes = api.getHistoricalQuotes("AAPL", startDate, endDate);
+            
+            if (quotes != null && !quotes.isEmpty()) {
+                System.out.println("Fetched " + quotes.size() + " historical quotes for AAPL:");
+                System.out.println("  Date Range: " + startDate + " to " + endDate);
+                System.out.println("  First 3 quotes:");
+                for (int i = 0; i < Math.min(3, quotes.size()); i++) {
+                    StockAPI.QuoteData quote = quotes.get(i);
+                    System.out.println("    Quote " + (i + 1) + " (" + quote.timestamp + "):");
+                    System.out.println("      Bid Price: $" + String.format("%.2f", quote.bidPrice));
+                    System.out.println("      Bid Size: " + quote.bidSize);
+                    System.out.println("      Ask Price: $" + String.format("%.2f", quote.askPrice));
+                    System.out.println("      Ask Size: " + quote.askSize);
+                    System.out.println("      Exchange: " + quote.exchange);
+                }
+            } else {
+                System.out.println("No historical quote data found or null response");
+            }
+        } catch (Exception e) {
+            System.out.println("Exception: " + e.getMessage());
+            e.printStackTrace();
+        }
+        System.out.println();
+    }
+    
+    /**
      * Test getHighestVolumeStocks() - Get top stocks by trading volume
      */
     private void testGetHighestVolumeStocks() {
-        System.out.println("--- Test 4: getHighestVolumeStocks(10) ---");
+        System.out.println("--- Test 6: getHighestVolumeStocks(10) ---");
         try {
             List<String> topVolume = api.getHighestVolumeStocks(10);
             if (topVolume != null && !topVolume.isEmpty()) {
@@ -149,7 +227,7 @@ public class Stock_API_Test {
      * Test getHighestPriceStocks() - Get top stocks by price
      */
     private void testGetHighestPriceStocks() {
-        System.out.println("--- Test 5: getHighestPriceStocks(10) ---");
+        System.out.println("--- Test 7: getHighestPriceStocks(10) ---");
         try {
             List<String> topPrice = api.getHighestPriceStocks(10);
             if (topPrice != null && !topPrice.isEmpty()) {
@@ -170,7 +248,7 @@ public class Stock_API_Test {
      * Test getHighestOpenStocks() - Get top stocks by opening price
      */
     private void testGetHighestOpenStocks() {
-        System.out.println("--- Test 6: getHighestOpenStocks(10) ---");
+        System.out.println("--- Test 8: getHighestOpenStocks(10) ---");
         try {
             List<String> topOpen = api.getHighestOpenStocks(10);
             if (topOpen != null && !topOpen.isEmpty()) {
