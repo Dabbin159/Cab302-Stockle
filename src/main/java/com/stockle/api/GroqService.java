@@ -84,8 +84,6 @@ public class GroqService {
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-            System.out.println(response.body()); // keep for debugging
-
             return extractMessage(response.body());
 
         } catch (Exception e) {
