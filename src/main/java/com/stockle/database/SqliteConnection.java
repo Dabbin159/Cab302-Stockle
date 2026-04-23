@@ -12,7 +12,7 @@ public class SqliteConnection {
     /**
      * Constructor to create connection using JDBC SQLite driver
      */
-    public SqliteConnection() {
+    private SqliteConnection() {
         String url = "jdbc:sqlite:stockle.db";
         try {
             instance = DriverManager.getConnection(url);
