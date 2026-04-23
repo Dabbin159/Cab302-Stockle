@@ -167,7 +167,8 @@ public class TradingController {
         stockListContainer.getChildren().forEach(node -> {
             Object tag = node.getUserData();
             boolean active = tag instanceof MockData.Stock st && st.symbol().equals(selectedStock.symbol());
-            node.getStyleClass().setAll(active ? "stock-row-active" : "stock-row");
+            node.getStyleClass().setAll("stock-row");
+            if (active) node.getStyleClass().add("stock-row-active");
         });
     }
 
@@ -205,7 +206,8 @@ public class TradingController {
 
         HBox row = new HBox(left, right);
         VBox item = new VBox(row);
-        item.getStyleClass().add(active ? "stock-row-active" : "stock-row");
+        item.getStyleClass().add("stock-row");
+        if (active) item.getStyleClass().add("stock-row-active");
         item.setUserData(s);
         item.setOnMouseClicked(e -> selectStock(s));
         return item;
