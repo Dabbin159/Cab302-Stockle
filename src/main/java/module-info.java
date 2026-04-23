@@ -4,6 +4,7 @@ module com.stockle {
     requires java.sql;
     requires org.xerial.sqlitejdbc;
     requires org.json;
+    requires jbcrypt;
 
     opens com.stockle to javafx.fxml;
     opens com.stockle.ui to javafx.fxml;

@@ -20,7 +20,7 @@ public class Trade {
         this.totalValue = totalValue;
         this.timeStamp = timeStamp;
     }
-        public JSONObject toJSON() {
+    public JSONObject toJSON() {
         JSONObject json = new JSONObject();
         json.put("id", id);
         json.put("userNumber", userNumber);

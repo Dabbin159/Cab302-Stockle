@@ -1,5 +1,6 @@
 package com.stockle.database;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import com.stockle.model.User;
@@ -38,4 +39,24 @@ public interface UserDAO {
     public List<User> getAllUsers();
 
 
+    /**
+     * Signs up a new user with the provided information.
+     * @param username Username for the new user,
+     * @param password Password for the new user,
+     * @param email Email address for the new user,
+     * @param firstName First name of the new user,
+     * @param lastName Last name of the new user,
+     * @param dateOfBirth Date of birth of the new user.
+     * @return true if the signup was successful, false otherwise.
+     */
+    public boolean signup(String username, String password, String email, String firstName, String lastName, LocalDate dateOfBirth);
+    
+
+    /**
+     * Logs in a user with the provided username and password.
+     * @param username The username of the user trying to log in.
+     * @param password The password of the user trying to log in.
+     * @return The User object if login is successful, null otherwise.
+     */
+    public User login(String username, String password);
 }
