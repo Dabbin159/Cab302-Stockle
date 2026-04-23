@@ -1,8 +1,34 @@
 package com.stockle.ui;
-
 import java.util.List;
 
 public final class MockData {
+
+    public record DashboardSummary(
+        String totalValue,
+        String totalGain,
+        String buyingPower
+    ) {}
+
+    public record DashboardChartPoint(
+        String label,
+        double value
+    ) {}
+
+    public record DashboardHolding(
+        String symbol,
+        String name,
+        String shares,
+        String price,
+        String change,
+        boolean positive
+    ) {}
+
+    public record DashboardTrade(
+        String type,
+        String symbol,
+        String detail,
+        String time
+    ) {}
 
     public record Stock(
         String symbol,
@@ -52,5 +78,37 @@ public final class MockData {
 
     public static List<String> defaultFavorites() {
         return List.of("AAPL", "GOOGL", "TSLA");
+    }
+
+    public static DashboardSummary dashboardSummary() {
+        return new DashboardSummary("$115,000", "+$15,000 (15.0%)", "$35,000");
+    }
+
+    public static List<DashboardChartPoint> dashboardChart() {
+        return List.of(
+            new DashboardChartPoint("Jan", 100000),
+            new DashboardChartPoint("Feb", 105000),
+            new DashboardChartPoint("Mar", 103000),
+            new DashboardChartPoint("Apr", 112000),
+            new DashboardChartPoint("May", 118000),
+            new DashboardChartPoint("Jun", 115000)
+        );
+    }
+
+    public static List<DashboardHolding> dashboardHoldings() {
+        return List.of(
+            new DashboardHolding("AAPL", "Apple Inc.", "50 shares", "$182.52", "+1.3%", true),
+            new DashboardHolding("MSFT", "Microsoft Corp.", "30 shares", "$420.15", "-0.76%", false),
+            new DashboardHolding("GOOGL", "Alphabet Inc.", "25 shares", "$142.38", "+1.34%", true),
+            new DashboardHolding("TSLA", "Tesla Inc.", "15 shares", "$248.50", "+2.15%", true)
+        );
+    }
+
+    public static List<DashboardTrade> dashboardTrades() {
+        return List.of(
+            new DashboardTrade("BUY", "AAPL", "10 shares @ $180.25", "2h ago"),
+            new DashboardTrade("SELL", "NVDA", "5 shares @ $875.30", "5h ago"),
+            new DashboardTrade("BUY", "TSLA", "8 shares @ $245.00", "1d ago")
+        );
     }
 }

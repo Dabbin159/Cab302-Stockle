@@ -19,56 +19,43 @@ public class DashboardController {
     @FXML private VBox holdingsContainer;
     @FXML private VBox tradesContainer;
     @FXML
-    // Initialize with placeholder data
     public void initialize() {
-        totalValueLabel.setText("$115,000");
-        totalGainLabel.setText("+$15,000 (15.0%)");
-        buyingPowerLabel.setText("$35,000");
+        MockData.DashboardSummary summary = MockData.dashboardSummary();
+        totalValueLabel.setText(summary.totalValue());
+        totalGainLabel.setText(summary.totalGain());
+        buyingPowerLabel.setText(summary.buyingPower());
         loadChart();
         loadHoldings();
         loadTrades();
     }
 
-    // Loading placeholder chart data, might be replaced with API graph
     private void loadChart() {
         XYChart.Series<String, Number> series = new XYChart.Series<>();
-        series.getData().add(new XYChart.Data<>("Jan", 100000));
-        series.getData().add(new XYChart.Data<>("Feb", 105000));
-        series.getData().add(new XYChart.Data<>("Mar", 103000));
-        series.getData().add(new XYChart.Data<>("Apr", 112000));
-        series.getData().add(new XYChart.Data<>("May", 118000));
-        series.getData().add(new XYChart.Data<>("Jun", 115000));
+        for (MockData.DashboardChartPoint point : MockData.dashboardChart()) {
+            series.getData().add(new XYChart.Data<>(point.label(), point.value()));
+        }
         portfolioChart.getData().add(series);
     }
 
-    // Loading placeholder holdings
     private void loadHoldings() {
-        Object[][] data = {
-            {"AAPL", "Apple Inc.", "50 shares", "$182.52", "+1.3%",  true},
-            {"MSFT", "Microsoft Corp.", "30 shares", "$420.15", "-0.76%", false},
-            {"GOOGL","Alphabet Inc.", "25 shares", "$142.38", "+1.34%", true},
-            {"TSLA", "Tesla Inc.", "15 shares", "$248.50", "+2.15%", true},
-        };
-        for (Object[] row : data) {
+        for (MockData.DashboardHolding holding : MockData.dashboardHoldings()) {
             holdingsContainer.getChildren().add(
-                holdingRow((String)row[0], (String)row[1],
-                           (String)row[2], (String)row[3],
-                           (String)row[4], (boolean)row[5])
+                holdingRow(
+                    holding.symbol(),
+                    holding.name(),
+                    holding.shares(),
+                    holding.price(),
+                    holding.change(),
+                    holding.positive()
+                )
             );
         }
     }
 
-    // Loading placeholder trades
     private void loadTrades() {
-        Object[][] data = {
-            {"BUY", "AAPL", "10 shares @ $180.25", "2h ago"},
-            {"SELL", "NVDA", "5 shares @ $875.30", "5h ago"},
-            {"BUY", "TSLA", "8 shares @ $245.00", "1d ago"},
-        };
-        for (Object[] row : data) {
+        for (MockData.DashboardTrade trade : MockData.dashboardTrades()) {
             tradesContainer.getChildren().add(
-                tradeRow((String)row[0], (String)row[1],
-                         (String)row[2], (String)row[3])
+                tradeRow(trade.type(), trade.symbol(), trade.detail(), trade.time())
             );
         }
     }
