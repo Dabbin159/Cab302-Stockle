@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="20.0" alignment="CENTER" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.stockle.ui.HomeController">
+    
+    <Label text="STOCKLE" style="-fx-font-size: 32; -fx-font-weight: bold;"/>
+    
+    <Label text="Master your trading with AI coaching"/>
+    
+    <VBox spacing="10">
+        <Button text="AI Coach" prefWidth="200" onAction="#goToAI"/>
+        <Button text="Leaderboard" prefWidth="200" disable="true"/>
+        <Button text="Portfolio" prefWidth="200" disable="true"/>
+    </VBox>
+
+</VBox>

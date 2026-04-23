@@ -36,14 +36,14 @@ public class LoginController {
             navigateTo("dashboard-view.fxml", 1280, 720);
         }
         else {
-            errorLabel.setText("Invalid username or password. ");
+            errorLabel.setText("Inavlid username or password. ");
             passwordField.clear();
         }
     }
 
     @FXML
     protected void onSignUpLinkClick() {
-        navigateTo("signup-view.fxml", 480, 600);
+        navigateTo("Signup-view.fxml", 480, 600);
     }
 
     private void navigateTo(String fxml, int width, int height) {
@@ -51,7 +51,7 @@ public class LoginController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));
             Stage stage = (Stage) usernameField.getScene().getWindow();
             stage.setScene(new Scene(loader.load(), width, height));
-        } catch (IOException e) {
+        } catch (IOException) {
             e.printStackTrace();
         }
     }

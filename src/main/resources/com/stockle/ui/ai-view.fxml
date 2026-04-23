@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="10.0" alignment="TOP_CENTER" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.stockle.ui.AIController">
+    
+    <Button text="← Home" onAction="#goHome" style="-fx-font-size: 12;"/>
+    
+    <Label text="STOCKLE AI Coach"/>
+    
+    <ScrollPane fitToWidth="true" prefHeight="300">
+        <VBox fx:id="chatBox" spacing="8">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+        </VBox>
+    </ScrollPane>
+
+    <HBox spacing="10">
+        <TextField fx:id="userInput" promptText="Ask about your trading..." HBox.hgrow="ALWAYS"/>
+        <Button text="Send" onAction="#handleSend"/>
+    </HBox>
+
+    <Button text="Analyse My Last Trade" onAction="#handleAnalyse"/>
+
+</VBox>

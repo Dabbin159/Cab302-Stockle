@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            xmlns="http://javafx.com/javafx"
+            fx:controller="com.stockle.ui.TradingController"
+            stylesheets="@trading.css">
+
+    <!-- ── Sidebar ── -->
+    <left>
+        <VBox styleClass="sidebar">
+            <padding><Insets top="24" bottom="16" left="16" right="16"/></padding>
+            <Label text="Stockle" styleClass="sidebar-logo"/>
+            <VBox spacing="2" styleClass="nav-section">
+                <Button text="Dashboard" maxWidth="Infinity" styleClass="nav-item" onAction="#navDashboard"/>
+                <Button text="Trading" maxWidth="Infinity" styleClass="nav-item-active"/>
+                <Button text="Practice" maxWidth="Infinity" styleClass="nav-item"/>
+                <Button text="Leaderboard" maxWidth="Infinity" styleClass="nav-item"/>
+                <Button text="AI Chat" maxWidth="Infinity" styleClass="nav-item"/>
+                <Button text="News" maxWidth="Infinity" styleClass="nav-item"/>
+                <Button text="Profile" maxWidth="Infinity" styleClass="nav-item"/>
+            </VBox>
+            <Region VBox.vgrow="ALWAYS"/>
+            <Button text="Sign Out" maxWidth="Infinity" styleClass="nav-signout" onAction="#handleSignOut"/>
+        </VBox>
+    </left>
+
+    <!-- Main content -->
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="main-scroll" hbarPolicy="NEVER">
+            <VBox spacing="20" styleClass="main-content">
+                <padding><Insets top="28" bottom="36" left="28" right="28"/></padding>
+
+                <!-- Header -->
+                <VBox spacing="2">
+                    <Label text="Trading" styleClass="page-title"/>
+                    <Label text="Buy and sell stocks with real-time market data." styleClass="page-subtitle"/>
+                </VBox>
+
+                <!-- Two-column body -->
+                <HBox spacing="20" VBox.vgrow="ALWAYS">
+
+                    <!-- Left panel (2/3) -->
+                    <VBox spacing="16" HBox.hgrow="ALWAYS">
+
+                        <!-- Stock detail card -->
+                        <VBox styleClass="card">
+
+                            <!-- Symbol / price header -->
+                            <HBox styleClass="card-header-row" alignment="CENTER_LEFT">
+                                <VBox spacing="2" HBox.hgrow="ALWAYS">
+                                    <HBox alignment="CENTER_LEFT" spacing="8">
+                                        <Label fx:id="stockSymbolLabel" text="AAPL" styleClass="stock-symbol"/>
+                                        <Button fx:id="favoriteBtn" text="☆" styleClass="fav-btn" onAction="#toggleFavorite"/>
+                                    </HBox>
+                                    <Label fx:id="stockNameLabel" text="Apple Inc." styleClass="stock-name"/>
+                                </VBox>
+                                <VBox alignment="CENTER_RIGHT" spacing="2">
+                                    <Label fx:id="stockPriceLabel" text="" styleClass="stock-price"/>
+                                    <Label fx:id="stockChangeLabel" text="" styleClass="stock-change-pos"/>
+                                </VBox>
+                            </HBox>
+
+                            <!-- Volume / Market Cap / Sector -->
+                            <GridPane styleClass="stock-stats-grid" hgap="0" vgap="4">
+                                <columnConstraints>
+                                    <ColumnConstraints percentWidth="33"/>
+                                    <ColumnConstraints percentWidth="33"/>
+                                    <ColumnConstraints percentWidth="34"/>
+                                </columnConstraints>
+                                <VBox GridPane.columnIndex="0" spacing="2">
+                                    <Label text="Volume" styleClass="stat-meta-label"/>
+                                    <Label fx:id="volumeLabel" text="52.3M" styleClass="stat-meta-value"/>
+                                </VBox>
+                                <VBox GridPane.columnIndex="1" spacing="2">
+                                    <Label text="Market Cap" styleClass="stat-meta-label"/>
+                                    <Label fx:id="marketCapLabel" text="2.8T" styleClass="stat-meta-value"/>
+                                </VBox>
+                                <VBox GridPane.columnIndex="2" spacing="2">
+                                    <Label text="Sector" styleClass="stat-meta-label"/>
+                                    <Label fx:id="sectorLabel" text="Technology" styleClass="stat-meta-value"/>
+                                </VBox>
+                            </GridPane>
+
+                            <!-- Price chart -->
+                            <LineChart fx:id="priceChart" styleClass="price-chart"
+                                       legendVisible="false" prefHeight="240" animated="false"
+                                       createSymbols="false">
+                                <xAxis><CategoryAxis/></xAxis>
+                                <yAxis><NumberAxis autoRanging="true"/></yAxis>
+                            </LineChart>
+                        </VBox>
+
+                        <!-- Place Order card -->
+                        <VBox styleClass="card">
+                            <Label text="Place Order" styleClass="card-title"
+                                   style="-fx-padding: 16 16 0 16;"/>
+                            <TabPane fx:id="orderTabPane" styleClass="order-tabs"
+                                     tabClosingPolicy="UNAVAILABLE">
+
+                                <!-- Buy Tab -->
+                                <Tab text="Buy">
+                                    <VBox spacing="14" styleClass="tab-content">
+
+                                        <VBox spacing="4">
+                                            <Label text="Number of Shares" styleClass="field-label"/>
+                                            <TextField fx:id="buySharesField" promptText="0"
+                                                       styleClass="trade-input"/>
+                                        </VBox>
+
+                                        <HBox spacing="12">
+                                            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                                <Label text="Stop Loss (Optional)" styleClass="field-label"/>
+                                                <TextField fx:id="buyStopLossField" promptText="0.00"
+                                                           styleClass="trade-input"/>
+                                            </VBox>
+                                            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                                <Label text="Take Profit (Optional)" styleClass="field-label"/>
+                                                <TextField fx:id="buyTakeProfitField" promptText="0.00"
+                                                           styleClass="trade-input"/>
+                                            </VBox>
+                                        </HBox>
+
+                                        <HBox styleClass="estimate-row" alignment="CENTER_LEFT">
+                                            <Label text="Estimated Cost:" styleClass="estimate-label"
+                                                   HBox.hgrow="ALWAYS"/>
+                                            <Label fx:id="buyEstimateLabel" text="0.00"
+                                                   styleClass="estimate-value"/>
+                                        </HBox>
+
+                                        <Button fx:id="buyButton" text="Buy AAPL"
+                                                styleClass="buy-btn" maxWidth="Infinity"
+                                                onAction="#handleBuy"/>
+                                    </VBox>
+                                </Tab>
+
+                                <!-- Sell Tab -->
+                                <Tab text="Sell">
+                                    <VBox spacing="14" styleClass="tab-content">
+
+                                        <VBox spacing="4">
+                                            <Label text="Number of Shares" styleClass="field-label"/>
+                                            <TextField fx:id="sellSharesField" promptText="0"
+                                                       styleClass="trade-input"/>
+                                            <Label fx:id="ownedSharesLabel" text="You own 0 shares"
+                                                   styleClass="hint-text"/>
+                                        </VBox>
+
+                                        <HBox spacing="12">
+                                            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                                <Label text="Stop Loss (Optional)" styleClass="field-label"/>
+                                                <TextField fx:id="sellStopLossField" promptText="0.00"
+                                                           styleClass="trade-input"/>
+                                            </VBox>
+                                            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                                <Label text="Take Profit (Optional)" styleClass="field-label"/>
+                                                <TextField fx:id="sellTakeProfitField" promptText="0.00"
+                                                           styleClass="trade-input"/>
+                                            </VBox>
+                                        </HBox>
+
+                                        <HBox styleClass="estimate-row" alignment="CENTER_LEFT">
+                                            <Label text="Estimated Proceeds:" styleClass="estimate-label"
+                                                   HBox.hgrow="ALWAYS"/>
+                                            <Label fx:id="sellEstimateLabel" text="0.00"
+                                                   styleClass="estimate-value"/>
+                                        </HBox>
+
+                                        <Button fx:id="sellButton" text="Sell AAPL"
+                                                styleClass="sell-btn" maxWidth="Infinity"
+                                                onAction="#handleSell"/>
+                                    </VBox>
+                                </Tab>
+
+                            </TabPane>
+                        </VBox>
+                    </VBox>
+
+                    <!-- ── Right panel (1/3) ── -->
+                    <VBox spacing="16" prefWidth="320" minWidth="280">
+
+                        <!-- Search & Filter -->
+                        <VBox styleClass="card">
+                            <Label text="Search Stocks" styleClass="card-title"
+                                   style="-fx-padding: 16 16 8 16;"/>
+                            <VBox spacing="12" style="-fx-padding: 0 16 16 16;">
+                                <TextField fx:id="searchField" promptText="Search by symbol or name..."
+                                           styleClass="trade-input"/>
+                                <VBox spacing="4">
+                                    <Label text="Filter by Sector" styleClass="field-label"/>
+                                    <ComboBox fx:id="sectorFilter" maxWidth="Infinity"
+                                              styleClass="sector-combo" onAction="#applyFilters"/>
+                                </VBox>
+                                <HBox alignment="CENTER_LEFT" spacing="8">
+                                    <CheckBox fx:id="favoritesOnly" text="Favorites Only"
+                                              styleClass="fav-check" onAction="#applyFilters"/>
+                                </HBox>
+                            </VBox>
+                        </VBox>
+
+                        <!-- Price Alert -->
+                        <VBox styleClass="card">
+                            <Label text="Price Alert" styleClass="card-title"
+                                   style="-fx-padding: 16 16 8 16;"/>
+                            <VBox spacing="10" style="-fx-padding: 0 16 16 16;">
+                                <Label fx:id="alertStockLabel" text="Alert price for AAPL"
+                                       styleClass="field-label"/>
+                                <TextField fx:id="alertPriceField" promptText="0.00"
+                                           styleClass="trade-input"/>
+                                <Button text="Set Alert" styleClass="alert-btn" maxWidth="Infinity"
+                                        onAction="#handleSetAlert"/>
+                            </VBox>
+                        </VBox>
+
+                        <!-- Recently Viewed -->
+                        <VBox styleClass="card">
+                            <Label text="Recently Viewed" styleClass="card-title"
+                                   style="-fx-padding: 16 16 8 16;"/>
+                            <VBox fx:id="recentlyViewedContainer" spacing="4"
+                                  style="-fx-padding: 0 12 12 12;"/>
+                        </VBox>
+
+                        <!-- All Stocks -->
+                        <VBox styleClass="card">
+                            <Label text="All Stocks" styleClass="card-title"
+                                   style="-fx-padding: 16 16 8 16;"/>
+                            <ScrollPane prefHeight="300" fitToWidth="true" styleClass="stocks-scroll"
+                                        hbarPolicy="NEVER">
+                                <VBox fx:id="stockListContainer" spacing="4"
+                                      style="-fx-padding: 0 12 12 12;"/>
+                            </ScrollPane>
+                        </VBox>
+                    </VBox>
+                </HBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>
