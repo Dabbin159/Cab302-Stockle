@@ -46,13 +46,15 @@ public class StockAPI {
                 .url(url)
                 .get()
                 .addHeader("APCA-API-KEY-ID", API_KEY)
+                .addHeader("APCA-API-SECRET-KEY", SECRET_KEY)
                 .addHeader("accept", "application/json")
                 .build();
         
         String responseBody;
         try (Response response = httpClient.newCall(request).execute()) {
             if (!response.isSuccessful()) {
-                throw new RuntimeException("API Error: " + response.code() + " - " + response.body().string());
+                String errorBody = response.body() != null ? response.body().string() : "No error details";
+                throw new RuntimeException("API Error: " + response.code() + " - " + errorBody);
             }   responseBody = response.body().string();
         }
         return responseBody;
