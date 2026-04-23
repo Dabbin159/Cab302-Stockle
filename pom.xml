@@ -98,6 +98,7 @@
                         <!-- Default configuration for running with: mvn clean javafx:run -->
                         <id>default-cli</id>
                         <configuration>
+                            <mainClass>com.stockle/com.stockle.ui.HelloApplication</mainClass>
                             <mainClass>com.stockle.ui.StockleApplication</mainClass>
                             <mainClass>com.stockle/com.stockle.Launcher</mainClass>
                             <launcher>app</launcher>
