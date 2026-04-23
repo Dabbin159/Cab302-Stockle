@@ -72,7 +72,7 @@ public class StockAPI {
         
         try {
             String symbolList = String.join(",", symbols);
-            String url = DATA_URL + "/v1/bars/latest?symbols=" + symbolList + "&timeframe=1Min";
+            String url = DATA_URL + "/v2/stocks/bars/latest?symbols=" + symbolList;
             String response = makeRequest(url);
             
             JsonNode root = objectMapper.readTree(response);
@@ -81,8 +81,12 @@ public class StockAPI {
             for (String symbol : symbols) {
                 JsonNode barNode = barsData.get(symbol);
                 if (barNode != null) {
+                    // Parse timestamp with timezone offset and convert to LocalDateTime
+                    String timestamp = barNode.get("t").asText();
+                    LocalDateTime dateTime = java.time.OffsetDateTime.parse(timestamp).toLocalDateTime();
+                    
                     BarData bar = new BarData(
-                            LocalDateTime.parse(barNode.get("t").asText().replace("Z", "+00:00")),
+                            dateTime,
                             barNode.get("o").asDouble(),
                             barNode.get("h").asDouble(),
                             barNode.get("l").asDouble(),
@@ -106,12 +110,12 @@ public class StockAPI {
      * @return Map of symbol to quote data
      */
     public Map<String, QuoteData> getLatestQuotes(List<String> symbols) {
-        // GET /v1/quotes/latest?symbols=AAPL,GOOGL,MSFT
+        // GET /v2/stocks/quotes/latest?symbols=AAPL,GOOGL,MSFT
         Map<String, QuoteData> result = new HashMap<>();
         
         try {
             String symbolList = String.join(",", symbols);
-            String url = DATA_URL + "/v1/quotes/latest?symbols=" + symbolList;
+            String url = DATA_URL + "/v2/stocks/quotes/latest?symbols=" + symbolList;
             String response = makeRequest(url);
             
             JsonNode root = objectMapper.readTree(response);
@@ -120,8 +124,12 @@ public class StockAPI {
             for (String symbol : symbols) {
                 JsonNode quoteNode = quotesData.get(symbol);
                 if (quoteNode != null) {
+                    // Parse timestamp with timezone offset and convert to LocalDateTime
+                    String timestamp = quoteNode.get("t").asText();
+                    LocalDateTime dateTime = java.time.OffsetDateTime.parse(timestamp).toLocalDateTime();
+                    
                     QuoteData quote = new QuoteData(
-                            LocalDateTime.parse(quoteNode.get("t").asText().replace("Z", "+00:00")),
+                            dateTime,
                             quoteNode.get("bp").asDouble(),
                             quoteNode.get("bs").asLong(),
                             quoteNode.get("ap").asDouble(),
@@ -145,12 +153,12 @@ public class StockAPI {
      * @return Map of symbol to snapshot data
      */
     public Map<String, SnapshotData> getSnapshots(List<String> symbols) {
-        // GET /v1/snapshots?symbols=AAPL,GOOGL,MSFT
+        // GET /v2/stocks/snapshots?symbols=AAPL,GOOGL,MSFT
         Map<String, SnapshotData> result = new HashMap<>();
         
         try {
             String symbolList = String.join(",", symbols);
-            String url = DATA_URL + "/v1/snapshots?symbols=" + symbolList;
+            String url = DATA_URL + "/v2/stocks/snapshots?symbols=" + symbolList;
             String response = makeRequest(url);
             
             JsonNode root = objectMapper.readTree(response);
@@ -163,8 +171,11 @@ public class StockAPI {
                     JsonNode barNode = snapshotNode.get("bar");
                     BarData bar = null;
                     if (barNode != null) {
+                        String barTimestamp = barNode.get("t").asText();
+                        LocalDateTime barDateTime = java.time.OffsetDateTime.parse(barTimestamp).toLocalDateTime();
+                        
                         bar = new BarData(
-                                LocalDateTime.parse(barNode.get("t").asText().replace("Z", "+00:00")),
+                                barDateTime,
                                 barNode.get("o").asDouble(),
                                 barNode.get("h").asDouble(),
                                 barNode.get("l").asDouble(),
@@ -177,8 +188,11 @@ public class StockAPI {
                     JsonNode quoteNode = snapshotNode.get("quote");
                     QuoteData quote = null;
                     if (quoteNode != null) {
+                        String quoteTimestamp = quoteNode.get("t").asText();
+                        LocalDateTime quoteDateTime = java.time.OffsetDateTime.parse(quoteTimestamp).toLocalDateTime();
+                        
                         quote = new QuoteData(
-                                LocalDateTime.parse(quoteNode.get("t").asText().replace("Z", "+00:00")),
+                                quoteDateTime,
                                 quoteNode.get("bp").asDouble(),
                                 quoteNode.get("bs").asLong(),
                                 quoteNode.get("ap").asDouble(),
@@ -326,7 +340,8 @@ public class StockAPI {
         List<Asset> assets = getAllAssets();
         List<String> symbols = new ArrayList<>();
         for (Asset asset : assets) {
-            if (asset.tradable) {
+            // Only include US equity stocks, not crypto or other assets
+            if (asset.tradable && "us_equity".equals(asset.assetClass)) {
                 symbols.add(asset.symbol);
             }
         }
@@ -352,7 +367,8 @@ public class StockAPI {
         List<Asset> assets = getAllAssets();
         List<String> symbols = new ArrayList<>();
         for (Asset asset : assets) {
-            if (asset.tradable) {
+            // Only include US equity stocks, not crypto or other assets
+            if (asset.tradable && "us_equity".equals(asset.assetClass)) {
                 symbols.add(asset.symbol);
             }
         }
@@ -378,7 +394,8 @@ public class StockAPI {
         List<Asset> assets = getAllAssets();
         List<String> symbols = new ArrayList<>();
         for (Asset asset : assets) {
-            if (asset.tradable) {
+            // Only include US equity stocks, not crypto or other assets
+            if (asset.tradable && "us_equity".equals(asset.assetClass)) {
                 symbols.add(asset.symbol);
             }
         }
