@@ -3,6 +3,7 @@ package com.stockle.ui;
 import java.io.IOException;
 
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.chart.AreaChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
@@ -76,57 +77,45 @@ public class DashboardController {
 
     // Helper method to create a holding row
     private HBox holdingRow(String symbol, String name, String shares, String price, String change, boolean positive) {
-        HBox row = new HBox();
-        row.getStyleClass().add("row-card");
+        VBox left = new VBox(2,
+            styledLabel(symbol, "row-symbol"),
+            styledLabel(name, "row-sub"),
+            styledLabel(shares, "row-sub")
+        );
 
-        VBox left = new VBox(2);
-        Label sym = new Label(symbol);
-        sym.getStyleClass().add("row-symbol");
-        Label sh = new Label(shares);
-        sh.getStyleClass().add("row-sub");
-        left.getChildren().addAll(sym, sh);
-
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-
-        VBox right = new VBox(2);
-        right.setStyle("-fx-alignment: CENTER_RIGHT;");
-        Label pr = new Label(price);
-        pr.getStyleClass().add("row-price");
-        Label ch = new Label(change);
-        ch.getStyleClass().add(positive ? "row-positive" : "row-negative");
-        right.getChildren().addAll(pr, ch);
-
-        row.getChildren().addAll(left, spacer, right);
-        return row;
+        VBox right = new VBox(2,
+            styledLabel(price, "row-price"),
+            styledLabel(change, positive ? "row-positive" : "row-negative")
+        );
+        right.getStyleClass().add("row-right");
+        return cardRow(left, spacer(), right);
     }
 
     // Helper method to create a trading row
     private HBox tradeRow(String type, String symbol, String detail, String time) {
-        HBox row = new HBox();
+        Label badge = styledLabel(type, type.equals("BUY") ? "badge-buy" : "badge-sell", "trade-badge");
+        VBox info = new VBox(2, styledLabel(symbol, "row-symbol"), styledLabel(detail, "row-sub"));
+        info.getStyleClass().add("trade-info");
+        Label timeLabel = styledLabel(time, "trade-time");
+        return cardRow(badge, info, spacer(), timeLabel);
+    }
+
+    private HBox cardRow(Node... children) {
+        HBox row = new HBox(children);
         row.getStyleClass().add("row-card");
+        return row;
+    }
 
-        Label badge = new Label(type);
-        badge.getStyleClass().add(type.equals("BUY") ? "badge-buy" : "badge-sell");
-        badge.setStyle(badge.getStyle() + "; -fx-translate-y: 2;");
+    private Label styledLabel(String text, String... styleClasses) {
+        Label label = new Label(text);
+        label.getStyleClass().addAll(styleClasses);
+        return label;
+    }
 
-        VBox info = new VBox(2);
-        info.setStyle("-fx-padding: 0 0 0 10;");
-        Label sym = new Label(symbol);
-        sym.getStyleClass().add("row-symbol");
-        Label det = new Label(detail);
-        det.getStyleClass().add("row-sub");
-        info.getChildren().addAll(sym, det);
-
+    private Region spacer() {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
-
-        Label t = new Label(time);
-        t.getStyleClass().add("trade-time");
-        t.setStyle("-fx-translate-y: 4;");
-
-        row.getChildren().addAll(badge, info, spacer, t);
-        return row;
+        return spacer;
     }
 
     // Navigation handlers (placeholders for now)

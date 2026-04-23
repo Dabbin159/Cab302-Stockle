@@ -1,4 +1,4 @@
-/* ── Sidebar ── */
+/* Sidebar */
 .sidebar {
     -fx-background-color: white;
     -fx-pref-width: 220;
@@ -99,7 +99,7 @@
     -fx-padding: 4 12;
 }
 
-/* ── Stat Cards ── */
+/* Stat Cards */
 .stat-card {
     -fx-background-color: white;
     -fx-background-radius: 12;
@@ -132,7 +132,7 @@
 .stat-icon-green { -fx-font-size: 16px; -fx-text-fill: #16a34a; }
 .stat-icon-gray  { -fx-font-size: 16px; -fx-text-fill: #9ca3af; }
 
-/* ── Cards ── */
+/* Cards */
 .card {
     -fx-background-color: white;
     -fx-background-radius: 12;
@@ -145,7 +145,7 @@
     -fx-text-fill: #111827;
 }
 
-/* ── Chart ── */
+/* Chart */
 .portfolio-chart {
     -fx-background-color: transparent;
     -fx-padding: 0 16 8 16;
@@ -187,7 +187,7 @@
     -fx-padding: 4;
 }
 
-/* ── Holdings / Trades rows ── */
+/* Holdings / Trades rows */
 .row-card {
     -fx-background-color: #f9fafb;
     -fx-background-radius: 8;
@@ -211,6 +211,14 @@
     -fx-text-fill: #111827;
 }
 
+.row-right {
+    -fx-alignment: CENTER_RIGHT;
+}
+
+.trade-info {
+    -fx-padding: 0 0 0 10;
+}
+
 .row-positive { -fx-font-size: 12px; -fx-text-fill: #16a34a; }
 .row-negative { -fx-font-size: 12px; -fx-text-fill: #dc2626; }
 
@@ -232,12 +240,17 @@
     -fx-padding: 2 8;
 }
 
+.trade-badge {
+    -fx-translate-y: 2;
+}
+
 .trade-time {
     -fx-font-size: 12px;
     -fx-text-fill: #9ca3af;
+    -fx-translate-y: 4;
 }
 
-/* ── Quick Action Cards ── */
+/* Quick Action Cards */
 .quick-card-blue, .quick-card-purple, .quick-card-green {
     -fx-background-color: white;
     -fx-background-radius: 12;

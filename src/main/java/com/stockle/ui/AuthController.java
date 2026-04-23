@@ -3,8 +3,6 @@ package com.stockle.ui;
 import java.io.IOException;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 
@@ -16,21 +14,13 @@ public class AuthController {
     @FXML private TextField signupPasswordText;
 
     @FXML
-    private void handleLogin() {
-        try {
-            SceneManager.switchTo("dashboard-view.fxml");
-        } catch (IOException e) {
-            showAlert("Could not load dashboard: " + e.getMessage());
-        }
+    private void handleLogin() throws IOException {
+        SceneManager.switchTo("dashboard/dashboard-view.fxml");
     }
 
     @FXML
-    private void handleSignup() {
-        try {
-            SceneManager.switchTo("dashboard-view.fxml");
-        } catch (IOException e) {
-            showAlert("Could not load dashboard: " + e.getMessage());
-        }
+    private void handleSignup() throws IOException {
+        SceneManager.switchTo("dashboard/dashboard-view.fxml");
     }
 
     @FXML
@@ -65,12 +55,5 @@ public class AuthController {
             masked.requestFocus();
             masked.end();
         }
-    }
-
-    private void showAlert(String message) {
-        Alert alert = new Alert(Alert.AlertType.WARNING, message, ButtonType.OK);
-        alert.setHeaderText(null);
-        alert.setTitle("Stockle");
-        alert.showAndWait();
     }
 }

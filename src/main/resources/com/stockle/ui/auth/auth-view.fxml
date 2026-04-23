@@ -6,7 +6,6 @@
 <StackPane xmlns:fx="http://javafx.com/fxml"
            xmlns="http://javafx.com/javafx/21"
            fx:controller="com.stockle.ui.AuthController"
-           styleClass="root-pane"
            stylesheets="@auth.css">
 
     <HBox alignment="CENTER" spacing="40" fillHeight="false" maxWidth="1060" StackPane.alignment="CENTER">
