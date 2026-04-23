@@ -1,18 +1,17 @@
 package com.stockle.ui;
 
-import javafx.fxml.FXML;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
-import javafx.scene.control.Label;
-import javafx.scene.control.Button;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
 import java.io.IOException;
 
-import com.stockle.api.GeminiService;
-import com.stockle.model.TradeContext;
+import com.stockle.api.GroqService;
+
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 public class AIController {
     @FXML
@@ -21,7 +20,7 @@ public class AIController {
     @FXML
     private TextField userInput;
 
-    private GeminiService geminiService = new GeminiService();
+    private GroqService groqService = new GroqService();
 
     @FXML
     protected void handleSend()  {
@@ -32,12 +31,7 @@ public class AIController {
         
         addMessage("You: " + input);
 
-        if (!isStockRelated(input)) {
-            addMessage("AI: Please ask about stock-related topics.");
-            return;
-        }
-
-        String response = geminiService.askChatbot(input);
+        String response = groqService.askChatbot(input);
         addMessage("AI: " + response);
 
         userInput.clear();
@@ -52,11 +46,6 @@ public class AIController {
         Label label = new Label(text);
         label.setWrapText(true);
         chatBox.getChildren().add(label);
-    }
-
-    private boolean isStockRelated(String input) {
-        String lowerInput = input.toLowerCase();
-        return lowerInput.contains("stock") || lowerInput.contains("market") || lowerInput.contains("trade");
     }
 
     @FXML
