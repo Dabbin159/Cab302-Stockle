@@ -354,7 +354,7 @@ public class StockAPI {
         // GET /v2/stocks/quotes?symbols={symbol}&start={startDate}&end={endDate}
         List<QuoteData> quotes = new ArrayList<>();
         String nextPageToken = null;
-        int maxIterations = 100; // Prevent infinite loops
+        int maxIterations = 10; // Prevent infinite loops
         int iterations = 0;
         
         try {
@@ -367,7 +367,7 @@ public class StockAPI {
                 urlBuilder.append("?symbols=").append(symbol);
                 urlBuilder.append("&start=").append(startDate);
                 urlBuilder.append("&end=").append(endDate);
-                urlBuilder.append("&limit=10000"); // Max limit per request
+                urlBuilder.append("&limit=10"); // Max limit per request
                 urlBuilder.append("&sort=asc"); // Sort by timestamp ascending
                 urlBuilder.append("&feed=").append(dataFeed.value); // Use configured data feed
                 
