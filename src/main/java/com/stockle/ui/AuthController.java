@@ -1,6 +1,7 @@
 package com.stockle.ui;
 
 import java.io.IOException;
+import java.time.LocalDate;
 
 import com.stockle.SessionManager;
 import com.stockle.database.SQLUserDAO;
@@ -15,10 +16,15 @@ public class AuthController {
     @FXML private TextField loginEmail;
     @FXML private PasswordField loginPasswordField;
     @FXML private TextField loginPasswordText;
+    @FXML private TextField signupUsername;
+    @FXML private TextField signupName;
+    @FXML private TextField signupEmail;
     @FXML private PasswordField signupPasswordField;
+    @FXML private PasswordField signupConfirmPassword;
     @FXML private TextField signupPasswordText;
     @FXML private Label loginErrorLabel;
     private final SQLUserDAO userDAO = SQLUserDAO.getInstance();
+
 
     /** Handles user login: validates fields, checks credentials
      * against the database then navigates to the dashboard if
@@ -48,10 +54,40 @@ public class AuthController {
         }
     }
 
+    /** NOT COMPLETE YET Handles Signup: validates fields, checks credentials
+     * against the database then navigates to the dashboard if
+     * successful NOT COMPLETE YET
+     */
     @FXML
-    private void handleSignup() throws IOException {
-        SceneManager.switchTo("dashboard/dashboard-view.fxml");
+    protected void handleSignup() throws IOException {
+        String fullName =
+                signupName.getText().trim();
+        String email =
+                signupEmail.getText().trim();
+        String username =
+                signupUsername.getText().trim();
+        String password =
+                signupPasswordField.getText();
+        String confirmPassword =
+                signupConfirmPassword.getText();
+        String
+
+        boolean success = userDAO.signup(username, password,
+                email, fullName, dateOfBirth);
+
+        if (name.isEmpty() || email.isEmpty() || password.isEmpty()
+        || confirmPassword());
+        {
+            loginErrorLabel.setText("Please fill in all sections");
+            return;
+        }
+        else {
+
+        }
+
     }
+
+
 
     @FXML
     private void toggleLoginPassword() {
