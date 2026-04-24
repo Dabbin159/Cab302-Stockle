@@ -9,7 +9,11 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import com.stockle.model.User;
 
-public class SQLUserDAO implements UserDAO {
+
+/**
+ * Class to manage user-related database operations, such as adding, deleting, updating, and retrieving users. Implements the userDAO interface to ensure consistency in method signatures and functionality across different DAO implementations.
+ */
+public class SQLUserDAO implements userDAO {
 
     private static SQLUserDAO instance;
     private Connection connection;
@@ -44,15 +48,6 @@ public class SQLUserDAO implements UserDAO {
     private static final String UPDATE_BALANCE_BYID = "UPDATE users SET balance = ? WHERE id = ?";
 
     private static final String UPDATE_PROFIT_BYID = "UPDATE users SET totalProfit = ? WHERE id = ?";
-
-     /**
-      * @param username Username for the new user,
-      * @param password Password for the new user,
-      * @param email Email address for the new user,
-      * @param firstName First name of the new user,
-      * @param lastName Last name of the new user,
-      * @param dateOfBirth Date of birth of the new user.
-
     @Override
     /**
      * @param User The user to add.

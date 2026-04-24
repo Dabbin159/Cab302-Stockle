@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.stockle.model.User;
 
-public interface UserDAO {
+public interface userDAO {
 
     /**
      * Adds a new user to the database.

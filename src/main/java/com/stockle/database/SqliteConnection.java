@@ -5,6 +5,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+/**
+ * Class to manage the connection to the SQLite database. Implements the Singleton pattern to ensure only one connection is used throughout the application.
+ */
 public class SqliteConnection {
 
     private static Connection instance = null;
@@ -56,7 +59,9 @@ public class SqliteConnection {
             + "FOREIGN KEY (userID) REFERENCES users(id)"
             + ")";
 
-
+    /**
+     * Method to set up the database tables if they do not already exist.
+     */
     private static void databaseSetup() {
         try {
             Statement statement = instance.createStatement();
