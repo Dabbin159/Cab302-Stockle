@@ -41,6 +41,10 @@ public class SQLUserDAO implements UserDAO {
 
     private static final String GET_PROFIT_BYID = "SELECT totalProfit FROM users WHERE id = ?";
 
+    private static final String UPDATE_BALANCE_BYID = "UPDATE users SET balance = ? WHERE id = ?";
+
+    private static final String UPDATE_PROFIT_BYID = "UPDATE users SET totalProfit = ? WHERE id = ?";
+
      /**
       * @param username Username for the new user,
       * @param password Password for the new user,
@@ -254,5 +258,37 @@ public class SQLUserDAO implements UserDAO {
             ex.printStackTrace();
         }
         return 0;
+    }
+
+    /**
+     * @param userId The ID of the user.
+     * @param newBalance The new balance to set for the user.
+     */
+    @Override
+    public void updateUserBalance(int userId, long newBalance) {
+        try {
+            PreparedStatement statement = connection.prepareStatement(UPDATE_BALANCE_BYID);
+            statement.setLong(1, newBalance);
+            statement.setInt(2, userId);
+            statement.executeUpdate();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    /**
+     * @param userId The ID of the user.
+     * @param newTotalProfit The new total profit to set for the user.
+     */
+    @Override
+    public void updateUserTotalProfit(int userId, long newTotalProfit) {
+        try {
+            PreparedStatement statement = connection.prepareStatement(UPDATE_PROFIT_BYID);
+            statement.setLong(1, newTotalProfit);
+            statement.setInt(2, userId);
+            statement.executeUpdate();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
     }
 }

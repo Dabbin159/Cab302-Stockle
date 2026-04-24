@@ -6,7 +6,7 @@ import java.util.Random;
 import com.stockle.database.SQLUserDAO;
 import com.stockle.model.User;
 
-public class DB_Test {
+public class User_DB_Test {
 
     public static void main(String[] args) {
         AddUserTest();
@@ -16,6 +16,10 @@ public class DB_Test {
         UpdateUserTest(randomId);
         UpdateUserTestValidate(randomId);
         // UniqueUserTest();
+        CheckUserBalanceTest(randomId);
+        CheckAddUserBalanceTest(randomId);
+        CheckUserBalanceTest(randomId);
+        CheckSubtractUserBalanceTest(randomId);
         CheckUserBalanceTest(randomId);
         CheckUserTotalProfitTest(randomId);
     }
@@ -83,6 +87,28 @@ public class DB_Test {
         if (user != null) {
             System.out.println("User balance: " + user.getBalance());
             
+        } else {
+            System.out.println("User not found.");
+        }
+    }
+
+    public static void CheckAddUserBalanceTest(int id) {
+        SQLUserDAO userDAO = SQLUserDAO.getInstance();
+        User user = userDAO.getUserById(id);
+        if (user != null) {
+            userDAO.updateUserBalance(id, user.getBalance() + 5000); // Add 5000 to the user's balance
+            System.out.println("Added 5000 to user balance.");
+        } else {
+            System.out.println("User not found.");
+        }
+    }
+
+    public static void CheckSubtractUserBalanceTest(int id) {
+        SQLUserDAO userDAO = SQLUserDAO.getInstance();
+        User user = userDAO.getUserById(id);
+        if (user != null) {
+            userDAO.updateUserBalance(id, user.getBalance() - 5000); // Subtract 5000 from the user's balance
+            System.out.println("Subtracted 5000 from user balance.");
         } else {
             System.out.println("User not found.");
         }

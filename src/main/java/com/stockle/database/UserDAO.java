@@ -75,4 +75,18 @@ public interface UserDAO {
      * @return The total profit of the user.
      */
     public long getUserTotalProfit(int userId);
+
+    /**
+     * Updates the balance of a user by their ID.
+     * @param userId The ID of the user.
+     * @param newBalance The new balance to set for the user.
+     */
+    public void updateUserBalance(int userId, long newBalance);
+
+    /**
+     * Updates the total profit of a user by their ID.
+     * @param userId The ID of the user.
+     * @param newTotalProfit The new total profit to set for the user.
+     */
+    public void updateUserTotalProfit(int userId, long newTotalProfit);
 }
