@@ -4,6 +4,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.stockle.model.TradeContext;
 
@@ -13,20 +15,52 @@ public class GroqService {
 
     private final HttpClient client = HttpClient.newHttpClient();
 
+    private final List<String> messages = new ArrayList<>();
+
+    private static final int max_history = 10; 
+
+    public GroqService() {
+        messages.add("""
+        {"role":"system","content":"You are a stock market learning assistant. Only answer stock-related questions. If unrelated, say you cannot help."}
+        """);
+    }
+
+    private String escape(String text) {
+    return text
+            .replace("\\", "\\\\")
+            .replace("\"", "\\\"")
+            .replace("\n", "\\n");
+    }
+
     public String askChatbot(String input) {
-        String prompt = """
-        You are a stock market learning assistant.
+        messages.add("""
+                {"role":"user","content":"%s"}
+        """.formatted(escape(input)));
 
-        Only answer stock-related questions.
-        If unrelated, say you cannot help.
+        trimMessages();
 
-        User:
-        """ + input;
+        String response = sendRequest();
 
-        return sendRequest(prompt);
+        messages.add("""
+                {"role":"assistant","content":"%s"}
+        """.formatted(escape(response)));
+
+        trimMessages();    
+
+        return response;
+    }
+
+    private void trimMessages() {
+        while (messages.size() > max_history + 1) {
+            messages.remove(1);
+            if (messages.size() > 1) {
+                messages.remove(1);
+            }
+        }
     }
 
     public String getMultiPerspectiveAdvice(TradeContext ctx) {
+
         String prompt = """
         You are a trading coach.
 
@@ -53,27 +87,29 @@ public class GroqService {
             ctx.holdingDays
         );
 
-        return sendRequest(prompt);
+        messages.add("""
+        {"role":"user","content":"%s"}
+        """.formatted(escape(prompt)));
+
+        String response = sendRequest();
+
+        messages.add("""
+        {"role":"assistant","content":"%s"}
+        """.formatted(escape(response)));
+
+        return response;
     }
 
-    private String sendRequest(String prompt) {
+    private String sendRequest() {
         try {
-            String safePrompt = prompt
-                    .replace("\\", "\\\\")
-                    .replace("\"", "\\\"")
-                    .replace("\n", "\\n");
+            String messageJson = String.join(",", messages);
 
             String json = """
             {
             "model": "llama-3.1-8b-instant",
-            "messages": [
-                {
-                "role": "user",
-                "content": "%s"
-                }
-            ]
+            "messages": [%s]
             }
-            """.formatted(safePrompt);
+            """.formatted(messageJson);
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("https://api.groq.com/openai/v1/chat/completions"))
@@ -128,5 +164,3 @@ public class GroqService {
         }
     }
 }
-
-
