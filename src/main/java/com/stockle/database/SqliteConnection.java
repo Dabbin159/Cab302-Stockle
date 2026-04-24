@@ -45,9 +45,10 @@ public class SqliteConnection {
             + "totalProfit INTEGER NOT NULL"
             + ")";
 
-    private static final String STOCK_TABLE = "CREATE TABLE IF NOT EXISTS trades ("
+    private static final String TRADE_TABLE = "CREATE TABLE IF NOT EXISTS trades ("
             + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
             + "userID INTEGER NOT NULL,"
+            + "companyID TEXT NOT NULL,"
             + "tradeData TEXT NOT NULL,"
             + "createdAt TEXT NOT NULL,"
             + "sold INTEGER NOT NULL,"
@@ -60,7 +61,7 @@ public class SqliteConnection {
         try {
             Statement statement = instance.createStatement();
             statement.execute(USER_TABLE);
-            statement.execute(STOCK_TABLE);
+            statement.execute(TRADE_TABLE);
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
