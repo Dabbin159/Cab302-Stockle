@@ -1,66 +1,6 @@
-/* Sidebar  */
-.sidebar {
-    -fx-background-color: white;
-    -fx-pref-width: 220;
-    -fx-min-width: 220;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 8, 0, 2, 0);
-}
-
-.sidebar-logo {
-    -fx-font-size: 22px;
-    -fx-font-weight: bold;
-    -fx-padding: 0 8 20 8;
-}
-
-.nav-section { -fx-padding: 4 0 0 0; }
-
-.nav-item {
-    -fx-background-color: transparent;
-    -fx-text-fill: #374151;
-    -fx-font-size: 14px;
-    -fx-background-radius: 8;
-    -fx-padding: 9 12;
-    -fx-alignment: CENTER_LEFT;
-    -fx-cursor: hand;
-    -fx-focus-color: transparent;
-    -fx-faint-focus-color: transparent;
-}
-.nav-item:hover { -fx-background-color: #f3f4f6; }
-
-.nav-item-active {
-    -fx-background-color: #eff6ff;
-    -fx-text-fill: #2563eb;
-    -fx-font-size: 14px;
-    -fx-font-weight: bold;
-    -fx-background-radius: 8;
-    -fx-padding: 9 12;
-    -fx-alignment: CENTER_LEFT;
-    -fx-cursor: hand;
-    -fx-focus-color: transparent;
-    -fx-faint-focus-color: transparent;
-}
-
-.nav-signout {
-    -fx-background-color: transparent;
-    -fx-text-fill: #ef4444;
-    -fx-font-size: 14px;
-    -fx-background-radius: 8;
-    -fx-padding: 9 12;
-    -fx-alignment: CENTER_LEFT;
-    -fx-cursor: hand;
-    -fx-focus-color: transparent;
-    -fx-faint-focus-color: transparent;
-}
-.nav-signout:hover { -fx-background-color: #fef2f2; }
+@import "../global.css";
 
 /* Scroll / Layout */
-.main-scroll {
-    -fx-background-color: #f9fafb;
-    -fx-background: #f9fafb;
-    -fx-border-color: transparent;
-}
-.main-scroll .viewport { -fx-background-color: #f9fafb; }
-.main-content          { -fx-background-color: #f9fafb; }
 
 .stocks-scroll {
     -fx-background-color: transparent;
@@ -68,29 +8,6 @@
     -fx-border-color: transparent;
 }
 .stocks-scroll .viewport { -fx-background-color: transparent; }
-
-/* Page header */
-.page-title {
-    -fx-font-size: 26px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #111827;
-}
-.page-subtitle {
-    -fx-font-size: 14px;
-    -fx-text-fill: #6b7280;
-}
-
-/* Cards */
-.card {
-    -fx-background-color: white;
-    -fx-background-radius: 12;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 2);
-}
-.card-title {
-    -fx-font-size: 16px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #111827;
-}
 
 /* Stock detail header */
 .card-header-row {
@@ -202,31 +119,10 @@
 .tab-content { -fx-padding: 16 16 20 16; }
 
 /* Form inputs */
-.field-label {
-    -fx-font-size: 13px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #374151;
-}
-.hint-text {
-    -fx-font-size: 12px;
-    -fx-text-fill: #9ca3af;
-}
 
 .trade-input {
-    -fx-background-color: #f3f3f5;
-    -fx-background-radius: 8;
-    -fx-border-color: rgba(0,0,0,0.1);
-    -fx-border-radius: 8;
-    -fx-border-width: 1;
     -fx-padding: 8 12;
     -fx-pref-height: 38;
-    -fx-font-size: 14px;
-    -fx-prompt-text-fill: #9ca3af;
-}
-.trade-input:focused {
-    -fx-border-color: #2563eb;
-    -fx-border-width: 1.5;
-    -fx-background-color: white;
 }
 
 /* Estimate row */
@@ -299,20 +195,6 @@
 }
 .sector-combo .list-cell { -fx-font-size: 14px; }
 
-/* Favorites checkbox */
-.fav-check {
-    -fx-font-size: 13px;
-    -fx-text-fill: #374151;
-}
-.fav-check .box {
-    -fx-background-color: white;
-    -fx-border-color: rgba(0,0,0,0.2);
-    -fx-border-radius: 4;
-    -fx-background-radius: 4;
-}
-.fav-check:selected .box  { -fx-background-color: #2563eb; -fx-border-color: #2563eb; }
-.fav-check:selected .mark { -fx-background-color: white; }
-
 /* Stock list rows */
 .stock-row {
     -fx-background-color: transparent;
@@ -337,8 +219,7 @@
     -fx-font-weight: bold;
     -fx-text-fill: #111827;
 }
-.stock-row-pos { -fx-font-size: 12px; -fx-text-fill: #16a34a; }
-.stock-row-neg { -fx-font-size: 12px; -fx-text-fill: #dc2626; }
+
 
 /* Market status */
 .market-key {
