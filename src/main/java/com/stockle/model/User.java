@@ -11,8 +11,7 @@ public class User {
     private String username;
     private String password;
     private String email;
-    private String firstName;
-    private String lastName;
+    private String fullName;
     private LocalDate dateOfBirth;
     private long balance;
     private long totalProfit;
@@ -22,16 +21,14 @@ public class User {
      * @param username
      * @param password
      * @param email
-     * @param firstName
-     * @param lastName
+     * @param fullName
      * @param dateOfBirth
      */
-    public User(String username, String password, String email, String firstName, String lastName, LocalDate dateOfBirth) {
+    public User(String username, String password, String email, String fullName, LocalDate dateOfBirth) {
         this.username = username;
         this.password = password;
         this.email = email;
-        this.firstName = firstName;
-        this.lastName = lastName;
+        this.fullName = fullName;
         this.dateOfBirth = dateOfBirth;
         this.balance = 100000; // Default balance for new users
         this.totalProfit = 0; // Default total profit for new users
@@ -42,18 +39,16 @@ public class User {
      * @param username Username for the new user
      * @param password Password for the new user
      * @param email Email address for the new user
-     * @param firstName First name of the new user
-     * @param lastName Last name of the new user
+     * @param fullName Full name of the new user
      * @param dateOfBirth Date of birth of the new user
      * @param balance Initial balance for the new user
      * @param totalProfit Initial total profit for the new user
      */
-    public User(String username, String password, String email, String firstName, String lastName, LocalDate dateOfBirth, long balance, long totalProfit) {
+    public User(String username, String password, String email, String fullName, LocalDate dateOfBirth, long balance, long totalProfit) {
         this.username = username;
         this.password = password;
         this.email = email;
-        this.firstName = firstName;
-        this.lastName = lastName;
+        this.fullName = fullName;
         this.dateOfBirth = dateOfBirth;
         this.balance = balance;
         this.totalProfit = totalProfit;
@@ -75,12 +70,8 @@ public class User {
         return email;
     }
 
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
+    public String getFullName() {
+        return fullName;
     }
 
     public LocalDate getDateOfBirth() {
@@ -107,16 +98,12 @@ public class User {
         this.email = email;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
     }
 
     public void setDateOfBirth(LocalDate dateOfBirth) {

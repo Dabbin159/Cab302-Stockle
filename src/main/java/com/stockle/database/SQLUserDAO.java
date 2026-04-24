@@ -29,11 +29,11 @@ public class SQLUserDAO implements userDAO {
         return instance;
     }
 
-    private static final String ADD_USER = "INSERT INTO users (username, password, email, firstName, lastName, dateOfBirth, balance, totalProfit) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    private static final String ADD_USER = "INSERT INTO users (username, password, email, fullName, dateOfBirth, balance, totalProfit) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
     private static final String DELETE_USER = "DELETE FROM users WHERE id = ?";
 
-    private static final String UPDATE_USER = "UPDATE users SET username = ?, password = ?, email = ?, firstName = ?, lastName = ?, dateOfBirth = ?, balance = ?, totalProfit = ? WHERE id = ?";
+    private static final String UPDATE_USER = "UPDATE users SET username = ?, password = ?, email = ?, fullName = ?, dateOfBirth = ?, balance = ?, totalProfit = ? WHERE id = ?";
 
     private static final String GET_USER_BY_ID = "SELECT * FROM users WHERE id = ?";
 
@@ -58,11 +58,10 @@ public class SQLUserDAO implements userDAO {
             statement.setString(1, user.getUsername());
             statement.setString(2, user.getPassword());
             statement.setString(3, user.getEmail());
-            statement.setString(4, user.getFirstName());
-            statement.setString(5, user.getLastName());
-            statement.setString(6, user.getDateOfBirth().toString());
-            statement.setLong(7, user.getBalance());
-            statement.setLong(8, user.getTotalProfit());
+            statement.setString(4, user.getFullName());
+            statement.setString(5, user.getDateOfBirth().toString());
+            statement.setLong(6, user.getBalance());
+            statement.setLong(7, user.getTotalProfit());
             statement.executeUpdate();
             ResultSet generatedKeys = statement.getGeneratedKeys();
             if (generatedKeys.next()) {
@@ -96,12 +95,11 @@ public class SQLUserDAO implements userDAO {
             statement.setString(1, user.getUsername());
             statement.setString(2, user.getPassword());
             statement.setString(3, user.getEmail());
-            statement.setString(4, user.getFirstName());
-            statement.setString(5, user.getLastName());
-            statement.setString(6, user.getDateOfBirth().toString());
-            statement.setLong(7, user.getBalance());
-            statement.setLong(8, user.getTotalProfit());
-            statement.setInt(9, user.getId());
+            statement.setString(4, user.getFullName());
+            statement.setString(5, user.getDateOfBirth().toString());
+            statement.setLong(6, user.getBalance());
+            statement.setLong(7, user.getTotalProfit());
+            statement.setInt(8, user.getId());
             statement.executeUpdate();
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -122,12 +120,11 @@ public class SQLUserDAO implements userDAO {
                 String username = resultSet.getString("username");
                 String password = resultSet.getString("password");
                 String email = resultSet.getString("email");
-                String firstName = resultSet.getString("firstName");
-                String lastName = resultSet.getString("lastName");
+                String fullName = resultSet.getString("fullName");
                 LocalDate dateOfBirth = LocalDate.parse(resultSet.getString("dateOfBirth"));
                 long balance = resultSet.getLong("balance");
                 long totalProfit = resultSet.getLong("totalProfit");
-                User user = new User(username, password, email, firstName, lastName, dateOfBirth, balance, totalProfit);
+                User user = new User(username, password, email, fullName, dateOfBirth, balance, totalProfit);
                 user.setId(resultSet.getInt("id"));
                 return user;
             }
@@ -150,10 +147,9 @@ public class SQLUserDAO implements userDAO {
                 String username = resultSet.getString("username");
                 String password = resultSet.getString("password");
                 String email = resultSet.getString("email");
-                String firstName = resultSet.getString("firstName");
-                String lastName = resultSet.getString("lastName");
+                String fullName = resultSet.getString("fullName");
                 LocalDate dateOfBirth = LocalDate.parse(resultSet.getString("dateOfBirth"));
-                User user = new User(username, password, email, firstName, lastName, dateOfBirth);
+                User user = new User(username, password, email, fullName, dateOfBirth);
                 user.setId(resultSet.getInt("id"));
                 users.add(user);
             }
@@ -168,17 +164,16 @@ public class SQLUserDAO implements userDAO {
      * @param username Username for the new user,
      * @param password Password for the new user,
      * @param email Email address for the new user,
-     * @param firstName First name of the new user,
-     * @param lastName Last name of the new user,
+     * @param fullName Full name of the new user,
      * @param dateOfBirth Date of birth of the new user.
      * @return true if the signup was successful, false otherwise.
      */
     @Override
-    public boolean signup(String username, String password, String email, String firstName, String lastName, LocalDate dateOfBirth) {
+    public boolean signup(String username, String password, String email, String fullName, LocalDate dateOfBirth) {
         // Implementation for signing up a new user
         try {
             String hashed_password = BCrypt.hashpw(password, BCrypt.gensalt());
-            User user = new User(username, hashed_password, email, firstName, lastName, dateOfBirth);
+            User user = new User(username, hashed_password, email, fullName, dateOfBirth);
             addUser(user);
             return true;
         } catch (Exception ex) {
@@ -203,10 +198,9 @@ public class SQLUserDAO implements userDAO {
                 if (BCrypt.checkpw(password, storedHash)) {
                     String usernameDB = resultSet.getString("username");
                     String email = resultSet.getString("email");
-                    String firstName = resultSet.getString("firstName");
-                    String lastName = resultSet.getString("lastName");
+                    String fullName = resultSet.getString("fullName");
                     LocalDate dob = LocalDate.parse(resultSet.getString("dateOfBirth"));
-                    User user = new User(usernameDB, storedHash, email, firstName, lastName, dob);
+                    User user = new User(usernameDB, storedHash, email, fullName, dob);
                     user.setId(resultSet.getInt("id"));
                     return user;
                 }

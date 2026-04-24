@@ -26,7 +26,7 @@ public class User_DB_Test {
 
     public static void AddUserTest() {
         SQLUserDAO userDAO = SQLUserDAO.getInstance();
-        User user = new User("TestUsername" + new Random().nextInt(100000), "TestPassword", "test@example.com", "Test", "User",LocalDate.now());
+        User user = new User("TestUsername" + new Random().nextInt(100000), "TestPassword", "test@example.com", "Test User",LocalDate.now());
         userDAO.addUser(user);
         System.out.println("User added with ID: " + user.getId());
     }
@@ -65,8 +65,8 @@ public class User_DB_Test {
 
     public static void UniqueUserTest() {
         SQLUserDAO userDAO = SQLUserDAO.getInstance();
-        User user1 = new User("UniqueUsername", "TestPassword", "test1@example.com", "Test", "User", LocalDate.now());
-        User user2 = new User("UniqueUsername", "TestPassword", "test2@example.com", "Test", "User", LocalDate.now());
+        User user1 = new User("UniqueUsername", "TestPassword", "test1@example.com", "Test User", LocalDate.now());
+        User user2 = new User("UniqueUsername", "TestPassword", "test2@example.com", "Test User", LocalDate.now());
         try {
             userDAO.addUser(user1);
             System.out.println("First user added with ID: " + user1.getId());
