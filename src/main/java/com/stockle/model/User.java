@@ -55,8 +55,8 @@ public class User {
         this.firstName = firstName;
         this.lastName = lastName;
         this.dateOfBirth = dateOfBirth;
-        this.balance = balance; // Default balance for new users
-        this.totalProfit = totalProfit; // Default total profit for new users
+        this.balance = balance;
+        this.totalProfit = totalProfit;
     }
 
     public int getId() {

@@ -43,4 +43,28 @@ public class Stock {
         Long volume = json.getLong("volume");
         return new Stock(stockNumber, companyName, sector, currentPrice, dailyChange, volume);
     }
+
+    public Long getStockNumber() {
+        return stockNumber;
+    } 
+    
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public String getSector() {
+        return sector;
+    }
+
+    public Long getCurrentPrice() {
+        return currentPrice;
+    }
+
+    public Float getDailyChange() {
+        return dailyChange;
+    }
+
+    public Long getVolume() {
+        return volume;
+    }
 }
