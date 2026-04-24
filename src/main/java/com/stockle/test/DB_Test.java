@@ -16,6 +16,8 @@ public class DB_Test {
         UpdateUserTest(randomId);
         UpdateUserTestValidate(randomId);
         // UniqueUserTest();
+        CheckUserBalanceTest(randomId);
+        CheckUserTotalProfitTest(randomId);
     }
 
     public static void AddUserTest() {
@@ -72,6 +74,27 @@ public class DB_Test {
             System.out.println("Second user added with ID: This should not happen");
         } catch (Exception e) {
             System.out.println("Failed to add second user: This is good unique constraint is working");
+        }
+    }
+
+    public static void CheckUserBalanceTest(int id) {
+        SQLUserDAO userDAO = SQLUserDAO.getInstance();
+        User user = userDAO.getUserById(id);
+        if (user != null) {
+            System.out.println("User balance: " + user.getBalance());
+            
+        } else {
+            System.out.println("User not found.");
+        }
+    }
+
+    public static void CheckUserTotalProfitTest(int id) {
+        SQLUserDAO userDAO = SQLUserDAO.getInstance();
+        User user = userDAO.getUserById(id);
+        if (user != null) {
+            System.out.println("User total profit: " + user.getTotalProfit());
+        } else {
+            System.out.println("User not found.");
         }
     }
 }

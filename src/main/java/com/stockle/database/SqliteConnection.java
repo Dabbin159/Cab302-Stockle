@@ -40,14 +40,18 @@ public class SqliteConnection {
             + "email TEXT NOT NULL,"
             + "firstName TEXT NOT NULL,"
             + "lastName TEXT NOT NULL,"
-            + "dateOfBirth TEXT NOT NULL"
+            + "dateOfBirth TEXT NOT NULL,"
+            + "balance INTEGER NOT NULL,"
+            + "totalProfit INTEGER NOT NULL"
             + ")";
 
-    private static final String STOCK_TABLE = "CREATE TABLE IF NOT EXISTS stocks ("
+    private static final String STOCK_TABLE = "CREATE TABLE IF NOT EXISTS trades ("
             + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
             + "userID INTEGER NOT NULL,"
-            + "stockData TEXT NOT NULL,"
+            + "tradeData TEXT NOT NULL,"
             + "createdAt TEXT NOT NULL,"
+            + "sold INTEGER NOT NULL,"
+            + "profit INTEGER,"
             + "FOREIGN KEY (userID) REFERENCES users(id)"
             + ")";
 
