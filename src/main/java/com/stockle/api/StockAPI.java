@@ -287,9 +287,7 @@ public class StockAPI {
                 }
                 
                 String url = urlBuilder.toString();
-                System.out.println("DEBUG: Fetching bars from: " + url);
                 String response = makeRequest(url);
-                System.out.println("DEBUG: Response received, length: " + response.length());
                 
                 JsonNode root = objectMapper.readTree(response);
                 
@@ -299,7 +297,6 @@ public class StockAPI {
                 if (barsObject != null && barsObject.isObject()) {
                     JsonNode barsArray = barsObject.get(symbol);
                     if (barsArray != null && barsArray.isArray()) {
-                        System.out.println("DEBUG: Found " + barsArray.size() + " bars in response");
                         for (JsonNode barNode : barsArray) {
                             String timestamp = barNode.get("t").asText();
                             LocalDateTime dateTime = java.time.OffsetDateTime.parse(timestamp).toLocalDateTime();
@@ -314,21 +311,15 @@ public class StockAPI {
                             );
                             bars.add(bar);
                         }
-                    } else {
-                        System.out.println("DEBUG: No bars array found for symbol " + symbol);
                     }
-                } else {
-                    System.out.println("DEBUG: No bars object found in response");
                 }
                 
                 // Check for pagination token
                 JsonNode nextTokenNode = root.get("next_page_token");
                 if (nextTokenNode != null && !nextTokenNode.isNull()) {
                     nextPageToken = nextTokenNode.asText();
-                    System.out.println("DEBUG: Found next_page_token, continuing...");
                 } else {
                     hasMore = false;
-                    System.out.println("DEBUG: No next_page_token found, stopping pagination");
                 }
             }
             
@@ -377,9 +368,7 @@ public class StockAPI {
                 }
                 
                 String url = urlBuilder.toString();
-                System.out.println("DEBUG: Fetching quotes from: " + url);
                 String response = makeRequest(url);
-                System.out.println("DEBUG: Response received, length: " + response.length());
                 
                 JsonNode root = objectMapper.readTree(response);
                 
@@ -389,7 +378,6 @@ public class StockAPI {
                 if (quotesObject != null && quotesObject.isObject()) {
                     JsonNode quotesArray = quotesObject.get(symbol);
                     if (quotesArray != null && quotesArray.isArray()) {
-                        System.out.println("DEBUG: Found " + quotesArray.size() + " quotes in response");
                         for (JsonNode quoteNode : quotesArray) {
                             String timestamp = quoteNode.get("t").asText();
                             LocalDateTime dateTime = java.time.OffsetDateTime.parse(timestamp).toLocalDateTime();
@@ -404,21 +392,15 @@ public class StockAPI {
                             );
                             quotes.add(quote);
                         }
-                    } else {
-                        System.out.println("DEBUG: No quotes array found for symbol " + symbol);
                     }
-                } else {
-                    System.out.println("DEBUG: No quotes object found in response");
                 }
                 
                 // Check for pagination token
                 JsonNode nextTokenNode = root.get("next_page_token");
                 if (nextTokenNode != null && !nextTokenNode.isNull()) {
                     nextPageToken = nextTokenNode.asText();
-                    System.out.println("DEBUG: Found next_page_token, continuing...");
                 } else {
                     hasMore = false;
-                    System.out.println("DEBUG: No next_page_token found, stopping pagination");
                 }
             }
             
