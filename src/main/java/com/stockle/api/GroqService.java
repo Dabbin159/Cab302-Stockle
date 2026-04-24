@@ -119,6 +119,9 @@ public class GroqService {
                     .build();
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        
+            // Debugging script below for printing json error response
+            // System.out.println(response.body());
 
             return extractMessage(response.body());
 
