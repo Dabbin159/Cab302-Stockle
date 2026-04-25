@@ -3,8 +3,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.geometry.Insets?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml/1"
-            xmlns="http://javafx.com/javafx/21"
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            xmlns="http://javafx.com/javafx"
             fx:controller="com.stockle.ui.AIController"
             stylesheets="@ai.css">
 
@@ -84,19 +84,19 @@
                             <VBox spacing="6" style="-fx-padding: 0 12 14 12;">
                                 <Button text="Analyse my recent trading performance"
                                         styleClass="suggestion-btn" maxWidth="Infinity"
-                                        wrapText="true"/>
+                                        wrapText="true" onAction="#handleSuggest"/>
                                 <Button text="What strategies can improve my win rate?"
                                         styleClass="suggestion-btn" maxWidth="Infinity"
-                                        wrapText="true"/>
+                                        wrapText="true" onAction="#handleSuggest"/>
                                 <Button text="Explain technical analysis basics"
                                         styleClass="suggestion-btn" maxWidth="Infinity"
-                                        wrapText="true"/>
+                                        wrapText="true" onAction="#handleSuggest"/>
                                 <Button text="How should I diversify my portfolio?"
                                         styleClass="suggestion-btn" maxWidth="Infinity"
-                                        wrapText="true"/>
+                                        wrapText="true" onAction="#handleSuggest"/>
                                 <Button text="Analyse my last trade"
                                         styleClass="suggestion-btn suggestion-btn-trade"
-                                        maxWidth="Infinity"/>
+                                        maxWidth="Infinity" onAction="#handleSuggest"/>
                             </VBox>
                         </VBox>
 
