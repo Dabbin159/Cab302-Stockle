@@ -11,7 +11,7 @@ import com.stockle.model.TradeContext;
 
 public class GroqService {
 
-    private static final String API_KEY = System.getenv("GROQ_API_KEY");
+    private static final String API_KEY = "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";
 
     private final HttpClient client = HttpClient.newHttpClient();
 
