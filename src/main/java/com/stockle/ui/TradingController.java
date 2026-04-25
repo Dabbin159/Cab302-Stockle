@@ -251,5 +251,7 @@ public class TradingController {
         SceneManager.switchTo("auth/auth-view.fxml");
     }
 
-    @FXML private void navAI() {}
+    @FXML private void navAI() throws IOException {
+        SceneManager.switchTo("ai/ai-view.fxml");
+    }
 }

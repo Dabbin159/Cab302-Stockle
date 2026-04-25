@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml/1"
+            xmlns="http://javafx.com/javafx/21"
+            fx:controller="com.stockle.ui.AIController"
+            stylesheets="@ai.css">
+
+    <!-- Sidebar -->
+    <left>
+        <VBox styleClass="sidebar">
+            <padding><Insets top="24" bottom="16" left="16" right="16"/></padding>
+            <Label text="Stockle" styleClass="sidebar-logo"/>
+            <VBox spacing="2" styleClass="nav-section">
+                <Button text="Dashboard" maxWidth="Infinity" styleClass="nav-item" onAction="#navDashboard"/>
+                <Button text="Trading" maxWidth="Infinity" styleClass="nav-item" onAction="#navTrading"/>
+                <Button text="Practice" maxWidth="Infinity" styleClass="nav-item"/>
+                <Button text="Leaderboard" maxWidth="Infinity" styleClass="nav-item"/>
+                <Button text="AI Chat" maxWidth="Infinity" styleClass="nav-item-active"/>
+                <Button text="News" maxWidth="Infinity" styleClass="nav-item"/>
+                <Button text="Profile" maxWidth="Infinity" styleClass="nav-item"/>
+            </VBox>
+            <Region VBox.vgrow="ALWAYS"/>
+            <Button text="Sign Out" maxWidth="Infinity" styleClass="nav-signout" onAction="#handleSignOut"/>
+        </VBox>
+    </left>
+
+    <!-- Main content -->
+    <center>
+        <VBox styleClass="ai-page-root" spacing="20">
+            <padding><Insets top="28" bottom="28" left="28" right="28"/></padding>
+
+            <!-- Header -->
+            <VBox spacing="2">
+                <Label text="AI Trading Assistant" styleClass="page-title"/>
+                <Label text="Get personalized trading insights and strategies powered by AI."
+                       styleClass="page-subtitle"/>
+            </VBox>
+
+            <!-- Two-column body -->
+            <HBox spacing="20" VBox.vgrow="ALWAYS">
+
+                <!-- Left: Chat window (2/3) -->
+                <VBox HBox.hgrow="ALWAYS">
+                    <VBox styleClass="card chat-card" VBox.vgrow="ALWAYS">
+
+                        <!-- Card title -->
+                        <HBox styleClass="chat-header" alignment="CENTER_LEFT" spacing="8">
+                            <StackPane styleClass="bot-avatar-sm">
+                                <Label text="AI" styleClass="bot-avatar-sm-lbl"/>
+                            </StackPane>
+                            <Label text="Chat with AI Assistant" styleClass="card-title"/>
+                        </HBox>
+
+                        <!-- Message area -->
+                        <ScrollPane fitToWidth="true"
+                                    styleClass="chat-scroll" VBox.vgrow="ALWAYS"
+                                    hbarPolicy="NEVER" vbarPolicy="AS_NEEDED">
+                            <VBox fx:id="chatBox" spacing="14" styleClass="chat-body"/>
+                        </ScrollPane>
+
+                        <!-- Input bar -->
+                        <HBox styleClass="chat-input-bar" spacing="10" alignment="CENTER">
+                            <TextField fx:id="userInput" promptText="Ask me anything about trading..."
+                                       styleClass="chat-input" HBox.hgrow="ALWAYS"
+                                       onAction="#handleSend"/>
+                            <Button text="➤" styleClass="send-btn" onAction="#handleSend"/>
+                        </HBox>
+
+                    </VBox>
+                </VBox>
+
+                <!-- Right: sidebar cards (1/3) -->
+                <ScrollPane prefWidth="300" minWidth="280" VBox.vgrow="ALWAYS"
+                            fitToWidth="true" hbarPolicy="NEVER" styleClass="right-scroll">
+                    <VBox spacing="16" style="-fx-padding: 0 2 0 0;">
+
+                        <!-- Suggested Questions -->
+                        <VBox styleClass="card">
+                            <Label text="Suggested Questions" styleClass="card-title"
+                                   style="-fx-padding: 16 16 10 16;"/>
+                            <VBox spacing="6" style="-fx-padding: 0 12 14 12;">
+                                <Button text="Analyse my recent trading performance"
+                                        styleClass="suggestion-btn" maxWidth="Infinity"
+                                        wrapText="true"/>
+                                <Button text="What strategies can improve my win rate?"
+                                        styleClass="suggestion-btn" maxWidth="Infinity"
+                                        wrapText="true"/>
+                                <Button text="Explain technical analysis basics"
+                                        styleClass="suggestion-btn" maxWidth="Infinity"
+                                        wrapText="true"/>
+                                <Button text="How should I diversify my portfolio?"
+                                        styleClass="suggestion-btn" maxWidth="Infinity"
+                                        wrapText="true"/>
+                                <Button text="Analyse my last trade"
+                                        styleClass="suggestion-btn suggestion-btn-trade"
+                                        maxWidth="Infinity"/>
+                            </VBox>
+                        </VBox>
+
+                        <!-- AI Insights -->
+                        <VBox styleClass="card">
+                            <HBox styleClass="card-title-row" alignment="CENTER_LEFT" spacing="6">
+                                <Label text="AI Insights" styleClass="card-title"/>
+                            </HBox>
+                            <VBox spacing="8" style="-fx-padding: 0 16 16 16;">
+                                <HBox styleClass="insight-row" spacing="10" alignment="TOP_LEFT">
+                                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                                        <Label text="Trading Pattern Analysis" styleClass="insight-title"/>
+                                        <Label text="Your win rate has improved by 12% in the last 30 days"
+                                               styleClass="insight-desc" wrapText="true"/>
+                                    </VBox>
+                                </HBox>
+                                <HBox styleClass="insight-row" spacing="10" alignment="TOP_LEFT">
+                                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                                        <Label text="Portfolio Suggestion" styleClass="insight-title"/>
+                                        <Label text="Consider diversifying into healthcare stocks"
+                                               styleClass="insight-desc" wrapText="true"/>
+                                    </VBox>
+                                </HBox>
+                                <HBox styleClass="insight-row" spacing="10" alignment="TOP_LEFT">
+                                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                                        <Label text="Risk Assessment" styleClass="insight-title"/>
+                                        <Label text="Your current portfolio has moderate risk exposure"
+                                               styleClass="insight-desc" wrapText="true"/>
+                                    </VBox>
+                                </HBox>
+                            </VBox>
+                        </VBox>
+                    </VBox>
+                </ScrollPane>
+            </HBox>
+        </VBox>
+    </center>
+
+</BorderPane>
