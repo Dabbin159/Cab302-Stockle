@@ -66,13 +66,6 @@
             <artifactId>jackson-databind</artifactId>
             <version>2.16.1</version>
         </dependency>
-
-        <!-- Add this for easier REST calls -->
-        <dependency>
-            <groupId>com.squareup.okhttp3</groupId>
-            <artifactId>okhttp</artifactId>
-            <version>4.11.0</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -90,7 +83,7 @@
                         <id>default-compile</id>
                         <configuration>
                             <compilerArgs>
-                                <arg>--add-modules=okhttp3,com.fasterxml.jackson.databind</arg>
+                                <arg>--add-modules=com.fasterxml.jackson.databind</arg>
                             </compilerArgs>
                         </configuration>
                     </execution>
@@ -98,7 +91,7 @@
                         <id>default-testCompile</id>
                         <configuration>
                             <compilerArgs>
-                                <arg>--add-modules=okhttp3,com.fasterxml.jackson.databind</arg>
+                                <arg>--add-modules=com.fasterxml.jackson.databind</arg>
                             </compilerArgs>
                             <classpath>
                                 <classpathElement>${project.build.outputDirectory}</classpathElement>
@@ -125,7 +118,7 @@
                             <noManPages>true</noManPages>
                             <stripDebug>true</stripDebug>
                             <noHeaderFiles>true</noHeaderFiles>
-                            <jvmArgs>--add-modules=okhttp3,com.fasterxml.jackson.databind</jvmArgs>
+                            <jvmArgs>--add-modules=com.fasterxml.jackson.databind</jvmArgs>
                         </configuration>
                     </execution>
                 </executions>

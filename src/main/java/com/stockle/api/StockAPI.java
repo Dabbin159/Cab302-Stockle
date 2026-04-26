@@ -1,12 +1,20 @@
 package com.stockle.api;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
-import okhttp3.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * StockAPI handles all communication with the Alpaca Markets API.
@@ -22,6 +30,12 @@ public class StockAPI {
     private static final String SECRET_KEY = "6x4GW4U5ozqS46zvyk1pvay1h4dXswEPakEvZEtBW7Rh";
     private static final String BASE_URL = "https://paper-api.alpaca.markets"; // Paper trading endpoint
     private static final String DATA_URL = "https://data.alpaca.markets";
+    
+    // HTTP configuration constants
+    private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(10);
+    private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(30);
+    private static final int MAX_RETRIES = 3;
+    private static final long RETRY_DELAY_MS = 1000;
     
     // Feed options: sip, iex, delayed_sip, boats, overnight, otc
     public enum DataFeed {
@@ -40,7 +54,7 @@ public class StockAPI {
     }
     
     // Reusable HTTP client and JSON parser
-    private final OkHttpClient httpClient;
+    private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
     private DataFeed dataFeed; // Configurable data feed preference
     
@@ -51,11 +65,15 @@ public class StockAPI {
      * - APCA_API_SECRET_KEY: Your Alpaca secret key
      */
     public StockAPI() {
-        this.httpClient = new OkHttpClient();
+        this.httpClient = HttpClient.newBuilder()
+                .connectTimeout(CONNECT_TIMEOUT)
+                .followRedirects(HttpClient.Redirect.NORMAL)
+                .build();
         this.objectMapper = new ObjectMapper();
         this.dataFeed = DataFeed.IEX; // Default to SIP feed (or IEX if unlimited subscription not available)
     }
-    
+
+    // ------------------- CONFIGURATION METHODS ------------------
     /**
      * Set the data feed to use for API queries.
      * @param feed The data feed to use (SIP, IEX, DELAYED_SIP, BOATS, OVERNIGHT, OTC)
@@ -71,27 +89,45 @@ public class StockAPI {
     public DataFeed getDataFeed() {
         return this.dataFeed;
     }
-    
+    // ------------------------------------------------------------
+
     /**
-     * Helper method to make GET requests to Alpaca API
+     * Helper method to make GET requests to Alpaca API with automatic retry logic
      */
     private String makeRequest(String url) throws Exception {
-        Request request = new Request.Builder()
-                .url(url)
-                .get()
-                .addHeader("APCA-API-KEY-ID", API_KEY)
-                .addHeader("APCA-API-SECRET-KEY", SECRET_KEY)
-                .addHeader("accept", "application/json")
-                .build();
-        
-        String responseBody;
-        try (Response response = httpClient.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
-                String errorBody = response.body() != null ? response.body().string() : "No error details";
-                throw new RuntimeException("API Error: " + response.code() + " - " + errorBody);
-            }   responseBody = response.body().string();
+        for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+            try {
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(new URI(url))
+                        .timeout(REQUEST_TIMEOUT)
+                        .GET()
+                        .header("APCA-API-KEY-ID", API_KEY)
+                        .header("APCA-API-SECRET-KEY", SECRET_KEY)
+                        .header("Accept", "application/json")
+                        .build();
+                
+                HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                
+                if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                    // Retry on 5xx errors (server errors)
+                    if (response.statusCode() >= 500 && attempt < MAX_RETRIES) {
+                        long delayMs = RETRY_DELAY_MS * (long) Math.pow(2, attempt - 1); // Exponential backoff
+                        Thread.sleep(delayMs);
+                        continue;
+                    }
+                    throw new RuntimeException("API Error: " + response.statusCode() + " - " + response.body());
+                }
+                
+                return response.body();
+            } catch (InterruptedException | java.net.http.HttpTimeoutException e) {
+                if (attempt == MAX_RETRIES) {
+                    throw new RuntimeException("Request failed after " + MAX_RETRIES + " attempts: " + e.getMessage(), e);
+                }
+                long delayMs = RETRY_DELAY_MS * (long) Math.pow(2, attempt - 1);
+                Thread.sleep(delayMs);
+            }
         }
-        return responseBody;
+        throw new RuntimeException("Request failed after " + MAX_RETRIES + " attempts");
     }
     
     // ==================== MULTIPLE STOCKS DATA ====================
@@ -132,7 +168,6 @@ public class StockAPI {
             }
         } catch (Exception e) {
             System.err.println("Error fetching latest bars: " + e.getMessage());
-            e.printStackTrace();
         }
         
         return result;
@@ -175,7 +210,6 @@ public class StockAPI {
             }
         } catch (Exception e) {
             System.err.println("Error fetching latest quotes: " + e.getMessage());
-            e.printStackTrace();
         }
         
         return result;
@@ -243,7 +277,6 @@ public class StockAPI {
             }
         } catch (Exception e) {
             System.err.println("Error fetching snapshots: " + e.getMessage());
-            e.printStackTrace();
         }
         
         return result;
@@ -328,7 +361,6 @@ public class StockAPI {
             }
         } catch (Exception e) {
             System.err.println("Error fetching historical bars for " + symbol + ": " + e.getMessage());
-            e.printStackTrace();
         }
         
         return bars;
@@ -409,7 +441,6 @@ public class StockAPI {
             }
         } catch (Exception e) {
             System.err.println("Error fetching historical quotes for " + symbol + ": " + e.getMessage());
-            e.printStackTrace();
         }
         
         return quotes;
@@ -417,16 +448,79 @@ public class StockAPI {
     
     /**
      * Get historical trade data for a single stock.
-     * @param symbol Stock symbol
-     * @param startDate Start date
-     * @param endDate End date
-     * @return List of trade data points
+     * @param symbol Stock symbol (e.g., "AAPL")
+     * @param startDate Start date for historical data (YYYY-MM-DD format)
+     * @param endDate End date for historical data (YYYY-MM-DD format)
+     * @return List of trade data points sorted by timestamp
      */
     public List<TradeData> getHistoricalTrades(String symbol, LocalDate startDate, LocalDate endDate) {
-        // GET /v1/trades/{symbol}?start={startDate}&end={endDate}
+        // GET /v2/stocks/trades?symbols={symbol}&start={startDate}&end={endDate}
         List<TradeData> trades = new ArrayList<>();
-        // TODO: Implement HTTP request with pagination
-        // Each trade includes: price, size, timestamp, exchange code
+        String nextPageToken = null;
+        int maxIterations = 100; // Prevent infinite loops
+        int iterations = 0;
+        
+        try {
+            boolean hasMore = true;
+            
+            while (hasMore && iterations < maxIterations) {
+                iterations++;
+                
+                StringBuilder urlBuilder = new StringBuilder(DATA_URL + "/v2/stocks/trades");
+                urlBuilder.append("?symbols=").append(symbol);
+                urlBuilder.append("&start=").append(startDate);
+                urlBuilder.append("&end=").append(endDate);
+                urlBuilder.append("&limit=10000"); // Max limit per request
+                urlBuilder.append("&sort=asc"); // Sort by timestamp ascending
+                urlBuilder.append("&feed=").append(dataFeed.value); // Use configured data feed
+                
+                // Add pagination token if present
+                if (nextPageToken != null) {
+                    urlBuilder.append("&page_token=").append(nextPageToken);
+                }
+                
+                String url = urlBuilder.toString();
+                String response = makeRequest(url);
+                
+                JsonNode root = objectMapper.readTree(response);
+                
+                // Extract trades for the requested symbol
+                // The API returns trades as an object: { "trades": { "AAPL": [...], ... } }
+                JsonNode tradesObject = root.get("trades");
+                if (tradesObject != null && tradesObject.isObject()) {
+                    JsonNode tradesArray = tradesObject.get(symbol);
+                    if (tradesArray != null && tradesArray.isArray()) {
+                        for (JsonNode tradeNode : tradesArray) {
+                            String timestamp = tradeNode.get("t").asText();
+                            LocalDateTime dateTime = java.time.OffsetDateTime.parse(timestamp).toLocalDateTime();
+                            
+                            TradeData trade = new TradeData(
+                                    dateTime,
+                                    tradeNode.get("p").asDouble(),
+                                    tradeNode.get("s").asLong(),
+                                    tradeNode.get("x").asText()
+                            );
+                            trades.add(trade);
+                        }
+                    }
+                }
+                
+                // Check for pagination token
+                JsonNode nextTokenNode = root.get("next_page_token");
+                if (nextTokenNode != null && !nextTokenNode.isNull()) {
+                    nextPageToken = nextTokenNode.asText();
+                } else {
+                    hasMore = false;
+                }
+            }
+            
+            if (iterations >= maxIterations) {
+                System.err.println("Warning: Reached maximum iterations (" + maxIterations + ") for historical trades");
+            }
+        } catch (Exception e) {
+            System.err.println("Error fetching historical trades for " + symbol + ": " + e.getMessage());
+        }
+        
         return trades;
     }
     
@@ -462,7 +556,6 @@ public class StockAPI {
             }
         } catch (Exception e) {
             System.err.println("Error fetching all assets: " + e.getMessage());
-            e.printStackTrace();
         }
         
         return assets;
@@ -493,7 +586,6 @@ public class StockAPI {
             return asset;
         } catch (Exception e) {
             System.err.println("Error fetching asset " + symbolOrId + ": " + e.getMessage());
-            e.printStackTrace();
             return null;
         }
     }
