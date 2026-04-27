@@ -6,6 +6,8 @@ public interface tradeDAO {
 
     public void addTrade(Trade trade);
 
+    public void addTrade(Trade trade, long profit);
+
     public void deleteTrade(int tradeId);    
 
     public void updateTrade(Trade trade);

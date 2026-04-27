@@ -27,7 +27,7 @@ public class SQLTradeDAO implements tradeDAO {
         return instance;
     }
 
-    private static final String ADD_TRADE = "INSERT INTO trades (userID, companyID, tradeData, createdAt, quantity, sold, profit) VALUES (?, ?, ?, ?, ?, ?)";
+    private static final String ADD_TRADE = "INSERT INTO trades (userID, companyID, tradeData, createdAt, quantity, sold, profit) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
     private static final String DELETE_TRADE = "DELETE FROM trades WHERE id = ?";
 
@@ -40,14 +40,18 @@ public class SQLTradeDAO implements tradeDAO {
     private static final String GET_TRADES_BY_USER_ID = "SELECT * FROM trades WHERE userID = ?";
 
     public void addTrade(Trade trade) {
+        addTrade(trade, 0); // Default profit to 0 for new trades
+    }
+
+    public void addTrade(Trade trade, long profit) {
         try (PreparedStatement statement = connection.prepareStatement(ADD_TRADE)) {
             statement.setInt(1, trade.getUserNumber());
             statement.setString(2, trade.getStock().getCompanyName());
             statement.setString(3, trade.toJSON().toString());
             statement.setString(4, trade.getTimeStamp());
             statement.setLong(5, trade.getQuantity());
-            statement.setInt(6, 0); // Initial sold status is set to 0 (not sold)
-            statement.setLong(7, 0); // Initial profit is set to 0
+            statement.setInt(6, trade.isType() ? 1 : 0);  // sold=1 for SELL, 0 for BUY
+            statement.setLong(7, profit);
             statement.executeUpdate();
         } catch (SQLException ex) {
             ex.printStackTrace();

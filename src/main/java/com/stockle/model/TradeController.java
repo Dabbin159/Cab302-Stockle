@@ -36,17 +36,47 @@ public class TradeController {
         user.setBalance(user.getBalance() - totalCost);
         SQLUserDAO.getInstance().updateUserBalance(user.getId(), user.getBalance());
         Trade trade = new Trade(user.getId(), stock, (long)quantity, totalCost, String.valueOf(System.currentTimeMillis()));
+        trade.setType(false); // false = BUY
         SQLTradeDAO.getInstance().addTrade(trade);
         return true;
     }
     // Sell
-    public void executeSell(User user, Trade trade, int quantity) {
-        // Implement sell logic here
-    }
-    
-    // Trade History
+    public boolean executeSell(User user, Stock stock, int quantity) {
+        SQLHoldingDAO holdingDAO = SQLHoldingDAO.getInstance();
+        SQLTradeDAO tradeDAO = SQLTradeDAO.getInstance();
+        
+        // Check if user owns the stock
+        Holding holding = holdingDAO.getHolding(user.getId(), stock.getCompanyName());
+        
+        if (holding == null || holding.getQuantity() < quantity) {
+            return false; // Don't own enough shares
+        }
+        
+        // Calculate proceeds and profit
+        long proceeds = stock.getCurrentPrice() * quantity;
+        long profit = (stock.getCurrentPrice() - holding.getAveragePrice()) * quantity;
+        
+        // Update holdings
+        int newQuantity = holding.getQuantity() - quantity;
+        if (newQuantity == 0) {
+            holdingDAO.deleteHolding(holding.getId()); // Remove if empty
+        } else {
+            holding.setQuantity(newQuantity);
+            holdingDAO.updateHolding(holding);
+        }
+        
+        // Update balance and record trade
+        user.setBalance(user.getBalance() + proceeds);
+        SQLUserDAO.getInstance().updateUserBalance(user.getId(), user.getBalance());
+        
+        Trade trade = new Trade(user.getId(), stock, (long)quantity, proceeds, String.valueOf(System.currentTimeMillis()));
+        trade.setType(true); // true = SELL
+        tradeDAO.addTrade(trade, profit);
+        return true;
+    }    
+        // Trade History
     public void getTradeHistory(User user) {
         // Implement trade history retrieval logic here
     }
-    
-}
+        
+ }    
