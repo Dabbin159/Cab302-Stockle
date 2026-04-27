@@ -55,6 +55,16 @@ public class SqliteConnection {
             + "createdAt TEXT NOT NULL,"
             + "sold INTEGER NOT NULL,"
             + "profit INTEGER,"
+            + "quantity INTEGER NOT NULL,"
+            + "FOREIGN KEY (userID) REFERENCES users(id)"
+            + ")";
+
+    private static final String HOLDING_TABLE = "CREATE TABLE IF NOT EXISTS holdings ("
+            + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            + "userID INTEGER NOT NULL,"
+            + "companyID TEXT NOT NULL,"
+            + "quantity INTEGER NOT NULL,"
+            + "averagePrice INTEGER NOT NULL,"
             + "FOREIGN KEY (userID) REFERENCES users(id)"
             + ")";
 
@@ -66,6 +76,7 @@ public class SqliteConnection {
             Statement statement = instance.createStatement();
             statement.execute(USER_TABLE);
             statement.execute(TRADE_TABLE);
+            statement.execute(HOLDING_TABLE);
         } catch (SQLException ex) {
             ex.printStackTrace();
         }

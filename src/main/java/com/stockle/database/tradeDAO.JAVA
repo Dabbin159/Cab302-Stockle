@@ -1,15 +1,19 @@
 package com.stockle.database;
 
-import java.time.LocalDate;
-import java.util.List;
-
-import com.stockle.model.User;
+import com.stockle.model.Trade;
 
 public interface tradeDAO {
 
     public void addTrade(Trade trade);
 
-    public void deleteTrade(int tradeId);
+    public void deleteTrade(int tradeId);    
 
+    public void updateTrade(Trade trade);
+
+    public Trade getTradeById(int tradeId);
+    
+    public Trade[] getAllTrades();
+
+    public Trade[] getTradesByUserId(int userId);
     
 }

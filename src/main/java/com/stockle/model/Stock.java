@@ -6,7 +6,6 @@ public class Stock {
 
     // Fields
     // Logo
-    private Long stockNumber;
     private String companyName;
     private String sector;
     private Long currentPrice;
@@ -14,8 +13,7 @@ public class Stock {
     private Long volume;
 
     // Constructor
-    public Stock(Long stockNumber, String companyName, String sector, Long currentPrice, Float dailyChange, Long volume) {
-        this.stockNumber = stockNumber;
+    public Stock(String companyName, String sector, Long currentPrice, Float dailyChange, Long volume) {
         this.companyName = companyName;
         this.sector = sector;
         this.currentPrice = currentPrice;
@@ -25,7 +23,6 @@ public class Stock {
 
     public JSONObject toJSON() {
         JSONObject json = new JSONObject();
-        json.put("stockNumber", stockNumber);
         json.put("companyName", companyName);
         json.put("sector", sector);
         json.put("currentPrice", currentPrice);
@@ -35,19 +32,14 @@ public class Stock {
     }
 
     public static Stock fromJSON(JSONObject json) {
-        Long stockNumber = json.getLong("stockNumber");
         String companyName = json.getString("companyName");
         String sector = json.getString("sector");
         Long currentPrice = json.getLong("currentPrice");
         Float dailyChange = json.getFloat("dailyChange");
         Long volume = json.getLong("volume");
-        return new Stock(stockNumber, companyName, sector, currentPrice, dailyChange, volume);
+        return new Stock(companyName, sector, currentPrice, dailyChange, volume);
     }
-
-    public Long getStockNumber() {
-        return stockNumber;
-    } 
-    
+        
     public String getCompanyName() {
         return companyName;
     }
@@ -67,4 +59,5 @@ public class Stock {
     public Long getVolume() {
         return volume;
     }
+
 }

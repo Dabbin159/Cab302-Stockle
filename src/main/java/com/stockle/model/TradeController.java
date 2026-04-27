@@ -1,28 +1,29 @@
 package com.stockle.model;
 
+import com.stockle.database.SQLTradeDAO;
 import com.stockle.database.SQLUserDAO;
 
 public class TradeController {
 
     // Buy
-    public void executeBuy(User user, Stock stock, int quantity) {
+    public boolean executeBuy(User user, Stock stock, int quantity) {
         SQLUserDAO userDAO = SQLUserDAO.getInstance();
+        SQLTradeDAO tradeDAO = SQLTradeDAO.getInstance();
         long balance = user.getBalance();
         long totalCost = stock.getCurrentPrice() * quantity;
         if (balance >= totalCost) {
             long balancechange = balance - totalCost;
             user.setBalance(balancechange);
             userDAO.updateUserBalance(user.getId(), balancechange);
-            Trade trade =  new Trade(user.getId(), stock, true, (long) totalCost, String.valueOf(System.currentTimeMillis()));
-            // Add Trade to Database
-            // Implement buy logic here
+            Trade trade =  new Trade(user.getId(), stock, (long) quantity, (long) totalCost, String.valueOf(System.currentTimeMillis()));
+            tradeDAO.addTrade(trade);
+            return true;
         } else {
-            // Handle insufficient balance case
+            return false;
         }
     }
 
     // Sell
-
     public void executeSell(User user, Trade trade, int quantity) {
         // Implement sell logic here
     }
