@@ -6,6 +6,7 @@ public class Holding {
     private String companyID;
     private int quantity;
     private Long averagePrice;
+    private int id; // Unique identifier for the holding
 
     public Holding(Long userNumber, String companyID, int quantity, Long averagePrice) {
         this.userNumber = userNumber;
@@ -28,6 +29,14 @@ public class Holding {
 
     public Long getAveragePrice() {
         return averagePrice;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public void setQuantity(int quantity) {
