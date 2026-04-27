@@ -7,7 +7,6 @@ import com.stockle.database.SQLUserDAO;
 public class TradeController {
 
     private TradeController() {
-        // Empty constructor to prevent instantiation
     }
 
     private static TradeController instance;
