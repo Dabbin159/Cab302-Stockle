@@ -6,6 +6,19 @@ import com.stockle.database.SQLUserDAO;
 
 public class TradeController {
 
+    private TradeController() {
+        // Empty constructor to prevent instantiation
+    }
+
+    private static TradeController instance;
+
+    public static TradeController getInstance() {
+        if (instance == null) {
+            instance = new TradeController();
+        }
+        return instance;
+    }    
+
     // Buy
     public boolean executeBuy(User user, Stock stock, int quantity) {
         long totalCost = stock.getCurrentPrice() * quantity;
@@ -19,10 +32,10 @@ public class TradeController {
         
         if (existing != null) {
             // Update: recalculate average price
-            long oldCost = existing.getAveragePrice() * existing.getQuantity();
+            int oldCost = existing.getAveragePrice() * existing.getQuantity();
             long newTotalCost = oldCost + totalCost;
             int newQuantity = existing.getQuantity() + quantity;
-            long newAvgPrice = newTotalCost / newQuantity;
+            int newAvgPrice = (int) (newTotalCost / newQuantity);
             
             existing.setQuantity(newQuantity);
             existing.setAveragePrice(newAvgPrice);
@@ -49,7 +62,7 @@ public class TradeController {
         Holding holding = holdingDAO.getHolding(user.getId(), stock.getCompanyName());
         
         if (holding == null || holding.getQuantity() < quantity) {
-            return false; // Don't own enough shares
+            return false; // Don't own enough shares or no holding at all
         }
         
         // Calculate proceeds and profit

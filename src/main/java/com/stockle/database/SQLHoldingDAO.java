@@ -88,7 +88,7 @@ public class SQLHoldingDAO implements holdingDAO {
                 int userID = resultSet.getInt("userID");
                 String companyID = resultSet.getString("companyID");
                 int quantity = resultSet.getInt("quantity");
-                Long averagePrice = resultSet.getLong("averagePrice");
+                int averagePrice = resultSet.getInt("averagePrice");
                 
                 Holding holding = new Holding(userID, companyID, quantity, averagePrice);
                 holding.setId(id);
@@ -112,7 +112,7 @@ public class SQLHoldingDAO implements holdingDAO {
                 int user = resultSet.getInt("userID");
                 String company = resultSet.getString("companyID");
                 int quantity = resultSet.getInt("quantity");
-                Long averagePrice = resultSet.getLong("averagePrice");
+                int averagePrice = resultSet.getInt("averagePrice");
                 
                 Holding holding = new Holding(user, company, quantity, averagePrice);
                 holding.setId(id);
@@ -136,7 +136,7 @@ public class SQLHoldingDAO implements holdingDAO {
                 int user = resultSet.getInt("userID");
                 String companyID = resultSet.getString("companyID");
                 int quantity = resultSet.getInt("quantity");
-                Long averagePrice = resultSet.getLong("averagePrice");
+                int averagePrice = resultSet.getInt("averagePrice");
                 
                 Holding holding = new Holding(user, companyID, quantity, averagePrice);
                 holding.setId(id);
