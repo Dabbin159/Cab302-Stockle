@@ -2,20 +2,20 @@ package com.stockle.model;
 
 public class Holding {
 
-    private Long userNumber;
+    private int userNumber;
     private String companyID;
     private int quantity;
     private Long averagePrice;
     private int id; // Unique identifier for the holding
 
-    public Holding(Long userNumber, String companyID, int quantity, Long averagePrice) {
+    public Holding(int userNumber, String companyID, int quantity, Long averagePrice) {
         this.userNumber = userNumber;
         this.companyID = companyID;
         this.quantity = quantity;
         this.averagePrice = averagePrice;
     }
 
-    public Long getUserNumber() {
+    public int getUserNumber() {
         return userNumber;
     }
 

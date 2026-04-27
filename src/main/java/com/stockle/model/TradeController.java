@@ -1,5 +1,6 @@
 package com.stockle.model;
 
+import com.stockle.database.SQLHoldingDAO;
 import com.stockle.database.SQLTradeDAO;
 import com.stockle.database.SQLUserDAO;
 
@@ -8,11 +9,11 @@ public class TradeController {
     // Buy
     public boolean executeBuy(User user, Stock stock, int quantity) {
         long totalCost = stock.getCurrentPrice() * quantity;
+        SQLHoldingDAO holdingDAO = SQLHoldingDAO.getInstance();
         
         if (user.getBalance() < totalCost) {
             return false;
         }
-        
         // Check if holding exists
         Holding existing = holdingDAO.getHolding(user.getId(), stock.getCompanyName());
         
@@ -31,12 +32,10 @@ public class TradeController {
             Holding holding = new Holding(user.getId(), stock.getCompanyName(), quantity, stock.getCurrentPrice());
             holdingDAO.addHolding(holding);
         }
-        
         // Update balance and record trade
         user.setBalance(user.getBalance() - totalCost);
         SQLUserDAO.getInstance().updateUserBalance(user.getId(), user.getBalance());
-        Trade trade = new Trade(user.getId(), stock, (long)quantity, totalCost, 
-                            String.valueOf(System.currentTimeMillis()));
+        Trade trade = new Trade(user.getId(), stock, (long)quantity, totalCost, String.valueOf(System.currentTimeMillis()));
         SQLTradeDAO.getInstance().addTrade(trade);
         return true;
     }

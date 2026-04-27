@@ -36,14 +36,14 @@ public class SQLHoldingDAO implements holdingDAO {
     private static final String GET_HOLDING_BY_ID = "SELECT * FROM holdings WHERE id = ?";
 
     private static final String GET_HOLDING_BY_USER_AND_COMPANY = "SELECT * FROM holdings WHERE userID = ? AND companyID = ?";
-    
+
     private static final String GET_USER_HOLDINGS = "SELECT * FROM holdings WHERE userID = ?";
 
     @Override
     public void addHolding(Holding holding) {
         try {
             PreparedStatement statement = connection.prepareStatement(ADD_HOLDING);
-            statement.setInt(1, holding.getUserNumber().intValue());
+            statement.setInt(1, holding.getUserNumber());
             statement.setString(2, holding.getCompanyID());
             statement.setInt(3, holding.getQuantity());
             statement.setLong(4, holding.getAveragePrice());
@@ -90,7 +90,7 @@ public class SQLHoldingDAO implements holdingDAO {
                 int quantity = resultSet.getInt("quantity");
                 Long averagePrice = resultSet.getLong("averagePrice");
                 
-                Holding holding = new Holding((long)userID, companyID, quantity, averagePrice);
+                Holding holding = new Holding(userID, companyID, quantity, averagePrice);
                 holding.setId(id);
                 return holding;
             }
@@ -114,7 +114,7 @@ public class SQLHoldingDAO implements holdingDAO {
                 int quantity = resultSet.getInt("quantity");
                 Long averagePrice = resultSet.getLong("averagePrice");
                 
-                Holding holding = new Holding((long)user, company, quantity, averagePrice);
+                Holding holding = new Holding(user, company, quantity, averagePrice);
                 holding.setId(id);
                 return holding;
             }
@@ -138,10 +138,10 @@ public class SQLHoldingDAO implements holdingDAO {
                 int quantity = resultSet.getInt("quantity");
                 Long averagePrice = resultSet.getLong("averagePrice");
                 
-                Holding holding = new Holding((long)user, companyID, quantity, averagePrice);
+                Holding holding = new Holding(user, companyID, quantity, averagePrice);
                 holding.setId(id);
                 holdings.add(holding);
-            }
+            }   
             return holdings;
         } catch (SQLException ex) {
             ex.printStackTrace();
