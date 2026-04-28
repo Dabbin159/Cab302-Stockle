@@ -1,14 +1,18 @@
 package com.stockle.ui;
 
+import java.io.IOException;
+
 import com.stockle.SessionManager;
 import com.stockle.database.SQLUserDAO;
 import com.stockle.model.User;
+
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import java.io.IOException;
 
 public class LoginController {
 
@@ -51,7 +55,7 @@ public class LoginController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));
             Stage stage = (Stage) usernameField.getScene().getWindow();
             stage.setScene(new Scene(loader.load(), width, height));
-        } catch (IOException) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

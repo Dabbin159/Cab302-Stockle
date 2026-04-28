@@ -5,6 +5,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+/**
+ * Class to manage the connection to the SQLite database. Implements the Singleton pattern to ensure only one connection is used throughout the application.
+ */
 public class SqliteConnection {
 
     private static Connection instance = null;
@@ -38,25 +41,42 @@ public class SqliteConnection {
             + "username TEXT NOT NULL UNIQUE,"
             + "password TEXT NOT NULL,"
             + "email TEXT NOT NULL,"
-            + "firstName TEXT NOT NULL,"
-            + "lastName TEXT NOT NULL,"
-            + "dateOfBirth TEXT NOT NULL"
+            + "fullName TEXT NOT NULL,"
+            + "dateOfBirth TEXT NOT NULL,"
+            + "balance INTEGER NOT NULL,"
+            + "totalProfit INTEGER NOT NULL"
             + ")";
 
-    private static final String STOCK_TABLE = "CREATE TABLE IF NOT EXISTS stocks ("
+    private static final String TRADE_TABLE = "CREATE TABLE IF NOT EXISTS trades ("
             + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
             + "userID INTEGER NOT NULL,"
-            + "stockData TEXT NOT NULL,"
+            + "companyID TEXT NOT NULL,"
+            + "tradeData TEXT NOT NULL,"
             + "createdAt TEXT NOT NULL,"
+            + "sold INTEGER NOT NULL,"
+            + "profit INTEGER,"
+            + "quantity INTEGER NOT NULL,"
             + "FOREIGN KEY (userID) REFERENCES users(id)"
             + ")";
 
+    private static final String HOLDING_TABLE = "CREATE TABLE IF NOT EXISTS holdings ("
+            + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            + "userID INTEGER NOT NULL,"
+            + "companyID TEXT NOT NULL,"
+            + "quantity INTEGER NOT NULL,"
+            + "averagePrice INTEGER NOT NULL,"
+            + "FOREIGN KEY (userID) REFERENCES users(id)"
+            + ")";
 
+    /**
+     * Method to set up the database tables if they do not already exist.
+     */
     private static void databaseSetup() {
         try {
             Statement statement = instance.createStatement();
             statement.execute(USER_TABLE);
-            statement.execute(STOCK_TABLE);
+            statement.execute(TRADE_TABLE);
+            statement.execute(HOLDING_TABLE);
         } catch (SQLException ex) {
             ex.printStackTrace();
         }

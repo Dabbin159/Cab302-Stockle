@@ -9,6 +9,10 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import com.stockle.model.User;
 
+
+/**
+ * Class to manage user-related database operations, such as adding, deleting, updating, and retrieving users. Implements the UserDAO interface to ensure consistency in method signatures and functionality across different DAO implementations.
+ */
 public class SQLUserDAO implements UserDAO {
 
     private static SQLUserDAO instance;
@@ -25,11 +29,11 @@ public class SQLUserDAO implements UserDAO {
         return instance;
     }
 
-    private static final String ADD_USER = "INSERT INTO users (username, password, email, firstName, lastName, dateOfBirth) VALUES (?, ?, ?, ?, ?, ?)";
+    private static final String ADD_USER = "INSERT INTO users (username, password, email, fullName, dateOfBirth, balance, totalProfit) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
     private static final String DELETE_USER = "DELETE FROM users WHERE id = ?";
 
-    private static final String UPDATE_USER = "UPDATE users SET username = ?, password = ?, email = ?, firstName = ?, lastName = ?, dateOfBirth = ? WHERE id = ?";
+    private static final String UPDATE_USER = "UPDATE users SET username = ?, password = ?, email = ?, fullName = ?, dateOfBirth = ?, balance = ?, totalProfit = ? WHERE id = ?";
 
     private static final String GET_USER_BY_ID = "SELECT * FROM users WHERE id = ?";
 
@@ -37,6 +41,13 @@ public class SQLUserDAO implements UserDAO {
 
     private static final String LOGIN_USER = "SELECT * FROM users WHERE username = ?";
 
+    private static final String GET_BALANCE_BYID = "SELECT balance FROM users WHERE id = ?";
+
+    private static final String GET_PROFIT_BYID = "SELECT totalProfit FROM users WHERE id = ?";
+
+    private static final String UPDATE_BALANCE_BYID = "UPDATE users SET balance = ? WHERE id = ?";
+
+    private static final String UPDATE_PROFIT_BYID = "UPDATE users SET totalProfit = ? WHERE id = ?";
     @Override
     /**
      * @param User The user to add.
@@ -47,9 +58,10 @@ public class SQLUserDAO implements UserDAO {
             statement.setString(1, user.getUsername());
             statement.setString(2, user.getPassword());
             statement.setString(3, user.getEmail());
-            statement.setString(4, user.getFirstName());
-            statement.setString(5, user.getLastName());
-            statement.setString(6, user.getDateOfBirth().toString());
+            statement.setString(4, user.getFullName());
+            statement.setString(5, user.getDateOfBirth().toString());
+            statement.setLong(6, user.getBalance());
+            statement.setLong(7, user.getTotalProfit());
             statement.executeUpdate();
             ResultSet generatedKeys = statement.getGeneratedKeys();
             if (generatedKeys.next()) {
@@ -83,10 +95,11 @@ public class SQLUserDAO implements UserDAO {
             statement.setString(1, user.getUsername());
             statement.setString(2, user.getPassword());
             statement.setString(3, user.getEmail());
-            statement.setString(4, user.getFirstName());
-            statement.setString(5, user.getLastName());
-            statement.setString(6, user.getDateOfBirth().toString());
-            statement.setInt(7, user.getId());
+            statement.setString(4, user.getFullName());
+            statement.setString(5, user.getDateOfBirth().toString());
+            statement.setLong(6, user.getBalance());
+            statement.setLong(7, user.getTotalProfit());
+            statement.setInt(8, user.getId());
             statement.executeUpdate();
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -107,10 +120,11 @@ public class SQLUserDAO implements UserDAO {
                 String username = resultSet.getString("username");
                 String password = resultSet.getString("password");
                 String email = resultSet.getString("email");
-                String firstName = resultSet.getString("firstName");
-                String lastName = resultSet.getString("lastName");
+                String fullName = resultSet.getString("fullName");
                 LocalDate dateOfBirth = LocalDate.parse(resultSet.getString("dateOfBirth"));
-                User user = new User(username, password, email, firstName, lastName, dateOfBirth);
+                long balance = resultSet.getLong("balance");
+                long totalProfit = resultSet.getLong("totalProfit");
+                User user = new User(username, password, email, fullName, dateOfBirth, balance, totalProfit);
                 user.setId(resultSet.getInt("id"));
                 return user;
             }
@@ -133,10 +147,9 @@ public class SQLUserDAO implements UserDAO {
                 String username = resultSet.getString("username");
                 String password = resultSet.getString("password");
                 String email = resultSet.getString("email");
-                String firstName = resultSet.getString("firstName");
-                String lastName = resultSet.getString("lastName");
+                String fullName = resultSet.getString("fullName");
                 LocalDate dateOfBirth = LocalDate.parse(resultSet.getString("dateOfBirth"));
-                User user = new User(username, password, email, firstName, lastName, dateOfBirth);
+                User user = new User(username, password, email, fullName, dateOfBirth);
                 user.setId(resultSet.getInt("id"));
                 users.add(user);
             }
@@ -151,17 +164,16 @@ public class SQLUserDAO implements UserDAO {
      * @param username Username for the new user,
      * @param password Password for the new user,
      * @param email Email address for the new user,
-     * @param firstName First name of the new user,
-     * @param lastName Last name of the new user,
+     * @param fullName Full name of the new user,
      * @param dateOfBirth Date of birth of the new user.
      * @return true if the signup was successful, false otherwise.
      */
     @Override
-    public boolean signup(String username, String password, String email, String firstName, String lastName, LocalDate dateOfBirth) {
+    public boolean signup(String username, String password, String email, String fullName, LocalDate dateOfBirth) {
         // Implementation for signing up a new user
         try {
             String hashed_password = BCrypt.hashpw(password, BCrypt.gensalt());
-            User user = new User(username, hashed_password, email, firstName, lastName, dateOfBirth);
+            User user = new User(username, hashed_password, email, fullName, dateOfBirth);
             addUser(user);
             return true;
         } catch (Exception ex) {
@@ -186,10 +198,9 @@ public class SQLUserDAO implements UserDAO {
                 if (BCrypt.checkpw(password, storedHash)) {
                     String usernameDB = resultSet.getString("username");
                     String email = resultSet.getString("email");
-                    String firstName = resultSet.getString("firstName");
-                    String lastName = resultSet.getString("lastName");
+                    String fullName = resultSet.getString("fullName");
                     LocalDate dob = LocalDate.parse(resultSet.getString("dateOfBirth"));
-                    User user = new User(usernameDB, storedHash, email, firstName, lastName, dob);
+                    User user = new User(usernameDB, storedHash, email, fullName, dob);
                     user.setId(resultSet.getInt("id"));
                     return user;
                 }
@@ -198,5 +209,75 @@ public class SQLUserDAO implements UserDAO {
             ex.printStackTrace();
         }
         return null;
+    }
+
+    /**
+    * @param userId The ID of the user.
+    * @return The balance of the user, or 0 if an error occurs.
+    */
+    @Override
+    public long getUserBalance(int userId) {
+        try {
+            PreparedStatement statement = connection.prepareStatement(GET_BALANCE_BYID);
+            statement.setInt(1, userId);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getLong("balance");
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return 0;
+    }
+
+    /**
+     * @param userId The ID of the user.
+     * @return The total profit of the user, or 0 if an error occurs.
+     * */
+    @Override
+    public long getUserTotalProfit(int userId) {
+        try {
+            PreparedStatement statement = connection.prepareStatement(GET_PROFIT_BYID);
+            statement.setInt(1, userId);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getLong("totalProfit");
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return 0;
+    }
+
+    /**
+     * @param userId The ID of the user.
+     * @param newBalance The new balance to set for the user.
+     */
+    @Override
+    public void updateUserBalance(int userId, long newBalance) {
+        try {
+            PreparedStatement statement = connection.prepareStatement(UPDATE_BALANCE_BYID);
+            statement.setLong(1, newBalance);
+            statement.setInt(2, userId);
+            statement.executeUpdate();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    /**
+     * @param userId The ID of the user.
+     * @param newTotalProfit The new total profit to set for the user.
+     */
+    @Override
+    public void updateUserTotalProfit(int userId, long newTotalProfit) {
+        try {
+            PreparedStatement statement = connection.prepareStatement(UPDATE_PROFIT_BYID);
+            statement.setLong(1, newTotalProfit);
+            statement.setInt(2, userId);
+            statement.executeUpdate();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
     }
 }
