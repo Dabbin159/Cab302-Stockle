@@ -122,6 +122,16 @@
                             </VBox>
 
                             <VBox spacing="4">
+                                <Label text="Username" styleClass="field-label"/>
+                                <TextField fx:id="signupUsername" promptText="abc123" styleClass="auth-input"/>
+                            </VBox>
+
+                            <VBox spacing="4">
+                                <Label text="Date of Birth" styleClass="field-label"/>
+                                <DatePicker fx:id="signupDateOfBirth" promptText="Date of Birth" styleClass="auth-input"/>
+                            </VBox>
+
+                            <VBox spacing="4">
                                 <Label text="Password" styleClass="field-label"/>
                                 <HBox styleClass="password-container">
                                     <StackPane HBox.hgrow="ALWAYS">
@@ -137,6 +147,8 @@
                                 <Label text="Confirm Password" styleClass="field-label"/>
                                 <PasswordField fx:id="signupConfirmPassword" styleClass="auth-input"/>
                             </VBox>
+
+                            <Label fx:id="signupErrorLabel" style="-fx-text-fill: red;"/>
 
                             <HBox alignment="TOP_LEFT" spacing="8">
                                 <CheckBox fx:id="agreeToTerms" styleClass="auth-checkbox"/>
