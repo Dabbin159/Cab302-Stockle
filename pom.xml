@@ -100,9 +100,6 @@
                             <compilerArgs>
                                 <arg>--add-modules=okhttp3,com.fasterxml.jackson.databind</arg>
                             </compilerArgs>
-                            <classpath>
-                                <classpathElement>${project.build.outputDirectory}</classpathElement>
-                            </classpath>
                         </configuration>
                     </execution>
                 </executions>
@@ -137,6 +134,15 @@
                 <configuration>
                     <useModulePath>false</useModulePath>
                     <argLine>--add-modules=ALL-SYSTEM</argLine>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.4.0</version>
+                <configuration>
+                    <destDir>javadoc</destDir>
+                    <reportOutputDirectory>${project.build.directory}/docs</reportOutputDirectory>
                 </configuration>
             </plugin>
         </plugins>
