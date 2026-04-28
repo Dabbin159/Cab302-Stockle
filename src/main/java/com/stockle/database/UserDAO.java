@@ -5,6 +5,10 @@ import java.util.List;
 
 import com.stockle.model.User;
 
+/**
+ * UserDAO is an interface that defines the methods for interacting with the user data in the database.
+ * It provides methods for adding, deleting, updating, and retrieving users, as well as handling user authentication and balance management.
+ */
 public interface UserDAO {
 
     /**
