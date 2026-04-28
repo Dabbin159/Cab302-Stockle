@@ -25,6 +25,7 @@ public class AuthController {
     @FXML private TextField signupPasswordText;
     @FXML private DatePicker signupDateOfBirth;
     @FXML private Label loginErrorLabel;
+    @FXML private Label signupErrorLabel;
     private final SQLUserDAO userDAO = SQLUserDAO.getInstance();
 
 
@@ -83,7 +84,7 @@ public class AuthController {
         if (fullName.isEmpty() || email.isEmpty() || password.isEmpty()
                 || confirmPassword.isEmpty())
         {
-            loginErrorLabel.setText("Please fill in all sections");
+            signupErrorLabel.setText("Please fill in all sections");
             return;
         }
         else
@@ -99,7 +100,7 @@ public class AuthController {
             }
             else
             {
-                loginErrorLabel.setText("Signup failed. Username may be taken. ");
+                signupErrorLabel.setText("Signup failed. Username may be taken. ");
             }
         }
     }
