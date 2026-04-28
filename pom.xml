@@ -84,10 +84,25 @@
                 <configuration>
                     <source>21</source>
                     <target>21</target>
-                    <compilerArgs>
-                        <arg>--add-modules=okhttp3,com.fasterxml.jackson.databind</arg>
-                    </compilerArgs>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>default-compile</id>
+                        <configuration>
+                            <compilerArgs>
+                                <arg>--add-modules=okhttp3,com.fasterxml.jackson.databind</arg>
+                            </compilerArgs>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>default-testCompile</id>
+                        <configuration>
+                            <compilerArgs>
+                                <arg>--add-modules=okhttp3,com.fasterxml.jackson.databind</arg>
+                            </compilerArgs>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.openjfx</groupId>
@@ -111,6 +126,25 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.2</version>
+                <configuration>
+                    <useModulePath>false</useModulePath>
+                    <argLine>--add-modules=ALL-SYSTEM</argLine>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.4.0</version>
+                <configuration>
+                    <failOnError>false</failOnError>
+                    <destDir>javadoc</destDir>
+                    <reportOutputDirectory>${project.build.directory}/docs</reportOutputDirectory>
+                </configuration>
             </plugin>
         </plugins>
     </build>

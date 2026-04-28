@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.control.DatePicker?>
 <?import javafx.geometry.Insets?>
 
 <StackPane xmlns:fx="http://javafx.com/fxml"
@@ -143,13 +144,19 @@
                                     </StackPane>
                                     <Button text="Show/Hide" styleClass="toggle-btn" onAction="#toggleSignupPassword"/>
                                 </HBox>
-                                <Label text="Must be at least 8 characters" styleClass="hint-text"/>
-                            </VBox>
 
-                            <VBox spacing="4">
-                                <Label text="Confirm Password" styleClass="field-label"/>
-                                <PasswordField fx:id="signupConfirmPassword" styleClass="auth-input"/>
-                            </VBox>
+                                <!-- Row 2: Email + Date of Birth -->
+                                <HBox spacing="10">
+                                    <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                        <Label text="Email" styleClass="field-label"/>
+                                        <TextField fx:id="signupEmail" promptText="you@example.com" styleClass="auth-input"/>
+                                    </VBox>
+                                    <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                        <Label text="Date of Birth" styleClass="field-label"/>
+                                        <DatePicker fx:id="signupDob" promptText="DD/MM/YYYY"
+                                                    styleClass="auth-datepicker" maxWidth="Infinity"/>
+                                    </VBox>
+                                </HBox>
 
                             <Label fx:id="signupErrorLabel" style="-fx-text-fill: red;"/>
 
@@ -159,13 +166,14 @@
                                         styleClass="terms-text" wrapText="true" HBox.hgrow="ALWAYS"/>
                             </HBox>
 
-                            <Button text="Create Account" styleClass="outline-btn"
-                                    maxWidth="Infinity" onAction="#handleSignup"/>
+                                <Button text="Create Account" styleClass="outline-btn"
+                                        maxWidth="Infinity" onAction="#handleSignup"/>
 
-                            <Label text="By signing up, you'll receive $100,000 in virtual currency to start trading"
-                                    styleClass="hint-text" wrapText="true" maxWidth="Infinity" textAlignment="CENTER"/>
+                                <Label text="By signing up, you'll receive $100,000 in virtual currency to start trading"
+                                       styleClass="hint-text" wrapText="true" maxWidth="Infinity" textAlignment="CENTER"/>
 
-                        </VBox>
+                            </VBox>
+                        </ScrollPane>
                     </Tab>
 
                 </TabPane>

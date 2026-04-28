@@ -5,46 +5,49 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import com.stockle.api.StockAPI;
 import com.stockle.api.StockAPI.Asset;
 import com.stockle.api.StockAPI.BarData;
 
 public class Stock_API_Test {
     
-    private static StockAPI api;
+    private StockAPI api;
     
-    public Stock_API_Test() {
+    @BeforeEach
+    public void setUp() {
         api = new StockAPI();
     }
     
-    public static void main(String[] args) {
+    @Test
+    public void testAll() {
         System.out.println("=== StockAPI Test Suite ===\n");
         
-        Stock_API_Test tester = new Stock_API_Test();
-        
         // Test 1: Get asset by symbol
-        tester.testGetAsset();
+        testGetAsset();
         
         // Test 2: Get all assets
-        tester.testGetAllAssets();
+        testGetAllAssets();
         
         // Test 3: Get latest bars for multiple stocks
-        tester.testGetLatestBars();
+        testGetLatestBars();
         
         // Test 4: Get historical bars
-        tester.testGetHistoricalBars();
+        testGetHistoricalBars();
         
         // Test 5: Get historical quotes
-        tester.testGetHistoricalQuotes();
+        testGetHistoricalQuotes();
         
         // Test 6: Get highest volume stocks
-        tester.testGetHighestVolumeStocks();
+        testGetHighestVolumeStocks();
         
         // Test 7: Get highest price stocks
-        tester.testGetHighestPriceStocks();
+        testGetHighestPriceStocks();
         
         // Test 8: Get highest open stocks
-        tester.testGetHighestOpenStocks();
+        testGetHighestOpenStocks();
         
         System.out.println("\n=== All Tests Complete ===");
     }
