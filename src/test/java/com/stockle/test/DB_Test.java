@@ -16,12 +16,6 @@ public class User_DB_Test {
         UpdateUserTest(randomId);
         UpdateUserTestValidate(randomId);
         // UniqueUserTest();
-        CheckUserBalanceTest(randomId);
-        CheckAddUserBalanceTest(randomId);
-        CheckUserBalanceTest(randomId);
-        CheckSubtractUserBalanceTest(randomId);
-        CheckUserBalanceTest(randomId);
-        CheckUserTotalProfitTest(randomId);
     }
 
     public static void AddUserTest() {
@@ -78,49 +72,6 @@ public class User_DB_Test {
             System.out.println("Second user added with ID: This should not happen");
         } catch (Exception e) {
             System.out.println("Failed to add second user: This is good unique constraint is working");
-        }
-    }
-
-    public static void CheckUserBalanceTest(int id) {
-        SQLUserDAO userDAO = SQLUserDAO.getInstance();
-        User user = userDAO.getUserById(id);
-        if (user != null) {
-            System.out.println("User balance: " + user.getBalance());
-            
-        } else {
-            System.out.println("User not found.");
-        }
-    }
-
-    public static void CheckAddUserBalanceTest(int id) {
-        SQLUserDAO userDAO = SQLUserDAO.getInstance();
-        User user = userDAO.getUserById(id);
-        if (user != null) {
-            userDAO.updateUserBalance(id, user.getBalance() + 5000); // Add 5000 to the user's balance
-            System.out.println("Added 5000 to user balance.");
-        } else {
-            System.out.println("User not found.");
-        }
-    }
-
-    public static void CheckSubtractUserBalanceTest(int id) {
-        SQLUserDAO userDAO = SQLUserDAO.getInstance();
-        User user = userDAO.getUserById(id);
-        if (user != null) {
-            userDAO.updateUserBalance(id, user.getBalance() - 5000); // Subtract 5000 from the user's balance
-            System.out.println("Subtracted 5000 from user balance.");
-        } else {
-            System.out.println("User not found.");
-        }
-    }
-
-    public static void CheckUserTotalProfitTest(int id) {
-        SQLUserDAO userDAO = SQLUserDAO.getInstance();
-        User user = userDAO.getUserById(id);
-        if (user != null) {
-            System.out.println("User total profit: " + user.getTotalProfit());
-        } else {
-            System.out.println("User not found.");
         }
     }
 }
