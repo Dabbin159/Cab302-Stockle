@@ -1,0 +1,5 @@
+module:com.stockle
+com.stockle.api
+com.stockle.database
+com.stockle.model
+com.stockle.ui
