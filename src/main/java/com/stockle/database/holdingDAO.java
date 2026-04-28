@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.stockle.model.Holding;
 
-public interface holdingDAO {
+public interface HoldingDAO {
 
     public void addHolding(Holding holding);
 

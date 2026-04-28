@@ -11,9 +11,9 @@ import com.stockle.model.User;
 
 
 /**
- * Class to manage user-related database operations, such as adding, deleting, updating, and retrieving users. Implements the userDAO interface to ensure consistency in method signatures and functionality across different DAO implementations.
+ * Class to manage user-related database operations, such as adding, deleting, updating, and retrieving users. Implements the UserDAO interface to ensure consistency in method signatures and functionality across different DAO implementations.
  */
-public class SQLUserDAO implements userDAO {
+public class SQLUserDAO implements UserDAO {
 
     private static SQLUserDAO instance;
     private Connection connection;

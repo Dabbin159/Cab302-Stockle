@@ -11,7 +11,7 @@ import com.stockle.model.Holding;
 
 
 
-public class SQLHoldingDAO implements holdingDAO {
+public class SQLHoldingDAO implements HoldingDAO {
 
     private static SQLHoldingDAO instance;
     private Connection connection;

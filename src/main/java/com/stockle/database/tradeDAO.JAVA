@@ -2,7 +2,7 @@ package com.stockle.database;
 
 import com.stockle.model.Trade;
 
-public interface tradeDAO {
+public interface TradeDAO {
 
     public void addTrade(Trade trade);
 
