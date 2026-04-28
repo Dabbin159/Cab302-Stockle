@@ -5,26 +5,52 @@ import org.json.JSONObject;
 public class Trade {
 
     // Fields
-    private int id;
-    private Double userNumber;
-    private Stock stock;
-    private Boolean type; // Buy or Sell
-    private Long totalValue;
-    private String timeStamp; // Time of the trade
+    private final int id;
+    private final Double userNumber;
+    private final String symbol;
+    private final Boolean type;   // Buy (true) or Sell (false)
+    private final Long totalValue;
+    private final String timeStamp;
 
-    public Trade(int id, Double userNumber, Stock stock, Boolean type, Long totalValue, String timeStamp) {
+    public Trade(int id, Double userNumber, String symbol, Boolean type, Long totalValue, String timeStamp) {
         this.id = id;
         this.userNumber = userNumber;
-        this.stock = stock;
+        this.symbol = symbol;
         this.type = type;
         this.totalValue = totalValue;
         this.timeStamp = timeStamp;
     }
+
+    // Getters
+    public int getId() {
+        return id;
+    }
+
+    public Double getUserNumber() {
+        return userNumber;
+    }
+
+    public String getSymbol() {
+        return symbol;
+    }
+
+    public Boolean getType() {
+        return type;
+    }
+
+    public Long getTotalValue() {
+        return totalValue;
+    }
+
+    public String getTimeStamp() {
+        return timeStamp;
+    }
+
     public JSONObject toJSON() {
         JSONObject json = new JSONObject();
         json.put("id", id);
         json.put("userNumber", userNumber);
-        json.put("stock", stock.toJSON());
+        json.put("symbol", symbol);
         json.put("type", type);
         json.put("totalValue", totalValue);
         json.put("timeStamp", timeStamp);
@@ -32,13 +58,13 @@ public class Trade {
     }
 
     public static Trade fromJSON(int tradeid, JSONObject json) {
-        int id = tradeid; // ID is passed separately as it's not part of the JSON object
+        int id = tradeid;
         Double userNumber = json.getDouble("userNumber");
-        Stock stock = Stock.fromJSON(json.getJSONObject("stock"));
+        String symbol = json.getString("symbol");
         Boolean type = json.getBoolean("type");
         Long totalValue = json.getLong("totalValue");
         String timeStamp = json.getString("timeStamp");
-        return new Trade(id, userNumber, stock, type, totalValue, timeStamp);
+        return new Trade(id, userNumber, symbol, type, totalValue, timeStamp);
     }
 
 }
