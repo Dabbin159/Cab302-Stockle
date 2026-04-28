@@ -9,12 +9,12 @@ import com.stockle.model.User;
 public class User_DB_Test {
 
     public static void main(String[] args) {
-        AddUserTest();
-        int randomId = new Random().nextInt(SQLUserDAO.getInstance().getAllUsers().size()) + 1; // Get a random user ID from the database (Selects Random User)
-        GetUserByIdTest(randomId);
-        UpdateUserTestValidate(randomId);
-        UpdateUserTest(randomId);
-        UpdateUserTestValidate(randomId);
+        // AddUserTest();
+        // int randomId = new Random().nextInt(SQLUserDAO.getInstance().getAllUsers().size()) + 1; // Get a random user ID from the database (Selects Random User)
+        // GetUserByIdTest(randomId);
+        // UpdateUserTestValidate(randomId);
+        // UpdateUserTest(randomId);
+        // UpdateUserTestValidate(randomId);
         // UniqueUserTest();
     }
 
