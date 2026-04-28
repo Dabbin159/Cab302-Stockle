@@ -10,6 +10,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.control.DatePicker;
 
 public class AuthController {
 
@@ -22,6 +23,7 @@ public class AuthController {
     @FXML private PasswordField signupPasswordField;
     @FXML private PasswordField signupConfirmPassword;
     @FXML private TextField signupPasswordText;
+    @FXML private DatePicker signupDateOfBirth;
     @FXML private Label loginErrorLabel;
     private final SQLUserDAO userDAO = SQLUserDAO.getInstance();
 
@@ -54,7 +56,7 @@ public class AuthController {
         }
     }
 
-    /** NOT COMPLETE YET Handles Signup: validates fields, checks credentials
+    /** Handles Signup: validates fields, checks credentials
      * against the database then navigates to the dashboard if
      * successful NOT COMPLETE YET
      */
@@ -70,24 +72,37 @@ public class AuthController {
                 signupPasswordField.getText();
         String confirmPassword =
                 signupConfirmPassword.getText();
-        String
+        LocalDate dateOfBirth =
+                signupDateOfBirth.getValue();
 
-        boolean success = userDAO.signup(username, password,
-                email, fullName, dateOfBirth);
+        // Splitting the fullName Field
+        String[] nameParts = fullName.split(" ", 2);
+        String firstName = nameParts[0];
+        String lastName = nameParts.length > 1 ? nameParts[1] : "";
 
-        if (name.isEmpty() || email.isEmpty() || password.isEmpty()
-        || confirmPassword());
+        if (fullName.isEmpty() || email.isEmpty() || password.isEmpty()
+                || confirmPassword.isEmpty())
         {
             loginErrorLabel.setText("Please fill in all sections");
             return;
         }
-        else {
+        else
+        {
+            boolean success = userDAO.signup(username, password,
+                    email, fullName, dateOfBirth);
 
+            if (success)
+            {
+                User user = userDAO.login(username, password);
+                SessionManager.getInstance().setCurrentUser(user);
+                SceneManager.switchTo("dashboard/dashboard-view.fxml");
+            }
+            else
+            {
+                loginErrorLabel.setText("Signup failed. Username may be taken. ");
+            }
         }
-
     }
-
-
 
     @FXML
     private void toggleLoginPassword() {
