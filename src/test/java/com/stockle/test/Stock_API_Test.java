@@ -8,17 +8,34 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.stockle.api.StockAPI;
-import com.stockle.api.StockAPI.Asset;
-import com.stockle.api.StockAPI.BarData;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.stockle.api.client.ApiClient;
+import com.stockle.api.data.Asset;
+import com.stockle.api.data.BarData;
+import com.stockle.api.data.QuoteData;
+import com.stockle.api.service.AssetService;
+import com.stockle.api.service.HistoricalDataService;
+import com.stockle.api.service.MarketDataService;
+import com.stockle.api.service.SnapshotService;
 
 public class Stock_API_Test {
     
-    private StockAPI api;
+    private ApiClient apiClient;
+    private ObjectMapper objectMapper;
+    private MarketDataService marketDataService;
+    private SnapshotService snapshotService;
+    private HistoricalDataService historicalDataService;
+    private AssetService assetService;
+    private final String feed = "iex";
     
     @BeforeEach
     public void setUp() {
-        api = new StockAPI();
+        apiClient = new ApiClient();
+        objectMapper = new ObjectMapper();
+        marketDataService = new MarketDataService(apiClient, objectMapper);
+        snapshotService = new SnapshotService(apiClient, objectMapper);
+        historicalDataService = new HistoricalDataService(apiClient, objectMapper);
+        assetService = new AssetService(apiClient, objectMapper, marketDataService);
     }
     
     @Test
@@ -58,7 +75,7 @@ public class Stock_API_Test {
     private void testGetAsset() {
         System.out.println("--- Test 1: getAsset(\"AAPL\") ---");
         try {
-            Asset asset = api.getAsset("AAPL");
+            Asset asset = assetService.getAsset("AAPL");
             if (asset != null) {
                 System.out.println("Asset Found:");
                 System.out.println("  Symbol: " + asset.symbol);
@@ -83,7 +100,7 @@ public class Stock_API_Test {
     private void testGetAllAssets() {
         System.out.println("--- Test 2: getAllAssets() ---");
         try {
-            List<Asset> assets = api.getAllAssets();
+            List<Asset> assets = assetService.getAllAssets();
             if (assets != null && !assets.isEmpty()) {
                 System.out.println("Fetched " + assets.size() + " assets");
                 System.out.println("  First 5 assets:");
@@ -107,7 +124,7 @@ public class Stock_API_Test {
         System.out.println("--- Test 3: getLatestBars([\"AAPL\", \"GOOGL\", \"MSFT\", \"TSLA\"]) ---");
         try {
             List<String> symbols = Arrays.asList("AAPL", "GOOGL", "MSFT", "TSLA");
-            Map<String, BarData> bars = api.getLatestBars(symbols);
+            Map<String, BarData> bars = marketDataService.getLatestBars(symbols, feed);
             
             if (bars != null && !bars.isEmpty()) {
                 System.out.println("Fetched bar data for " + bars.size() + " stocks:");
@@ -144,7 +161,7 @@ public class Stock_API_Test {
             LocalDate endDate = LocalDate.now();
             LocalDate startDate = endDate.minusDays(30);
             
-            List<BarData> bars = api.getHistoricalBars("AAPL", startDate, endDate, "1Day");
+            List<BarData> bars = historicalDataService.getHistoricalBars("AAPL", startDate, endDate, "1Day", feed);
             
             if (bars != null && !bars.isEmpty()) {
                 System.out.println("Fetched " + bars.size() + " historical bars for AAPL:");
@@ -180,14 +197,14 @@ public class Stock_API_Test {
             LocalDate endDate = LocalDate.now();
             LocalDate startDate = endDate.minusDays(30);
             
-            List<StockAPI.QuoteData> quotes = api.getHistoricalQuotes("AAPL", startDate, endDate);
+            List<QuoteData> quotes = historicalDataService.getHistoricalQuotes("AAPL", startDate, endDate, feed);
             
             if (quotes != null && !quotes.isEmpty()) {
                 System.out.println("Fetched " + quotes.size() + " historical quotes for AAPL:");
                 System.out.println("  Date Range: " + startDate + " to " + endDate);
                 System.out.println("  First 3 quotes:");
                 for (int i = 0; i < Math.min(3, quotes.size()); i++) {
-                    StockAPI.QuoteData quote = quotes.get(i);
+                    QuoteData quote = quotes.get(i);
                     System.out.println("    Quote " + (i + 1) + " (" + quote.timestamp + "):");
                     System.out.println("      Bid Price: $" + String.format("%.2f", quote.bidPrice));
                     System.out.println("      Bid Size: " + quote.bidSize);
@@ -211,7 +228,7 @@ public class Stock_API_Test {
     private void testGetHighestVolumeStocks() {
         System.out.println("--- Test 6: getHighestVolumeStocks(10) ---");
         try {
-            List<String> topVolume = api.getHighestVolumeStocks(10);
+            List<String> topVolume = assetService.getHighestVolumeStocks(10, feed);
             if (topVolume != null && !topVolume.isEmpty()) {
                 System.out.println("Top 10 stocks by volume:");
                 for (int i = 0; i < topVolume.size(); i++) {
@@ -232,7 +249,7 @@ public class Stock_API_Test {
     private void testGetHighestPriceStocks() {
         System.out.println("--- Test 7: getHighestPriceStocks(10) ---");
         try {
-            List<String> topPrice = api.getHighestPriceStocks(10);
+            List<String> topPrice = assetService.getHighestPriceStocks(10, feed);
             if (topPrice != null && !topPrice.isEmpty()) {
                 System.out.println("Top 10 stocks by price:");
                 for (int i = 0; i < topPrice.size(); i++) {
@@ -253,7 +270,7 @@ public class Stock_API_Test {
     private void testGetHighestOpenStocks() {
         System.out.println("--- Test 8: getHighestOpenStocks(10) ---");
         try {
-            List<String> topOpen = api.getHighestOpenStocks(10);
+            List<String> topOpen = assetService.getHighestOpenStocks(10, feed);
             if (topOpen != null && !topOpen.isEmpty()) {
                 System.out.println("Top 10 stocks by open price:");
                 for (int i = 0; i < topOpen.size(); i++) {
