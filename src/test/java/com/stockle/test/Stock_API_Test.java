@@ -17,6 +17,7 @@ import com.stockle.api.service.AssetService;
 import com.stockle.api.service.HistoricalDataService;
 import com.stockle.api.service.MarketDataService;
 import com.stockle.api.service.SnapshotService;
+import com.stockle.model.Stock;
 
 public class Stock_API_Test {
     
@@ -65,6 +66,9 @@ public class Stock_API_Test {
         
         // Test 8: Get highest open stocks
         testGetHighestOpenStocks();
+
+        // Test 9: Build domain Stock from live API data
+        testBuildDomainStockFromApi();
         
         System.out.println("\n=== All Tests Complete ===");
     }
@@ -279,6 +283,25 @@ public class Stock_API_Test {
             } else {
                 System.out.println("No open price data found or null response");
             }
+        } catch (Exception e) {
+            System.out.println("Exception: " + e.getMessage());
+        }
+        System.out.println();
+    }
+
+    /**
+     * Test Stock.fromApi() - Build model.Stock using asset + snapshot APIs
+     */
+    private void testBuildDomainStockFromApi() {
+        System.out.println("--- Test 9: Stock.fromApi(\"AAPL\") ---");
+        try {
+            Stock stock = Stock.fromApi("AAPL", assetService, snapshotService, marketDataService, feed);
+            System.out.println("Mapped Stock model:");
+            System.out.println("  Company/Symbol: " + stock.getCompanyName());
+            System.out.println("  Sector/Class: " + stock.getSector());
+            System.out.println("  Current Price: " + stock.getCurrentPrice());
+            System.out.println("  Daily Change %: " + stock.getDailyChange());
+            System.out.println("  Volume: " + stock.getVolume());
         } catch (Exception e) {
             System.out.println("Exception: " + e.getMessage());
         }

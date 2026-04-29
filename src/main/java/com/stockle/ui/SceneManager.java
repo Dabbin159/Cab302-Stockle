@@ -19,6 +19,7 @@ public class SceneManager {
         Scene scene = new Scene(loader.load());
         scene.getStylesheets().clear();
         stage.setScene(scene);
+        stage.setMaximized(true);
     }
 
     public static Stage getStage() {

@@ -42,14 +42,14 @@
 .fav-btn {
     -fx-background-color: transparent;
     -fx-font-size: 18px;
-    -fx-text-fill: #9ca3af;
+    -fx-text-fill: -fx-text-base-color;
     -fx-padding: 2 4;
     -fx-cursor: hand;
     -fx-focus-color: transparent;
     -fx-faint-focus-color: transparent;
 }
-.fav-btn:hover { -fx-text-fill: #eab308; }
-.fav-btn-active { -fx-text-fill: #eab308; }
+.fav-btn:hover { -fx-background-color: transparent; }
+.fav-btn-active { -fx-background-color: transparent; }
 
 /* Volume / cap / sector strip */
 .stock-stats-grid {
@@ -195,18 +195,6 @@
     -fx-faint-focus-color: transparent;
 }
 .alert-btn:hover { -fx-background-color: #1f2937; }
-
-/* Sector ComboBox */
-.sector-combo {
-    -fx-background-color: #f3f3f5;
-    -fx-background-radius: 8;
-    -fx-border-color: rgba(0,0,0,0.1);
-    -fx-border-radius: 8;
-    -fx-border-width: 1;
-    -fx-font-size: 14px;
-    -fx-pref-height: 38;
-}
-.sector-combo .list-cell { -fx-font-size: 14px; }
 
 /* Stock list rows */
 .stock-row {

@@ -12,9 +12,10 @@ public class StockleApplication extends Application {
     public void start(Stage stage) throws IOException {
         SceneManager.init(stage);
         FXMLLoader fxmlLoader = new FXMLLoader(StockleApplication.class.getResource("auth/auth-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 1100, 700);
+        Scene scene = new Scene(fxmlLoader.load());
         stage.setTitle("Stockle");
         stage.setScene(scene);
+        stage.setMaximized(true);
         stage.show();
     }
 }
