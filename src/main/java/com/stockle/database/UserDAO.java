@@ -5,6 +5,10 @@ import java.util.List;
 
 import com.stockle.model.User;
 
+/**
+ * UserDAO is an interface that defines the methods for interacting with the user data in the database.
+ * It provides methods for adding, deleting, updating, and retrieving users, as well as handling user authentication and balance management.
+ */
 public interface UserDAO {
 
     /**
@@ -44,12 +48,13 @@ public interface UserDAO {
      * @param username Username for the new user,
      * @param password Password for the new user,
      * @param email Email address for the new user,
-     * @param firstName First name of the new user,
-     * @param lastName Last name of the new user,
-     * @param dateOfBirth Date of birth of the new user.
+     * @param fullName Full name of the new user,
+     * @param dateOfBirth Date of birth of the new user,
+     * @param balance Initial balance for the new user,
+     * @param totalProfit Initial total profit for the new user.
      * @return true if the signup was successful, false otherwise.
      */
-    public boolean signup(String username, String password, String email, String firstName, String lastName, LocalDate dateOfBirth);
+    public boolean signup(String username, String password, String email, String fullName, LocalDate dateOfBirth);
     
 
     /**
@@ -59,4 +64,32 @@ public interface UserDAO {
      * @return The User object if login is successful, null otherwise.
      */
     public User login(String username, String password);
+
+    /**
+     * Retrieves the balance of a user by their ID.
+     * @param userId The ID of the user.
+     * @return The balance of the user.
+     */
+    public long getUserBalance(int userId);
+
+    /**
+     * Retrieves the total profit of a user by their ID.
+     * @param userId The ID of the user.
+     * @return The total profit of the user.
+     */
+    public long getUserTotalProfit(int userId);
+
+    /**
+     * Updates the balance of a user by their ID.
+     * @param userId The ID of the user.
+     * @param newBalance The new balance to set for the user.
+     */
+    public void updateUserBalance(int userId, long newBalance);
+
+    /**
+     * Updates the total profit of a user by their ID.
+     * @param userId The ID of the user.
+     * @param newTotalProfit The new total profit to set for the user.
+     */
+    public void updateUserTotalProfit(int userId, long newTotalProfit);
 }

@@ -1,92 +1,6 @@
-/* Sidebar */
-.sidebar {
-    -fx-background-color: white;
-    -fx-pref-width: 220;
-    -fx-min-width: 220;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 8, 0, 2, 0);
-}
+@import "../global.css";
 
-.sidebar-logo {
-    -fx-font-size: 22px;
-    -fx-font-weight: bold;
-    -fx-padding: 0 8 20 8;
-}
-
-.nav-section {
-    -fx-padding: 4 0 0 0;
-}
-
-.nav-item {
-    -fx-background-color: transparent;
-    -fx-text-fill: #374151;
-    -fx-font-size: 14px;
-    -fx-background-radius: 8;
-    -fx-padding: 9 12;
-    -fx-alignment: CENTER_LEFT;
-    -fx-cursor: hand;
-    -fx-focus-color: transparent;
-    -fx-faint-focus-color: transparent;
-}
-
-.nav-item:hover {
-    -fx-background-color: #f3f4f6;
-}
-
-.nav-item-active {
-    -fx-background-color: #eff6ff;
-    -fx-text-fill: #2563eb;
-    -fx-font-size: 14px;
-    -fx-font-weight: bold;
-    -fx-background-radius: 8;
-    -fx-padding: 9 12;
-    -fx-alignment: CENTER_LEFT;
-    -fx-cursor: hand;
-    -fx-focus-color: transparent;
-    -fx-faint-focus-color: transparent;
-}
-
-.nav-signout {
-    -fx-background-color: transparent;
-    -fx-text-fill: #ef4444;
-    -fx-font-size: 14px;
-    -fx-background-radius: 8;
-    -fx-padding: 9 12;
-    -fx-alignment: CENTER_LEFT;
-    -fx-cursor: hand;
-    -fx-focus-color: transparent;
-    -fx-faint-focus-color: transparent;
-}
-
-.nav-signout:hover {
-    -fx-background-color: #fef2f2;
-}
-
-/* ── Scroll / Main ── */
-.main-scroll {
-    -fx-background-color: #f9fafb;
-    -fx-background: #f9fafb;
-    -fx-border-color: transparent;
-}
-
-.main-scroll .viewport {
-    -fx-background-color: #f9fafb;
-}
-
-.main-content {
-    -fx-background-color: #f9fafb;
-}
-
-/* ── Header ── */
-.page-title {
-    -fx-font-size: 26px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #111827;
-}
-
-.page-subtitle {
-    -fx-font-size: 14px;
-    -fx-text-fill: #6b7280;
-}
+/* Header */
 
 .market-badge {
     -fx-font-size: 12px;
@@ -131,19 +45,6 @@
 .stat-icon-blue  { -fx-font-size: 16px; -fx-text-fill: #2563eb; }
 .stat-icon-green { -fx-font-size: 16px; -fx-text-fill: #16a34a; }
 .stat-icon-gray  { -fx-font-size: 16px; -fx-text-fill: #9ca3af; }
-
-/* Cards */
-.card {
-    -fx-background-color: white;
-    -fx-background-radius: 12;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 2);
-}
-
-.card-title {
-    -fx-font-size: 16px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #111827;
-}
 
 /* Chart */
 .portfolio-chart {
@@ -218,9 +119,6 @@
 .trade-info {
     -fx-padding: 0 0 0 10;
 }
-
-.row-positive { -fx-font-size: 12px; -fx-text-fill: #16a34a; }
-.row-negative { -fx-font-size: 12px; -fx-text-fill: #dc2626; }
 
 .badge-buy {
     -fx-background-color: #2563eb;

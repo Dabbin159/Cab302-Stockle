@@ -2,11 +2,48 @@ package com.stockle.model;
 
 public class Holding {
 
-    //Fields
+    private int userNumber;
+    private String companyID;
+    private int quantity;
+    private int averagePrice;
+    private int id; // Unique identifier for the holding
 
-    private Long userNumber;
-    private String userName;
-    private int quantity; // how much stock
-    private Long averagePrice; // Average price of your purchased stock
-    private Float currentProfitLoss;
+    public Holding(int userNumber, String companyID, int quantity, int averagePrice) {
+        this.userNumber = userNumber;
+        this.companyID = companyID;
+        this.quantity = quantity;
+        this.averagePrice = averagePrice;
+    }
+
+    public int getUserNumber() {
+        return userNumber;
+    }
+
+    public String getCompanyID() {
+        return companyID;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public int getAveragePrice() {
+        return averagePrice;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public void setAveragePrice(int averagePrice) {
+        this.averagePrice = averagePrice;
+    }
 }
