@@ -3,6 +3,7 @@ package com.stockle.ui;
 import com.stockle.model.CandleData;
 
 import javafx.beans.NamedArg;
+import javafx.util.StringConverter;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.chart.CategoryAxis;
@@ -127,12 +128,15 @@ public class CandleStickChart extends XYChart<String, Number> {
         }
         setData(javafx.collections.FXCollections.observableArrayList(series));
 
-        // Zoom the Y axis to the data range with a small 1% padding
         double padding = (max - min) * 0.1;
         NumberAxis yAxis = (NumberAxis) getYAxis();
         yAxis.setAutoRanging(false);
         yAxis.setLowerBound(min - padding);
         yAxis.setUpperBound(max + padding);
         yAxis.setTickUnit((max - min) / 5.0);
+        yAxis.setTickLabelFormatter(new StringConverter<Number>() {
+            @Override public String toString(Number n) { return String.format("%.2f", n.doubleValue()); }
+            @Override public Number fromString(String s) { return Double.parseDouble(s); }
+        });
     }
 }

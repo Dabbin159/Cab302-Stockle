@@ -1,6 +1,7 @@
 package com.stockle.ui;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -131,15 +132,11 @@ public class TradingController {
                     : bars;
 
                 // Convert BarData to CandleData
+                DateTimeFormatter timeFmt = DateTimeFormatter.ofPattern("HH:mm");
                 List<CandleData> candles = new ArrayList<>();
                 for (BarData bar : last60) {
-                    candles.add(new CandleData(
-                        bar.timestamp.toString(),
-                        bar.open,
-                        bar.high,
-                        bar.low,
-                        bar.close
-                    ));
+                    String label = bar.timestamp.format(timeFmt);
+                    candles.add(new CandleData(label, bar.open, bar.high, bar.low, bar.close));
                 }
 
                 // Update UI on JavaFX thread
