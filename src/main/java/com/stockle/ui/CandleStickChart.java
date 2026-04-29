@@ -13,7 +13,6 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 
 public class CandleStickChart extends XYChart<String, Number> {
-
     private static final Color BULL_FILL   = Color.web("#16a34a");
     private static final Color BULL_STROKE = Color.web("#15803d");
     private static final Color BEAR_FILL   = Color.web("#dc2626");
@@ -27,7 +26,6 @@ public class CandleStickChart extends XYChart<String, Number> {
     }
 
     // XYChart methods
-
     @Override
     protected void dataItemAdded(Series<String, Number> series, int itemIndex, Data<String, Number> item) {
         Node candle = createCandleNode();
@@ -84,13 +82,13 @@ public class CandleStickChart extends XYChart<String, Number> {
                 Line wick  = (Line)group.getChildren().get(0);
                 Rectangle body = (Rectangle)group.getChildren().get(1);
 
-                // Wick: full high→low range
+                // Wick: full high to low range
                 wick.setStartX(x); 
                 wick.setEndX(x);
                 wick.setStartY(yHigh); 
                 wick.setEndY(yLow);
 
-                // Body: open→close range
+                // Body: open to close range
                 double bodyTop = Math.min(yOpen, yClose);
                 double bodyHeight = Math.max(1, Math.abs(yClose - yOpen));
 
@@ -117,7 +115,6 @@ public class CandleStickChart extends XYChart<String, Number> {
     }
 
     // Load from a list of CandleData
-
     public void setCandles(java.util.List<CandleData> candles) {
         Series<String, Number> series = new Series<>();
         double min = Double.MAX_VALUE, max = Double.MIN_VALUE;
