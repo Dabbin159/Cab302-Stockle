@@ -5,10 +5,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.stockle.SessionManager;
 import com.stockle.api.client.ApiClient;
 import com.stockle.api.data.BarData;
 import com.stockle.api.service.HistoricalDataService;
+import com.stockle.database.SQLHoldingDAO;
+import com.stockle.database.SQLUserDAO;
 import com.stockle.model.CandleData;
+import com.stockle.model.Holding;
+import com.stockle.model.Stock;
+import com.stockle.model.TradeController;
+import com.stockle.model.User;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -20,6 +27,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
+@SuppressWarnings("unused")
 public class TradingController {
     // Stock detail
     @FXML private Label stockSymbolLabel;
@@ -35,10 +43,13 @@ public class TradingController {
     // Order form
     @FXML private TextField buySharesField;
     @FXML private Label buyEstimateLabel;
+    @FXML private Label buyStatusLabel;
     @FXML private Button buyButton;
     @FXML private TextField sellSharesField;
     @FXML private Label sellEstimateLabel;
+    @FXML private Label sellStatusLabel;
     @FXML private Button sellButton;
+    @FXML private Label ownedSharesLabel;
 
     // Right panel
     @FXML private TextField searchField;
@@ -105,10 +116,12 @@ public class TradingController {
         buyButton.setText("Buy " + s.symbol());
         sellButton.setText("Sell " + s.symbol());
         alertStockLabel.setText("Alert price for " + s.symbol());
+        clearTradeStatus();
 
         loadChart(s);
         updateBuyEstimate();
         updateSellEstimate();
+        updateOwnedSharesLabel();
         refreshStockListSelection();
     }
 
@@ -146,27 +159,132 @@ public class TradingController {
                 javafx.application.Platform.runLater(() -> priceChart.setCandles(candles));
             } catch (Exception e) {
                 System.err.println("Error loading chart for " + s.symbol() + ": " + e.getMessage());
-                e.printStackTrace();
             }
         }).start();
     }
 
     // Estimates
     private void updateBuyEstimate() {
-        double cost = parseShares(buySharesField) * selectedStock.price();
+        int quantity = parseQuantity(buySharesField);
+        double cost = quantity * selectedStock.price();
         buyEstimateLabel.setText(String.format("$%.2f", cost));
         buyButton.setDisable(cost <= 0);
     }
 
     private void updateSellEstimate() {
-        double proceeds = parseShares(sellSharesField) * selectedStock.price();
+        int quantity = parseQuantity(sellSharesField);
+        double proceeds = quantity * selectedStock.price();
         sellEstimateLabel.setText(String.format("$%.2f", proceeds));
         sellButton.setDisable(proceeds <= 0);
     }
 
-    private double parseShares(TextField field) {
-        try { return Math.max(0, Double.parseDouble(field.getText().trim())); }
-        catch (NumberFormatException e) { return 0; }
+    private void updateOwnedSharesLabel() {
+        if (ownedSharesLabel == null) {
+            return;
+        }
+        User user = currentUser();
+        if (user == null) {
+            ownedSharesLabel.setText("Sign in to see owned shares");
+            return;
+        }
+        Holding holding = SQLHoldingDAO.getInstance().getHolding(user.getId(), selectedStock.symbol());
+        int owned = holding != null ? holding.getQuantity() : 0;
+        ownedSharesLabel.setText("You own " + owned + " shares");
+    }
+
+    private void clearTradeStatus() {
+        if (buyStatusLabel != null) {
+            buyStatusLabel.setText("");
+        }
+        if (sellStatusLabel != null) {
+            sellStatusLabel.setText("");
+        }
+    }
+
+    private void setBuyStatus(String message, boolean success) {
+        if (buyStatusLabel == null) {
+            return;
+        }
+        buyStatusLabel.setVisible(true);
+        buyStatusLabel.setManaged(true);
+        buyStatusLabel.setText(message);
+        if (success) {
+            buyStatusLabel.getStyleClass().setAll("trade-status", "trade-status-success");
+        } else {
+            buyStatusLabel.getStyleClass().setAll("trade-status", "trade-status-error");
+        }
+    }
+
+    private void setSellStatus(String message, boolean success) {
+        if (sellStatusLabel == null) {
+            return;
+        }
+        sellStatusLabel.setText(message);
+        if (success) {
+            sellStatusLabel.getStyleClass().setAll("trade-status", "trade-status-success");
+        } else {
+            sellStatusLabel.getStyleClass().setAll("trade-status", "trade-status-error");
+        }
+    }
+
+    private int parseQuantity(TextField field) {
+        try {
+            return Math.max(0, Integer.parseInt(field.getText().trim()));
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    private long parseVolume(String volumeText) {
+        if (volumeText == null || volumeText.isBlank()) {
+            return 0L;
+        }
+        
+        String normalised = volumeText.trim().toUpperCase();
+        double multiplier = 1d;
+
+        if (normalised.endsWith("B")) {
+            multiplier = 1_000_000_000d;
+            normalised = normalised.substring(0, normalised.length() - 1);
+        } else if (normalised.endsWith("M")) {
+            multiplier = 1_000_000d;
+            normalised = normalised.substring(0, normalised.length() - 1);
+        } else if (normalised.endsWith("K")) {
+            multiplier = 1_000d;
+            normalised = normalised.substring(0, normalised.length() - 1);
+        }
+
+        try {
+            return Math.round(Double.parseDouble(normalised) * multiplier);
+        } catch (NumberFormatException e) {
+            return 0L;
+        }
+    }
+
+    private Stock toTradeStock() {
+        return new Stock(
+            selectedStock.symbol(),
+            selectedStock.sector(),
+            (int) Math.round(selectedStock.price()),
+            (float) selectedStock.changePct(),
+            parseVolume(selectedStock.volume())
+        );   
+    }
+
+    private User currentUser() {
+        return SessionManager.getInstance().getCurrentUser();
+    }
+
+    private void refreshCurrentUser() {
+        User user = currentUser();
+        if (user == null) {
+            return;
+        }
+
+        User refreshed = SQLUserDAO.getInstance().getUserById(user.getId());
+        if (refreshed != null) {
+            SessionManager.getInstance().setCurrentUser(refreshed);
+        }
     }
 
     // Filters / list
@@ -272,10 +390,58 @@ public class TradingController {
     private void handleSetAlert() {}
 
     @FXML
-    private void handleBuy() {}
+    private void handleBuy() {
+        User user = currentUser();
+        if (user == null) {
+            setBuyStatus("Please sign in to trade.", false);
+            return;
+        }
+
+        int quantity = parseQuantity(buySharesField);
+        if (quantity <= 0) {
+            setBuyStatus("Please enter a valid quantity.", false);
+            return;
+        }
+
+        boolean success = TradeController.getInstance().executeBuy(user, toTradeStock(), quantity);
+        if (success) {
+            refreshCurrentUser();
+            buySharesField.clear();
+            setBuyStatus("Bought " + quantity + " shares of " + selectedStock.symbol(), true);
+            updateBuyEstimate();
+            updateSellEstimate();
+            updateOwnedSharesLabel();
+        } else {
+            setBuyStatus("Insufficient balance to buy " + quantity + " shares.", false);
+        }
+    }
 
     @FXML
-    private void handleSell() {}
+    private void handleSell() {
+        User user = currentUser();
+        if (user == null) {
+            setSellStatus("Please sign in to trade.", false);
+            return;
+        }
+
+        int quantity = parseQuantity(sellSharesField);
+        if (quantity <= 0) {
+            setSellStatus("Please enter a valid quantity.", false);
+            return;
+        }
+
+        boolean success = TradeController.getInstance().executeSell(user, toTradeStock(), quantity);
+        if (success) {
+            refreshCurrentUser();
+            sellSharesField.clear();
+            setSellStatus("Sold " + quantity + " shares of " + selectedStock.symbol(), true);
+            updateBuyEstimate();
+            updateSellEstimate();
+            updateOwnedSharesLabel();
+        } else {
+            setSellStatus("You don't have " + quantity + " shares to sell.", false);
+        }
+    }
 
     // Navigation
     @FXML
@@ -285,6 +451,7 @@ public class TradingController {
 
     @FXML
     private void handleSignOut() throws IOException {
+        SessionManager.getInstance().logout();
         SceneManager.switchTo("auth/auth-view.fxml");
     }
 

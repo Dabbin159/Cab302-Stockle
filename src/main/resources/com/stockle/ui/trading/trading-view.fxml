@@ -134,6 +134,9 @@
                                         <Button fx:id="buyButton" text="Buy AAPL"
                                                 styleClass="buy-btn" maxWidth="Infinity"
                                                 onAction="#handleBuy"/>
+
+                                             <Label fx:id="buyStatusLabel" text=""
+                                                 styleClass="trade-status" wrapText="true"/>
                                     </VBox>
                                 </Tab>
 
@@ -172,6 +175,9 @@
                                         <Button fx:id="sellButton" text="Sell AAPL"
                                                 styleClass="sell-btn" maxWidth="Infinity"
                                                 onAction="#handleSell"/>
+
+                                             <Label fx:id="sellStatusLabel" text=""
+                                                 styleClass="trade-status" wrapText="true"/>
                                     </VBox>
                                 </Tab>
 
