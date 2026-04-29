@@ -110,7 +110,9 @@ public class DashboardController {
         SceneManager.switchTo("trading/trading-view.fxml");
     }
 
-    @FXML private void navAI() {}
+    @FXML private void navAI() throws IOException {
+        SceneManager.switchTo("ai/ai-view.fxml");
+    }
 
     @FXML
     private void handleSignOut() throws IOException {

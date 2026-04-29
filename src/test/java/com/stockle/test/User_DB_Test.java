@@ -6,7 +6,7 @@ import java.util.Random;
 import com.stockle.database.SQLUserDAO;
 import com.stockle.model.User;
 
-public class DB_Test {
+public class User_DB_Test {
 
     public static void main(String[] args) {
         AddUserTest();
@@ -16,11 +16,17 @@ public class DB_Test {
         UpdateUserTest(randomId);
         UpdateUserTestValidate(randomId);
         // UniqueUserTest();
+        CheckUserBalanceTest(randomId);
+        CheckAddUserBalanceTest(randomId);
+        CheckUserBalanceTest(randomId);
+        CheckSubtractUserBalanceTest(randomId);
+        CheckUserBalanceTest(randomId);
+        CheckUserTotalProfitTest(randomId);
     }
 
     public static void AddUserTest() {
         SQLUserDAO userDAO = SQLUserDAO.getInstance();
-        User user = new User("TestUsername" + new Random().nextInt(100000), "TestPassword", "test@example.com", "Test", "User",LocalDate.now());
+        User user = new User("TestUsername" + new Random().nextInt(100000), "TestPassword", "test@example.com", "Test User", LocalDate.now());
         userDAO.addUser(user);
         System.out.println("User added with ID: " + user.getId());
     }
@@ -59,8 +65,8 @@ public class DB_Test {
 
     public static void UniqueUserTest() {
         SQLUserDAO userDAO = SQLUserDAO.getInstance();
-        User user1 = new User("UniqueUsername", "TestPassword", "test1@example.com", "Test", "User", LocalDate.now());
-        User user2 = new User("UniqueUsername", "TestPassword", "test2@example.com", "Test", "User", LocalDate.now());
+        User user1 = new User("UniqueUsername", "TestPassword", "test1@example.com", "Test User", LocalDate.now());
+        User user2 = new User("UniqueUsername", "TestPassword", "test2@example.com", "Test User", LocalDate.now());
         try {
             userDAO.addUser(user1);
             System.out.println("First user added with ID: " + user1.getId());
@@ -72,6 +78,49 @@ public class DB_Test {
             System.out.println("Second user added with ID: This should not happen");
         } catch (Exception e) {
             System.out.println("Failed to add second user: This is good unique constraint is working");
+        }
+    }
+
+    public static void CheckUserBalanceTest(int id) {
+        SQLUserDAO userDAO = SQLUserDAO.getInstance();
+        User user = userDAO.getUserById(id);
+        if (user != null) {
+            System.out.println("User balance: " + user.getBalance());
+            
+        } else {
+            System.out.println("User not found.");
+        }
+    }
+
+    public static void CheckAddUserBalanceTest(int id) {
+        SQLUserDAO userDAO = SQLUserDAO.getInstance();
+        User user = userDAO.getUserById(id);
+        if (user != null) {
+            userDAO.updateUserBalance(id, user.getBalance() + 5000); // Add 5000 to the user's balance
+            System.out.println("Added 5000 to user balance.");
+        } else {
+            System.out.println("User not found.");
+        }
+    }
+
+    public static void CheckSubtractUserBalanceTest(int id) {
+        SQLUserDAO userDAO = SQLUserDAO.getInstance();
+        User user = userDAO.getUserById(id);
+        if (user != null) {
+            userDAO.updateUserBalance(id, user.getBalance() - 5000); // Subtract 5000 from the user's balance
+            System.out.println("Subtracted 5000 from user balance.");
+        } else {
+            System.out.println("User not found.");
+        }
+    }
+
+    public static void CheckUserTotalProfitTest(int id) {
+        SQLUserDAO userDAO = SQLUserDAO.getInstance();
+        User user = userDAO.getUserById(id);
+        if (user != null) {
+            System.out.println("User total profit: " + user.getTotalProfit());
+        } else {
+            System.out.println("User not found.");
         }
     }
 }
