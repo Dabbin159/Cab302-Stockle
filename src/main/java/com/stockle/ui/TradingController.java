@@ -3,9 +3,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.stockle.model.CandleData;
+
 import javafx.fxml.FXML;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
@@ -25,13 +25,12 @@ public class TradingController {
     @FXML private Label marketCapLabel;
     @FXML private Label sectorLabel;
     @FXML private Button favoriteBtn;
-    @FXML private LineChart<String, Number> priceChart;
+    @FXML private CandleStickChart priceChart;
 
     // Order form
     @FXML private TextField buySharesField;
     @FXML private Label buyEstimateLabel;
     @FXML private Button buyButton;
-
     @FXML private TextField sellSharesField;
     @FXML private Label sellEstimateLabel;
     @FXML private Button sellButton;
@@ -58,14 +57,11 @@ public class TradingController {
         favorites.addAll(MockData.defaultFavorites());
         selectedStock = allStocks.get(0);
         filteredStocks = new ArrayList<>(allStocks);
-        sectorFilter.getItems().addAll(
-            "All Sectors","Technology","Financial","Healthcare","Consumer","Automotive"
-        );
+        sectorFilter.getItems().addAll("All Sectors","Technology","Financial","Healthcare","Consumer","Automotive");
         sectorFilter.getSelectionModel().selectFirst();
         searchField.textProperty().addListener((obs, o, n) -> applyFilters());
         buySharesField.textProperty().addListener((obs, o, n)  -> updateBuyEstimate());
         sellSharesField.textProperty().addListener((obs, o, n) -> updateSellEstimate());
-
         buildRecentlyViewed();
         buildStockList();
         selectStock(selectedStock);
@@ -80,8 +76,7 @@ public class TradingController {
 
         boolean pos = s.change() >= 0;
         String sign  = pos ? "+" : "";
-        stockChangeLabel.setText(
-            String.format("%s%.2f (%s%.2f%%)", sign, s.change(), sign, s.changePct()));
+        stockChangeLabel.setText(String.format("%s%.2f (%s%.2f%%)", sign, s.change(), sign, s.changePct()));
         stockChangeLabel.getStyleClass().setAll(pos ? "stock-change-pos" : "stock-change-neg");
 
         volumeLabel.setText(s.volume());
@@ -103,13 +98,15 @@ public class TradingController {
     }
 
     private void loadChart(MockData.Stock s) {
-        priceChart.getData().clear();
-        XYChart.Series<String, Number> series = new XYChart.Series<>();
-        double[] prices = MockData.CHART_DATA[s.chartIndex()];
-        for (int i = 0; i < MockData.TIMES.length; i++) {
-            series.getData().add(new XYChart.Data<>(MockData.TIMES[i], prices[i]));
+        double[][] ohlc = MockData.CANDLE_DATA[s.chartIndex()];
+        java.util.List<CandleData> candles = new java.util.ArrayList<>();
+        for (int i = 0; i < ohlc.length; i++) {
+            candles.add(new CandleData(
+                MockData.CANDLE_TIMES[i],
+                ohlc[i][0], ohlc[i][1], ohlc[i][2], ohlc[i][3]
+            ));
         }
-        priceChart.getData().add(series);
+        priceChart.setCandles(candles);
     }
 
     // Estimates
@@ -179,8 +176,7 @@ public class TradingController {
         HBox.setHgrow(left, Priority.ALWAYS);
 
         boolean pos = s.changePct() >= 0;
-        Label pct = label((pos ? "+" : "") + s.changePct() + "%",
-                          pos ? "stock-row-pos" : "stock-row-neg");
+        Label pct = label((pos ? "+" : "") + s.changePct() + "%", pos ? "stock-row-pos" : "stock-row-neg");
 
         HBox row = new HBox(left, pct);
         row.getStyleClass().add("stock-row");
@@ -190,17 +186,16 @@ public class TradingController {
 
     private VBox stockRow(MockData.Stock s) {
         boolean active = s.symbol().equals(selectedStock.symbol());
-        boolean pos    = s.change() >= 0;
+        boolean pos = s.change() >= 0;
 
         String displaySymbol = favorites.contains(s.symbol()) ? s.symbol() + " ★" : s.symbol();
-        Label sym   = label(displaySymbol, "stock-row-symbol");
-        Label name  = label(s.name(), "stock-row-name");
-        VBox left   = new VBox(2, sym, name);
+        Label sym = label(displaySymbol, "stock-row-symbol");
+        Label name = label(s.name(), "stock-row-name");
+        VBox left = new VBox(2, sym, name);
         HBox.setHgrow(left, Priority.ALWAYS);
 
         Label price = label(String.format("$%.2f", s.price()), "stock-row-price");
-        Label pct   = label((pos ? "+" : "") + s.changePct() + "%",
-                            pos ? "stock-row-pos" : "stock-row-neg");
+        Label pct = label((pos ? "+" : "") + s.changePct() + "%", pos ? "stock-row-pos" : "stock-row-neg");
         VBox right  = new VBox(2, price, pct);
         right.setStyle("-fx-alignment: CENTER_RIGHT;");
 
