@@ -10,11 +10,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stockle.api.client.ApiClient;
 import com.stockle.api.data.Asset;
 import com.stockle.api.data.BarData;
-import com.stockle.api.data.SnapshotData;
 import com.stockle.api.service.AssetService;
 import com.stockle.api.service.HistoricalDataService;
 import com.stockle.api.service.MarketDataService;
-import com.stockle.api.service.SnapshotService;
 import com.stockle.model.CandleData;
 
 import javafx.application.Platform;
@@ -69,7 +67,7 @@ public class TradingController {
     private List<Asset> liveAssets = new ArrayList<>();
     private int livePageIndex = 0;
     private boolean isLoadingPage = false;
-    private int searchGeneration = 0; // incremented on each new search to discard stale results
+    private int searchGeneration = 0;
     private static final int PAGE_SIZE = 20;
 
     // API Services
@@ -78,7 +76,6 @@ public class TradingController {
     private HistoricalDataService historicalDataService;
     private AssetService assetService;
     private MarketDataService marketDataService;
-    private SnapshotService snapshotService;
 
     @FXML
     public void initialize() {
@@ -86,7 +83,6 @@ public class TradingController {
         objectMapper = new ObjectMapper();
         historicalDataService = new HistoricalDataService(apiClient, objectMapper);
         marketDataService = new MarketDataService(apiClient, objectMapper);
-        snapshotService = new SnapshotService(apiClient, objectMapper);
         assetService = new AssetService(apiClient, objectMapper, marketDataService);
 
         allStocks = MockData.allStocks();
@@ -100,7 +96,6 @@ public class TradingController {
         buySharesField.textProperty().addListener((obs, o, n)  -> updateBuyEstimate());
         sellSharesField.textProperty().addListener((obs, o, n) -> updateSellEstimate());
 
-        // Infinite scroll: load next page when user reaches 90% of the list
         stockListScroll.vvalueProperty().addListener((obs, o, n) -> {
             if (n.doubleValue() >= 0.9 && !isLoadingPage) loadNextPage();
         });
@@ -108,11 +103,9 @@ public class TradingController {
         buildRecentlyViewed();
         selectStock(selectedStock);
 
-        // Load all asset symbols in background, then show first page
         new Thread(() -> {
             try {
                 List<Asset> assets = assetService.getAllAssets();
-                // Keep only tradable US equities with a symbol
                 liveAssets = assets.stream()
                     .filter(a -> a.tradable && "us_equity".equals(a.assetClass) && a.symbol != null)
                     .collect(java.util.stream.Collectors.toList());
@@ -143,13 +136,34 @@ public class TradingController {
         sellButton.setText("Sell " + s.symbol());
         alertStockLabel.setText("Alert price for " + s.symbol());
 
-        loadChart(s);
+        loadChart(s.symbol());
         fetchLivePrice(s.symbol());
         updateBuyEstimate();
         updateSellEstimate();
         refreshStockListSelection();
     }
-    
+
+    private void selectLiveStock(Asset asset) {
+        selectedSymbol = asset.symbol;
+        stockSymbolLabel.setText(asset.symbol);
+        stockNameLabel.setText(asset.name != null ? asset.name : asset.symbol);
+        stockPriceLabel.setText("—");
+        stockChangeLabel.setText("—");
+        volumeLabel.setText("—");
+        marketCapLabel.setText("—");
+        sectorLabel.setText(asset.exchange != null ? asset.exchange : "—");
+
+        boolean isFav = favorites.contains(asset.symbol);
+        favoriteBtn.setText(isFav ? "★" : "☆");
+        favoriteBtn.getStyleClass().setAll("fav-btn");
+        buyButton.setText("Buy " + asset.symbol);
+        sellButton.setText("Sell " + asset.symbol);
+        alertStockLabel.setText("Alert price for " + asset.symbol);
+
+        fetchLivePrice(asset.symbol);
+        loadChart(asset.symbol);
+    }
+
     private void fetchLivePrice(String symbol) {
         new Thread(() -> {
             try {
@@ -157,12 +171,12 @@ public class TradingController {
                 BarData bar = bars.get(symbol);
                 if (bar == null) return;
 
-                double changeAmt    = bar.close - bar.open;
-                double changePct    = bar.open != 0 ? (changeAmt / bar.open) * 100 : 0;
-                boolean pos         = changePct >= 0;
-                String sign         = pos ? "+" : "";
+                double changeAmt = bar.close - bar.open;
+                double changePct = bar.open != 0 ? (changeAmt / bar.open) * 100 : 0;
+                boolean pos = changePct >= 0;
+                String sign = pos ? "+" : "";
                 final double fClose = bar.close;
-                final long   fVol   = (long) bar.volume;
+                final long fVol = (long) bar.volume;
 
                 Platform.runLater(() -> {
                     stockPriceLabel.setText(String.format("$%.2f", fClose));
@@ -176,37 +190,21 @@ public class TradingController {
         }).start();
     }
 
-    private void loadChart(MockData.Stock s) {
+    private void loadChart(String symbol) {
         new Thread(() -> {
             try {
-                // Fetch the latest 60 one-minute bars
                 LocalDate today = LocalDate.now();
                 List<BarData> bars = historicalDataService.getHistoricalBars(
-                    s.symbol(),
-                    today.minusDays(1),
-                    today,
-                    "1Min",
-                    "iex"
-                );
-
-                // Keep only the last 60 bars
-                List<BarData> last60 = bars.size() > 60
-                    ? bars.subList(bars.size() - 60, bars.size())
-                    : bars;
-
-                // Convert BarData to CandleData
+                    symbol, today.minusDays(1), today, "1Min", "iex");
+                List<BarData> last60 = bars.size() > 60 ? bars.subList(bars.size() - 60, bars.size()) : bars;
                 DateTimeFormatter timeFmt = DateTimeFormatter.ofPattern("HH:mm");
                 List<CandleData> candles = new ArrayList<>();
                 for (BarData bar : last60) {
-                    String label = bar.timestamp.format(timeFmt);
-                    candles.add(new CandleData(label, bar.open, bar.high, bar.low, bar.close));
+                    candles.add(new CandleData(bar.timestamp.format(timeFmt), bar.open, bar.high, bar.low, bar.close));
                 }
-
-                // Update UI on JavaFX thread
-                javafx.application.Platform.runLater(() -> priceChart.setCandles(candles));
+                Platform.runLater(() -> priceChart.setCandles(candles));
             } catch (Exception e) {
-                System.err.println("Error loading chart for " + s.symbol() + ": " + e.getMessage());
-                e.printStackTrace();
+                System.err.println("Chart error for " + symbol + ": " + e.getMessage());
             }
         }).start();
     }
@@ -234,10 +232,9 @@ public class TradingController {
         if (isLoadingPage || livePageIndex >= liveAssets.size()) return;
         isLoadingPage = true;
 
-        String query  = searchField.getText().toLowerCase().trim();
+        String query    = searchField.getText().toLowerCase().trim();
         boolean favOnly = favoritesOnly.isSelected();
 
-        // Collect the next PAGE_SIZE assets that pass the current filter
         List<Asset> page = new ArrayList<>();
         int idx = livePageIndex;
         while (idx < liveAssets.size() && page.size() < PAGE_SIZE) {
@@ -252,30 +249,44 @@ public class TradingController {
 
         if (page.isEmpty()) { isLoadingPage = false; return; }
 
-        List<String> symbols = page.stream().map(a -> a.symbol).collect(java.util.stream.Collectors.toList());
+        // Add rows immediately with placeholder prices
+        Map<String, VBox> priceBoxes = new java.util.HashMap<>();
+        for (Asset asset : page) {
+            VBox[] holder = new VBox[1];
+            stockListContainer.getChildren().add(liveStockRow(asset, holder));
+            priceBoxes.put(asset.symbol, holder[0]);
+        }
+        isLoadingPage = false;
 
+        // Fetch latest bars in background and fill in prices
+        List<String> symbols = page.stream().map(a -> a.symbol).collect(java.util.stream.Collectors.toList());
         final int gen = searchGeneration;
         new Thread(() -> {
             try {
-                Map<String, SnapshotData> snapshots = snapshotService.getSnapshots(symbols, "iex");
+                Map<String, BarData> bars = marketDataService.getLatestBars(symbols, "iex");
                 Platform.runLater(() -> {
-                    if (gen != searchGeneration) return; // search changed, discard
-                    for (Asset asset : page) {
-                        SnapshotData snap = snapshots.get(asset.symbol);
-                        stockListContainer.getChildren().add(liveStockRow(asset, snap));
-                    }
-                    isLoadingPage = false;
+                    if (gen != searchGeneration) return;
+                    bars.forEach((sym, bar) -> {
+                        VBox right = priceBoxes.get(sym);
+                        if (right == null) return;
+                        double changePct = bar.open != 0 ? ((bar.close - bar.open) / bar.open) * 100 : 0;
+                        boolean pos = changePct >= 0;
+                        right.getChildren().setAll(
+                            label(String.format("$%.2f", bar.close), "stock-row-price"),
+                            label(String.format("%s%.2f%%", pos ? "+" : "", changePct),
+                                  pos ? "stock-row-pos" : "stock-row-neg")
+                        );
+                    });
                 });
             } catch (Exception e) {
-                System.err.println("Failed to load page: " + e.getMessage());
-                isLoadingPage = false;
+                System.err.println("Failed to fetch page prices: " + e.getMessage());
             }
         }).start();
     }
 
     private void applyLiveSearch() {
-        searchGeneration++; // invalidate any in-flight background thread
-        isLoadingPage = false; // release the lock so loadNextPage can run
+        searchGeneration++;
+        isLoadingPage = false;
         stockListContainer.getChildren().clear();
         livePageIndex = 0;
         loadNextPage();
@@ -284,7 +295,7 @@ public class TradingController {
     @FXML
     private void applyFilters() { applyLiveSearch(); }
 
-    private VBox liveStockRow(Asset asset, SnapshotData snap) {
+    private VBox liveStockRow(Asset asset, VBox[] priceBoxHolder) {
         String displaySymbol = favorites.contains(asset.symbol) ? asset.symbol + " ★" : asset.symbol;
         Label sym  = label(displaySymbol, "stock-row-symbol");
         Label name = label(asset.name != null ? asset.name : asset.symbol, "stock-row-name");
@@ -293,70 +304,18 @@ public class TradingController {
 
         VBox right = new VBox(2);
         right.setStyle("-fx-alignment: CENTER_RIGHT;");
-
-        if (snap != null && snap.latestBar != null) {
-            double close  = snap.latestBar.close;
-            double open   = snap.latestBar.open;
-            double changePct = open != 0 ? ((close - open) / open) * 100 : 0;
-            boolean pos   = changePct >= 0;
-            right.getChildren().addAll(
-                label(String.format("$%.2f", close), "stock-row-price"),
-                label(String.format("%s%.2f%%", pos ? "+" : "", changePct),
-                      pos ? "stock-row-pos" : "stock-row-neg")
-            );
-        } else {
-            right.getChildren().add(label("—", "stock-row-price"));
-        }
+        right.getChildren().add(label("—", "stock-row-price"));
+        if (priceBoxHolder != null) priceBoxHolder[0] = right;
 
         HBox row  = new HBox(left, right);
         VBox item = new VBox(row);
         item.getStyleClass().add("stock-row");
         item.setUserData(asset.symbol);
-        item.setOnMouseClicked(e -> selectLiveStock(asset, snap));
+        item.setOnMouseClicked(e -> selectLiveStock(asset));
         return item;
     }
 
-    private void selectLiveStock(Asset asset, SnapshotData snap) {
-        selectedSymbol = asset.symbol;
-        stockSymbolLabel.setText(asset.symbol);
-        stockNameLabel.setText(asset.name != null ? asset.name : asset.symbol);
-
-        stockPriceLabel.setText("—");
-        stockChangeLabel.setText("—");
-        volumeLabel.setText("—");
-        fetchLivePrice(asset.symbol);
-        marketCapLabel.setText("—");
-        sectorLabel.setText(asset.exchange != null ? asset.exchange : "—");
-
-        boolean isFav = favorites.contains(asset.symbol);
-        favoriteBtn.setText(isFav ? "★" : "☆");
-        favoriteBtn.getStyleClass().setAll("fav-btn");
-        buyButton.setText("Buy " + asset.symbol);
-        sellButton.setText("Sell " + asset.symbol);
-        alertStockLabel.setText("Alert price for " + asset.symbol);
-
-        // Reuse chart loading — create a minimal MockData.Stock stand-in via the symbol
-        new Thread(() -> {
-            try {
-                LocalDate today = LocalDate.now();
-                List<BarData> bars = historicalDataService.getHistoricalBars(
-                    asset.symbol, today.minusDays(1), today, "1Min", "iex");
-                List<BarData> last60 = bars.size() > 60 ? bars.subList(bars.size() - 60, bars.size()) : bars;
-                DateTimeFormatter timeFmt = DateTimeFormatter.ofPattern("HH:mm");
-                List<CandleData> candles = new ArrayList<>();
-                for (BarData bar : last60) {
-                    candles.add(new CandleData(bar.timestamp.format(timeFmt),
-                        bar.open, bar.high, bar.low, bar.close));
-                }
-                Platform.runLater(() -> priceChart.setCandles(candles));
-            } catch (Exception e) {
-                System.err.println("Chart error for " + asset.symbol + ": " + e.getMessage());
-            }
-        }).start();
-    }
-
     // Recently viewed / mock list builders
-
     private void buildRecentlyViewed() {
         recentlyViewedContainer.getChildren().clear();
         for (MockData.Stock s : recentlyViewed) {
@@ -405,14 +364,9 @@ public class TradingController {
         applyLiveSearch();
     }
 
-    @FXML
-    private void handleSetAlert() {}
-
-    @FXML
-    private void handleBuy() {}
-
-    @FXML
-    private void handleSell() {}
+    @FXML private void handleSetAlert() {}
+    @FXML private void handleBuy() {}
+    @FXML private void handleSell() {}
 
     // Navigation
     @FXML
