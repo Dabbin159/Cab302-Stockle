@@ -31,13 +31,26 @@ public class SnapshotService {
 
             JsonNode root = objectMapper.readTree(response);
             JsonNode snapshotsData = root.get("snapshots");
+            if (snapshotsData == null || snapshotsData.isNull()) {
+                return result;
+            }
 
             for (String symbol : symbols) {
                 JsonNode snapshotNode = snapshotsData.get(symbol);
                 if (snapshotNode != null) {
-                    JsonNode barNode = snapshotNode.get("bar");
+                    JsonNode barNode = snapshotNode.get("minuteBar");
+                    if (barNode == null || barNode.isNull()) {
+                        barNode = snapshotNode.get("dailyBar");
+                    }
+                    if (barNode == null || barNode.isNull()) {
+                        barNode = snapshotNode.get("prevDailyBar");
+                    }
+                    if (barNode == null || barNode.isNull()) {
+                        barNode = snapshotNode.get("bar");
+                    }
+
                     BarData bar = null;
-                    if (barNode != null) {
+                    if (barNode != null && !barNode.isNull() && barNode.get("t") != null) {
                         String barTimestamp = barNode.get("t").asText();
                         LocalDateTime barDateTime = java.time.OffsetDateTime.parse(barTimestamp).toLocalDateTime();
 
@@ -51,9 +64,13 @@ public class SnapshotService {
                         );
                     }
 
-                    JsonNode quoteNode = snapshotNode.get("quote");
+                    JsonNode quoteNode = snapshotNode.get("latestQuote");
+                    if (quoteNode == null || quoteNode.isNull()) {
+                        quoteNode = snapshotNode.get("quote");
+                    }
+
                     QuoteData quote = null;
-                    if (quoteNode != null) {
+                    if (quoteNode != null && !quoteNode.isNull() && quoteNode.get("t") != null) {
                         String quoteTimestamp = quoteNode.get("t").asText();
                         LocalDateTime quoteDateTime = java.time.OffsetDateTime.parse(quoteTimestamp).toLocalDateTime();
 
@@ -67,7 +84,7 @@ public class SnapshotService {
                         );
                     }
 
-                    if (bar != null && quote != null) {
+                    if (bar != null || quote != null) {
                         result.put(symbol, new SnapshotData(bar, quote));
                     }
                 }

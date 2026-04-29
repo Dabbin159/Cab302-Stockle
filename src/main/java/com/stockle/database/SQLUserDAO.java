@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDate;
 
 import org.mindrot.jbcrypt.BCrypt;
@@ -17,7 +18,7 @@ import com.stockle.model.User;
 public class SQLUserDAO implements UserDAO {
 
     private static SQLUserDAO instance;
-    private Connection connection;
+    private final Connection connection;
 
     private SQLUserDAO() {
         connection = SqliteConnection.getInstance(); // Retrive the current database connection
@@ -55,7 +56,7 @@ public class SQLUserDAO implements UserDAO {
      */
     public void addUser(User user) {
            try {
-            PreparedStatement statement = connection.prepareStatement(ADD_USER);
+            PreparedStatement statement = connection.prepareStatement(ADD_USER, Statement.RETURN_GENERATED_KEYS);
             statement.setString(1, user.getUsername());
             statement.setString(2, user.getPassword());
             statement.setString(3, user.getEmail());
@@ -69,7 +70,7 @@ public class SQLUserDAO implements UserDAO {
                 user.setId(generatedKeys.getInt(1));
             } // Sets the generated user ID to the User
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            logSqlException(ex);
         }
     }
     /**
@@ -82,7 +83,7 @@ public class SQLUserDAO implements UserDAO {
             statement.setInt(1, user.getId());
             statement.executeUpdate();
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            logSqlException(ex);
         }
     }
 
@@ -103,7 +104,7 @@ public class SQLUserDAO implements UserDAO {
             statement.setInt(8, user.getId());
             statement.executeUpdate();
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            logSqlException(ex);
         }
     }
 
@@ -130,7 +131,7 @@ public class SQLUserDAO implements UserDAO {
                 return user;
             }
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            logSqlException(ex);
         }
         return null;
     }
@@ -156,7 +157,7 @@ public class SQLUserDAO implements UserDAO {
             }
             return users;
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            logSqlException(ex);
         }
         return null;
     }
@@ -178,7 +179,7 @@ public class SQLUserDAO implements UserDAO {
             addUser(user);
             return true;
         } catch (Exception ex) {
-            ex.printStackTrace();
+            System.err.println(ex.getMessage());
             return false;
         }
     }
@@ -201,13 +202,15 @@ public class SQLUserDAO implements UserDAO {
                     String emailDB = resultSet.getString("email");
                     String fullName = resultSet.getString("fullName");
                     LocalDate dob = LocalDate.parse(resultSet.getString("dateOfBirth"));
-                    User user = new User(usernameDB, storedHash, emailDB, fullName, dob);
+                    long balance = resultSet.getLong("balance");
+                    long totalProfit = resultSet.getLong("totalProfit");
+                    User user = new User(usernameDB, storedHash, emailDB, fullName, dob, balance, totalProfit);
                     user.setId(resultSet.getInt("id"));
                     return user;
                 }
             }
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            logSqlException(ex);
         }
         return null;
     }
@@ -226,7 +229,7 @@ public class SQLUserDAO implements UserDAO {
                 return resultSet.getLong("balance");
             }
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            logSqlException(ex);
         }
         return 0;
     }
@@ -245,7 +248,7 @@ public class SQLUserDAO implements UserDAO {
                 return resultSet.getLong("totalProfit");
             }
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            logSqlException(ex);
         }
         return 0;
     }
@@ -262,7 +265,7 @@ public class SQLUserDAO implements UserDAO {
             statement.setInt(2, userId);
             statement.executeUpdate();
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            logSqlException(ex);
         }
     }
 
@@ -278,7 +281,11 @@ public class SQLUserDAO implements UserDAO {
             statement.setInt(2, userId);
             statement.executeUpdate();
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            logSqlException(ex);
         }
+    }
+
+    private void logSqlException(SQLException ex) {
+        System.err.println(ex.getMessage());
     }
 }

@@ -81,8 +81,8 @@
                                     <Label fx:id="marketCapLabel" text="2.8T" styleClass="stat-meta-value"/>
                                 </VBox>
                                 <VBox GridPane.columnIndex="2" spacing="2">
-                                    <Label text="Sector" styleClass="stat-meta-label"/>
-                                    <Label fx:id="sectorLabel" text="Technology" styleClass="stat-meta-value"/>
+                                    <Label text="Exchange" styleClass="stat-meta-label"/>
+                                    <Label fx:id="exchangeLabel" text="—" styleClass="stat-meta-value"/>
                                 </VBox>
                             </GridPane>
 
@@ -134,6 +134,9 @@
                                         <Button fx:id="buyButton" text="Buy AAPL"
                                                 styleClass="buy-btn" maxWidth="Infinity"
                                                 onAction="#handleBuy"/>
+
+                                             <Label fx:id="buyStatusLabel" text=""
+                                                 styleClass="trade-status" wrapText="true"/>
                                     </VBox>
                                 </Tab>
 
@@ -172,6 +175,9 @@
                                         <Button fx:id="sellButton" text="Sell AAPL"
                                                 styleClass="sell-btn" maxWidth="Infinity"
                                                 onAction="#handleSell"/>
+
+                                             <Label fx:id="sellStatusLabel" text=""
+                                                 styleClass="trade-status" wrapText="true"/>
                                     </VBox>
                                 </Tab>
 
@@ -189,14 +195,9 @@
                             <VBox spacing="12" style="-fx-padding: 0 16 16 16;">
                                 <TextField fx:id="searchField" promptText="Search by symbol or name..."
                                            styleClass="trade-input"/>
-                                <VBox spacing="4">
-                                    <Label text="Filter by Sector" styleClass="field-label"/>
-                                    <ComboBox fx:id="sectorFilter" maxWidth="Infinity"
-                                              styleClass="sector-combo" onAction="#applyFilters"/>
-                                </VBox>
                                 <HBox alignment="CENTER_LEFT" spacing="8">
                                     <CheckBox fx:id="favoritesOnly" text="Favorites Only"
-                                              styleClass="fav-check" onAction="#applyFilters"/>
+                                              styleClass="fav-check" onAction="#applyLiveSearch"/>
                                 </HBox>
                             </VBox>
                         </VBox>
@@ -227,8 +228,8 @@
                         <VBox styleClass="card">
                             <Label text="All Stocks" styleClass="card-title"
                                    style="-fx-padding: 16 16 8 16;"/>
-                            <ScrollPane prefHeight="300" fitToWidth="true" styleClass="stocks-scroll"
-                                        hbarPolicy="NEVER">
+                            <ScrollPane fx:id="stockListScroll" prefHeight="300" fitToWidth="true"
+                                        styleClass="stocks-scroll" hbarPolicy="NEVER">
                                 <VBox fx:id="stockListContainer" spacing="4"
                                       style="-fx-padding: 0 12 12 12;"/>
                             </ScrollPane>
