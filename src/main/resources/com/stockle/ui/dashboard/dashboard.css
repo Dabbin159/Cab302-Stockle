@@ -37,6 +37,11 @@
     -fx-text-fill: #16a34a;
 }
 
+.stat-negative {
+    -fx-font-size: 12px;
+    -fx-text-fill: #dc2626;
+}
+
 .stat-neutral {
     -fx-font-size: 12px;
     -fx-text-fill: #6b7280;

@@ -26,7 +26,7 @@ public class User_DB_Test {
 
     public static void AddUserTest() {
         SQLUserDAO userDAO = SQLUserDAO.getInstance();
-        User user = new User("TestUsername" + new Random().nextInt(100000), "TestPassword", "test@example.com", "Test User",LocalDate.now());
+        User user = new User("TestUsername" + new Random().nextInt(100000), "TestPassword", "test@example.com", "Test User", LocalDate.now());
         userDAO.addUser(user);
         System.out.println("User added with ID: " + user.getId());
     }

@@ -1,25 +1,104 @@
 package com.stockle.ui;
 
 import java.io.IOException;
+import java.time.LocalDate;
+
+import com.stockle.SessionManager;
+import com.stockle.database.SQLUserDAO;
+import com.stockle.model.User;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 
 public class AuthController {
+
+    @FXML private TextField loginEmail;
     @FXML private PasswordField loginPasswordField;
     @FXML private TextField loginPasswordText;
+    @FXML private TextField signupUsername;
+    @FXML private TextField signupName;
+    @FXML private TextField signupEmail;
     @FXML private PasswordField signupPasswordField;
+    @FXML private PasswordField signupConfirmPassword;
     @FXML private TextField signupPasswordText;
+    @FXML private DatePicker signupDateOfBirth;
+    @FXML private Label loginErrorLabel;
+    @FXML private Label signupErrorLabel;
+    private final SQLUserDAO userDAO = SQLUserDAO.getInstance();
 
+
+    /** Handles user login: validates fields, checks credentials
+     * against the database then navigates to the dashboard if
+     * successful
+     */
     @FXML
-    private void handleLogin() throws IOException {
-        SceneManager.switchTo("dashboard/dashboard-view.fxml");
+    protected void handleLogin() throws IOException {
+        String username =
+                loginEmail.getText().trim();
+        String password =
+                loginPasswordField.getText();
+        if (username.isEmpty() || password.isEmpty()){
+            loginErrorLabel.setText("Please fill in all sections");
+            return;
+        }
+
+        User user = userDAO.login(username, password);
+
+        if (user != null) {
+            SessionManager.getInstance().setCurrentUser(user);
+            SceneManager.switchTo("dashboard/dashboard-" +
+                    "view.fxml");
+        }
+            else {
+            loginErrorLabel.setText("Invalid username or password");
+            loginPasswordField.clear();
+        }
     }
 
+    /** Handles Signup: validates fields, checks credentials
+     * against the database then navigates to the dashboard if
+     * successful NOT COMPLETE YET
+     */
     @FXML
-    private void handleSignup() throws IOException {
-        SceneManager.switchTo("dashboard/dashboard-view.fxml");
+    protected void handleSignup() throws IOException {
+        String fullName =
+                signupName.getText().trim();
+        String email =
+                signupEmail.getText().trim();
+        String username =
+                signupUsername.getText().trim();
+        String password =
+                signupPasswordField.getText();
+        String confirmPassword =
+                signupConfirmPassword.getText();
+        LocalDate dateOfBirth =
+                signupDateOfBirth.getValue();
+
+        if (fullName.isEmpty() || email.isEmpty() || password.isEmpty()
+                || confirmPassword.isEmpty())
+        {
+            signupErrorLabel.setText("Please fill in all sections");
+            return;
+        }
+        else
+        {
+            boolean success = userDAO.signup(username, password,
+                    email, fullName, dateOfBirth);
+
+            if (success)
+            {
+                User user = userDAO.login(username, password);
+                SessionManager.getInstance().setCurrentUser(user);
+                SceneManager.switchTo("dashboard/dashboard-view.fxml");
+            }
+            else
+            {
+                signupErrorLabel.setText("Signup failed. Username may be taken. ");
+            }
+        }
     }
 
     @FXML

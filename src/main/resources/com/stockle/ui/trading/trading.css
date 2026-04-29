@@ -141,6 +141,19 @@
     -fx-text-fill: #111827;
 }
 
+.trade-status {
+    -fx-font-size: 12px;
+    -fx-padding: 4 2 0 2;
+}
+
+.trade-status-success {
+    -fx-text-fill: #16a34a;
+}
+
+.trade-status-error {
+    -fx-text-fill: #dc2626;
+}
+
 /* Action buttons */
 .buy-btn {
     -fx-background-color: #2563eb;

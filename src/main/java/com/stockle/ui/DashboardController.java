@@ -1,5 +1,19 @@
 package com.stockle.ui;
 import java.io.IOException;
+import java.text.NumberFormat;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.List;
+
+import com.stockle.SessionManager;
+import com.stockle.database.SQLHoldingDAO;
+import com.stockle.database.SQLTradeDAO;
+import com.stockle.database.SQLUserDAO;
+import com.stockle.model.Holding;
+import com.stockle.model.Trade;
+import com.stockle.model.User;
 
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -11,22 +25,48 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
+@SuppressWarnings("unused")
 public class DashboardController {
+    private static final NumberFormat CURRENCY = NumberFormat.getCurrencyInstance();
+    private static final DateTimeFormatter TRADE_TIME_FMT =
+        DateTimeFormatter.ofPattern("MMM d, HH:mm").withZone(ZoneId.systemDefault());
+
     @FXML private Label totalValueLabel;
     @FXML private Label totalGainLabel;
     @FXML private Label buyingPowerLabel;
     @FXML private AreaChart<String, Number> portfolioChart;
     @FXML private VBox holdingsContainer;
     @FXML private VBox tradesContainer;
+
     @FXML
     public void initialize() {
+        loadChart();
+
+        User currentUser = SessionManager.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            loadMockSummaryAndLists();
+            return;
+        }
+
+        User freshUser = SQLUserDAO.getInstance().getUserById(currentUser.getId());
+        if (freshUser == null) {
+            loadMockSummaryAndLists();
+            return;
+        }
+
+        SessionManager.getInstance().setCurrentUser(freshUser);
+        long holdingsValue = loadHoldings(freshUser.getId());
+        loadTrades(freshUser.getId());
+        loadSummary(freshUser, holdingsValue);
+    }
+
+    private void loadMockSummaryAndLists() {
         MockData.DashboardSummary summary = MockData.dashboardSummary();
         totalValueLabel.setText(summary.totalValue());
         totalGainLabel.setText(summary.totalGain());
         buyingPowerLabel.setText(summary.buyingPower());
-        loadChart();
-        loadHoldings();
-        loadTrades();
+        loadHoldingsMock();
+        loadTradesMock();
     }
 
     private void loadChart() {
@@ -37,7 +77,8 @@ public class DashboardController {
         portfolioChart.getData().add(series);
     }
 
-    private void loadHoldings() {
+    private void loadHoldingsMock() {
+        holdingsContainer.getChildren().clear();
         for (MockData.DashboardHolding holding : MockData.dashboardHoldings()) {
             holdingsContainer.getChildren().add(
                 holdingRow(
@@ -52,11 +93,78 @@ public class DashboardController {
         }
     }
 
-    private void loadTrades() {
+    private void loadTradesMock() {
+        tradesContainer.getChildren().clear();
         for (MockData.DashboardTrade trade : MockData.dashboardTrades()) {
             tradesContainer.getChildren().add(
                 tradeRow(trade.type(), trade.symbol(), trade.detail(), trade.time())
             );
+        }
+    }
+
+    private long loadHoldings(int userId) {
+        holdingsContainer.getChildren().clear();
+        List<Holding> holdings = SQLHoldingDAO.getInstance().getUserHoldings(userId);
+        if (holdings == null || holdings.isEmpty()) {
+            holdingsContainer.getChildren().add(styledLabel("No holdings yet", "row-sub"));
+            return 0L;
+        }
+
+        long totalHoldingsValue = 0L;
+        for (Holding holding : holdings) {
+            long costBasis = (long) holding.getAveragePrice() * holding.getQuantity();
+            totalHoldingsValue += costBasis;
+            holdingsContainer.getChildren().add(
+                holdingRow(
+                    holding.getCompanyID(),
+                    holding.getCompanyID(),
+                    holding.getQuantity() + " shares",
+                    CURRENCY.format(holding.getAveragePrice()),
+                    CURRENCY.format(costBasis),
+                    true
+                )
+            );
+        }
+        return totalHoldingsValue;
+    }
+
+    private void loadTrades(int userId) {
+        tradesContainer.getChildren().clear();
+        Trade[] trades = SQLTradeDAO.getInstance().getTradesByUserId(userId);
+        if (trades == null || trades.length == 0) {
+            tradesContainer.getChildren().add(styledLabel("No trades yet", "row-sub"));
+            return;
+        }
+
+        int shown = 0;
+        for (int i = trades.length - 1; i >= 0 && shown < 8; i--) {
+            Trade trade = trades[i];
+            String type = trade.isType() ? "SELL" : "BUY";
+            String symbol = trade.getStock() != null ? trade.getStock().getCompanyName() : "-";
+            long pricePerShare = trade.getQuantity() > 0 ? trade.getTotalValue() / trade.getQuantity() : 0L;
+            String detail = trade.getQuantity() + " shares @ " + CURRENCY.format(pricePerShare);
+            tradesContainer.getChildren().add(tradeRow(type, symbol, detail, formatTradeTime(trade.getTimeStamp())));
+            shown++;
+        }
+    }
+
+    private void loadSummary(User user, long holdingsValue) {
+        long portfolioValue = user.getBalance() + holdingsValue;
+        totalValueLabel.setText(CURRENCY.format(portfolioValue));
+        buyingPowerLabel.setText(CURRENCY.format(user.getBalance()));
+
+        long totalProfit = user.getTotalProfit();
+        String sign = totalProfit >= 0 ? "+" : "-";
+        totalGainLabel.setText(sign + CURRENCY.format(Math.abs(totalProfit)));
+        totalGainLabel.getStyleClass().setAll(totalProfit >= 0 ? "stat-positive" : "stat-negative");
+    }
+
+    private String formatTradeTime(String timestamp) {
+        try {
+            long epochMs = Long.parseLong(timestamp);
+            return TRADE_TIME_FMT.format(Instant.ofEpochMilli(epochMs));
+        } catch (NumberFormatException | DateTimeParseException ex) {
+            return timestamp;
         }
     }
 
@@ -116,6 +224,7 @@ public class DashboardController {
 
     @FXML
     private void handleSignOut() throws IOException {
+        SessionManager.getInstance().logout();
         SceneManager.switchTo("auth/auth-view.fxml");
     }
 }

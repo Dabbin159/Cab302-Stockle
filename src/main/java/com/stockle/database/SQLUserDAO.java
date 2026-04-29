@@ -4,7 +4,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDate;
+
 import org.mindrot.jbcrypt.BCrypt;
 
 import com.stockle.model.User;
@@ -16,7 +18,7 @@ import com.stockle.model.User;
 public class SQLUserDAO implements UserDAO {
 
     private static SQLUserDAO instance;
-    private Connection connection;
+    private final Connection connection;
 
     private SQLUserDAO() {
         connection = SqliteConnection.getInstance(); // Retrive the current database connection
@@ -39,7 +41,7 @@ public class SQLUserDAO implements UserDAO {
 
     private static final String GET_ALL_USERS = "SELECT * FROM users";
 
-    private static final String LOGIN_USER = "SELECT * FROM users WHERE username = ?";
+    private static final String LOGIN_USER = "SELECT * FROM users WHERE email = ?";
 
     private static final String GET_BALANCE_BYID = "SELECT balance FROM users WHERE id = ?";
 
@@ -54,7 +56,7 @@ public class SQLUserDAO implements UserDAO {
      */
     public void addUser(User user) {
            try {
-            PreparedStatement statement = connection.prepareStatement(ADD_USER);
+            PreparedStatement statement = connection.prepareStatement(ADD_USER, Statement.RETURN_GENERATED_KEYS);
             statement.setString(1, user.getUsername());
             statement.setString(2, user.getPassword());
             statement.setString(3, user.getEmail());
@@ -68,7 +70,7 @@ public class SQLUserDAO implements UserDAO {
                 user.setId(generatedKeys.getInt(1));
             } // Sets the generated user ID to the User
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            logSqlException(ex);
         }
     }
     /**
@@ -81,7 +83,7 @@ public class SQLUserDAO implements UserDAO {
             statement.setInt(1, user.getId());
             statement.executeUpdate();
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            logSqlException(ex);
         }
     }
 
@@ -102,7 +104,7 @@ public class SQLUserDAO implements UserDAO {
             statement.setInt(8, user.getId());
             statement.executeUpdate();
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            logSqlException(ex);
         }
     }
 
@@ -129,7 +131,7 @@ public class SQLUserDAO implements UserDAO {
                 return user;
             }
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            logSqlException(ex);
         }
         return null;
     }
@@ -155,7 +157,7 @@ public class SQLUserDAO implements UserDAO {
             }
             return users;
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            logSqlException(ex);
         }
         return null;
     }
@@ -177,36 +179,38 @@ public class SQLUserDAO implements UserDAO {
             addUser(user);
             return true;
         } catch (Exception ex) {
-            ex.printStackTrace();
+            System.err.println(ex.getMessage());
             return false;
         }
     }
 
     /**
-     * @param username The username of the user trying to log in.
+     * @param email The email of the user trying to log in.
      * @param password The password of the user trying to log in.
      * @return The user if login is successful, null otherwise.
      */
     @Override
-    public User login(String username, String password) {
+    public User login(String email, String password) {
         try (
             PreparedStatement statement = connection.prepareStatement(LOGIN_USER)) {
-            statement.setString(1, username);
+            statement.setString(1, email);
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 String storedHash = resultSet.getString("password");
                 if (BCrypt.checkpw(password, storedHash)) {
                     String usernameDB = resultSet.getString("username");
-                    String email = resultSet.getString("email");
+                    String emailDB = resultSet.getString("email");
                     String fullName = resultSet.getString("fullName");
                     LocalDate dob = LocalDate.parse(resultSet.getString("dateOfBirth"));
-                    User user = new User(usernameDB, storedHash, email, fullName, dob);
+                    long balance = resultSet.getLong("balance");
+                    long totalProfit = resultSet.getLong("totalProfit");
+                    User user = new User(usernameDB, storedHash, emailDB, fullName, dob, balance, totalProfit);
                     user.setId(resultSet.getInt("id"));
                     return user;
                 }
             }
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            logSqlException(ex);
         }
         return null;
     }
@@ -225,7 +229,7 @@ public class SQLUserDAO implements UserDAO {
                 return resultSet.getLong("balance");
             }
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            logSqlException(ex);
         }
         return 0;
     }
@@ -244,7 +248,7 @@ public class SQLUserDAO implements UserDAO {
                 return resultSet.getLong("totalProfit");
             }
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            logSqlException(ex);
         }
         return 0;
     }
@@ -261,7 +265,7 @@ public class SQLUserDAO implements UserDAO {
             statement.setInt(2, userId);
             statement.executeUpdate();
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            logSqlException(ex);
         }
     }
 
@@ -277,7 +281,11 @@ public class SQLUserDAO implements UserDAO {
             statement.setInt(2, userId);
             statement.executeUpdate();
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            logSqlException(ex);
         }
+    }
+
+    private void logSqlException(SQLException ex) {
+        System.err.println(ex.getMessage());
     }
 }
