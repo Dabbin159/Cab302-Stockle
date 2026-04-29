@@ -3,6 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.chart.*?>
 <?import javafx.geometry.Insets?>
+<?import com.stockle.ui.CandleStickChart?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             xmlns="http://javafx.com/javafx"
@@ -19,7 +20,7 @@
                 <Button text="Trading" maxWidth="Infinity" styleClass="nav-item-active"/>
                 <Button text="Practice" maxWidth="Infinity" styleClass="nav-item"/>
                 <Button text="Leaderboard" maxWidth="Infinity" styleClass="nav-item"/>
-                <Button text="AI Chat" maxWidth="Infinity" styleClass="nav-item"/>
+                <Button text="AI Chat" maxWidth="Infinity" styleClass="nav-item" onAction="#navAI"/>
                 <Button text="News" maxWidth="Infinity" styleClass="nav-item"/>
                 <Button text="Profile" maxWidth="Infinity" styleClass="nav-item"/>
             </VBox>
@@ -86,12 +87,11 @@
                             </GridPane>
 
                             <!-- Price chart -->
-                            <LineChart fx:id="priceChart" styleClass="price-chart"
-                                       legendVisible="false" prefHeight="240" animated="false"
-                                       createSymbols="false">
+                            <CandleStickChart fx:id="priceChart" styleClass="price-chart"
+                                              prefHeight="240">
                                 <xAxis><CategoryAxis/></xAxis>
-                                <yAxis><NumberAxis autoRanging="true"/></yAxis>
-                            </LineChart>
+                                <yAxis><NumberAxis/></yAxis>
+                            </CandleStickChart>
                         </VBox>
 
                         <!-- Place Order card -->
