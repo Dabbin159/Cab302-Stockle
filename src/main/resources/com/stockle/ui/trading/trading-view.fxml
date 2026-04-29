@@ -227,8 +227,8 @@
                         <VBox styleClass="card">
                             <Label text="All Stocks" styleClass="card-title"
                                    style="-fx-padding: 16 16 8 16;"/>
-                            <ScrollPane prefHeight="300" fitToWidth="true" styleClass="stocks-scroll"
-                                        hbarPolicy="NEVER">
+                            <ScrollPane fx:id="stockListScroll" prefHeight="300" fitToWidth="true"
+                                        styleClass="stocks-scroll" hbarPolicy="NEVER">
                                 <VBox fx:id="stockListContainer" spacing="4"
                                       style="-fx-padding: 0 12 12 12;"/>
                             </ScrollPane>

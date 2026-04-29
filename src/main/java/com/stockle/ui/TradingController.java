@@ -4,18 +4,26 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stockle.api.client.ApiClient;
+import com.stockle.api.data.Asset;
 import com.stockle.api.data.BarData;
+import com.stockle.api.data.SnapshotData;
+import com.stockle.api.service.AssetService;
 import com.stockle.api.service.HistoricalDataService;
+import com.stockle.api.service.MarketDataService;
+import com.stockle.api.service.SnapshotService;
 import com.stockle.model.CandleData;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -48,44 +56,77 @@ public class TradingController {
     @FXML private Label alertStockLabel;
     @FXML private VBox recentlyViewedContainer;
     @FXML private VBox stockListContainer;
+    @FXML private ScrollPane stockListScroll;
 
-    // Data
+    // Mock data (used for selected stock detail / recently viewed)
     private List<MockData.Stock> allStocks;
     private List<MockData.Stock> recentlyViewed;
     private final List<String> favorites = new ArrayList<>();
     private MockData.Stock selectedStock;
-    private List<MockData.Stock> filteredStocks;
+    private String selectedSymbol = "";
+
+    // Live stock list (Alpaca)
+    private List<Asset> liveAssets = new ArrayList<>();
+    private int livePageIndex = 0;
+    private boolean isLoadingPage = false;
+    private int searchGeneration = 0; // incremented on each new search to discard stale results
+    private static final int PAGE_SIZE = 20;
 
     // API Services
     private ApiClient apiClient;
     private ObjectMapper objectMapper;
     private HistoricalDataService historicalDataService;
+    private AssetService assetService;
+    private MarketDataService marketDataService;
+    private SnapshotService snapshotService;
 
     @FXML
     public void initialize() {
-        // Initialize API services
         apiClient = new ApiClient();
         objectMapper = new ObjectMapper();
         historicalDataService = new HistoricalDataService(apiClient, objectMapper);
+        marketDataService     = new MarketDataService(apiClient, objectMapper);
+        snapshotService       = new SnapshotService(apiClient, objectMapper);
+        assetService          = new AssetService(apiClient, objectMapper, marketDataService);
 
         allStocks = MockData.allStocks();
         recentlyViewed = MockData.recentlyViewed(allStocks);
         favorites.addAll(MockData.defaultFavorites());
         selectedStock = allStocks.get(0);
-        filteredStocks = new ArrayList<>(allStocks);
+
         sectorFilter.getItems().addAll("All Sectors","Technology","Financial","Healthcare","Consumer","Automotive");
         sectorFilter.getSelectionModel().selectFirst();
-        searchField.textProperty().addListener((obs, o, n) -> applyFilters());
+        searchField.textProperty().addListener((obs, o, n) -> applyLiveSearch());
         buySharesField.textProperty().addListener((obs, o, n)  -> updateBuyEstimate());
         sellSharesField.textProperty().addListener((obs, o, n) -> updateSellEstimate());
+
+        // Infinite scroll: load next page when user reaches 90% of the list
+        stockListScroll.vvalueProperty().addListener((obs, o, n) -> {
+            if (n.doubleValue() >= 0.9 && !isLoadingPage) loadNextPage();
+        });
+
         buildRecentlyViewed();
-        buildStockList();
         selectStock(selectedStock);
+
+        // Load all asset symbols in background, then show first page
+        new Thread(() -> {
+            try {
+                List<Asset> assets = assetService.getAllAssets();
+                // Keep only tradable US equities with a symbol
+                liveAssets = assets.stream()
+                    .filter(a -> a.tradable && "us_equity".equals(a.assetClass) && a.symbol != null)
+                    .collect(java.util.stream.Collectors.toList());
+                Platform.runLater(this::loadNextPage);
+            } catch (Exception e) {
+                System.err.println("Failed to load assets: " + e.getMessage());
+            }
+        }).start();
     }
 
     // Stock selection
     private void selectStock(MockData.Stock s) {
         selectedStock = s;
+        selectedSymbol = s.symbol();
         stockSymbolLabel.setText(s.symbol());
         stockNameLabel.setText(s.name());
         stockPriceLabel.setText(String.format("$%.2f", s.price()));
@@ -166,25 +207,147 @@ public class TradingController {
         catch (NumberFormatException e) { return 0; }
     }
 
-    // Filters / list
-    @FXML
-    private void applyFilters() {
+    // ── Live stock list ───────────────────────────────────────────────────
+
+    private void loadNextPage() {
+        if (isLoadingPage || livePageIndex >= liveAssets.size()) return;
+        isLoadingPage = true;
+
         String query  = searchField.getText().toLowerCase().trim();
-        String sector = sectorFilter.getValue();
         boolean favOnly = favoritesOnly.isSelected();
 
-        filteredStocks = allStocks.stream()
-            .filter(s -> query.isEmpty()
-                || s.symbol().toLowerCase().contains(query)
-                || s.name().toLowerCase().contains(query))
-            .filter(s -> sector == null || sector.equals("All Sectors") || s.sector().equals(sector))
-            .filter(s -> !favOnly || favorites.contains(s.symbol()))
-            .toList();
+        // Collect the next PAGE_SIZE assets that pass the current filter
+        List<Asset> page = new ArrayList<>();
+        int idx = livePageIndex;
+        while (idx < liveAssets.size() && page.size() < PAGE_SIZE) {
+            Asset a = liveAssets.get(idx++);
+            if (!query.isEmpty() &&
+                !a.symbol.toLowerCase().contains(query) &&
+                !(a.name != null && a.name.toLowerCase().contains(query))) continue;
+            if (favOnly && !favorites.contains(a.symbol)) continue;
+            page.add(a);
+        }
+        livePageIndex = idx;
 
-        buildStockList();
+        if (page.isEmpty()) { isLoadingPage = false; return; }
+
+        List<String> symbols = page.stream().map(a -> a.symbol).collect(java.util.stream.Collectors.toList());
+
+        final int gen = searchGeneration;
+        new Thread(() -> {
+            try {
+                Map<String, SnapshotData> snapshots = snapshotService.getSnapshots(symbols, "iex");
+                Platform.runLater(() -> {
+                    if (gen != searchGeneration) return; // search changed, discard
+                    for (Asset asset : page) {
+                        SnapshotData snap = snapshots.get(asset.symbol);
+                        stockListContainer.getChildren().add(liveStockRow(asset, snap));
+                    }
+                    isLoadingPage = false;
+                });
+            } catch (Exception e) {
+                System.err.println("Failed to load page: " + e.getMessage());
+                isLoadingPage = false;
+            }
+        }).start();
     }
 
-    // List builders
+    private void applyLiveSearch() {
+        searchGeneration++;       // invalidate any in-flight background thread
+        isLoadingPage = false;    // release the lock so loadNextPage can run
+        stockListContainer.getChildren().clear();
+        livePageIndex = 0;
+        loadNextPage();
+    }
+
+    @FXML
+    private void applyFilters() { applyLiveSearch(); }
+
+    private VBox liveStockRow(Asset asset, SnapshotData snap) {
+        String displaySymbol = favorites.contains(asset.symbol) ? asset.symbol + " ★" : asset.symbol;
+        Label sym  = label(displaySymbol, "stock-row-symbol");
+        Label name = label(asset.name != null ? asset.name : asset.symbol, "stock-row-name");
+        VBox left  = new VBox(2, sym, name);
+        HBox.setHgrow(left, Priority.ALWAYS);
+
+        VBox right = new VBox(2);
+        right.setStyle("-fx-alignment: CENTER_RIGHT;");
+
+        if (snap != null && snap.latestBar != null) {
+            double close  = snap.latestBar.close;
+            double open   = snap.latestBar.open;
+            double changePct = open != 0 ? ((close - open) / open) * 100 : 0;
+            boolean pos   = changePct >= 0;
+            right.getChildren().addAll(
+                label(String.format("$%.2f", close), "stock-row-price"),
+                label(String.format("%s%.2f%%", pos ? "+" : "", changePct),
+                      pos ? "stock-row-pos" : "stock-row-neg")
+            );
+        } else {
+            right.getChildren().add(label("—", "stock-row-price"));
+        }
+
+        HBox row  = new HBox(left, right);
+        VBox item = new VBox(row);
+        item.getStyleClass().add("stock-row");
+        item.setUserData(asset.symbol);
+        item.setOnMouseClicked(e -> selectLiveStock(asset, snap));
+        return item;
+    }
+
+    private void selectLiveStock(Asset asset, SnapshotData snap) {
+        selectedSymbol = asset.symbol;
+        stockSymbolLabel.setText(asset.symbol);
+        stockNameLabel.setText(asset.name != null ? asset.name : asset.symbol);
+
+        if (snap != null && snap.latestBar != null) {
+            double close = snap.latestBar.close;
+            double open  = snap.latestBar.open;
+            double changePct = open != 0 ? ((close - open) / open) * 100 : 0;
+            double changeAmt = close - open;
+            boolean pos = changePct >= 0;
+            String sign = pos ? "+" : "";
+            stockPriceLabel.setText(String.format("$%.2f", close));
+            stockChangeLabel.setText(String.format("%s%.2f (%s%.2f%%)", sign, changeAmt, sign, changePct));
+            stockChangeLabel.getStyleClass().setAll(pos ? "stock-change-pos" : "stock-change-neg");
+            volumeLabel.setText(String.format("%,d", snap.latestBar.volume));
+        } else {
+            stockPriceLabel.setText("—");
+            stockChangeLabel.setText("—");
+            volumeLabel.setText("—");
+        }
+        marketCapLabel.setText("—");
+        sectorLabel.setText(asset.exchange != null ? asset.exchange : "—");
+
+        boolean isFav = favorites.contains(asset.symbol);
+        favoriteBtn.setText(isFav ? "★" : "☆");
+        favoriteBtn.getStyleClass().setAll(isFav ? "fav-btn fav-btn-active" : "fav-btn");
+        buyButton.setText("Buy " + asset.symbol);
+        sellButton.setText("Sell " + asset.symbol);
+        alertStockLabel.setText("Alert price for " + asset.symbol);
+
+        // Reuse chart loading — create a minimal MockData.Stock stand-in via the symbol
+        new Thread(() -> {
+            try {
+                LocalDate today = LocalDate.now();
+                List<BarData> bars = historicalDataService.getHistoricalBars(
+                    asset.symbol, today.minusDays(1), today, "1Min", "iex");
+                List<BarData> last60 = bars.size() > 60 ? bars.subList(bars.size() - 60, bars.size()) : bars;
+                DateTimeFormatter timeFmt = DateTimeFormatter.ofPattern("HH:mm");
+                List<CandleData> candles = new ArrayList<>();
+                for (BarData bar : last60) {
+                    candles.add(new CandleData(bar.timestamp.format(timeFmt),
+                        bar.open, bar.high, bar.low, bar.close));
+                }
+                Platform.runLater(() -> priceChart.setCandles(candles));
+            } catch (Exception e) {
+                System.err.println("Chart error for " + asset.symbol + ": " + e.getMessage());
+            }
+        }).start();
+    }
+
+    // ── Recently viewed / mock list builders ──────────────────────────────
+
     private void buildRecentlyViewed() {
         recentlyViewedContainer.getChildren().clear();
         for (MockData.Stock s : recentlyViewed) {
@@ -192,59 +355,27 @@ public class TradingController {
         }
     }
 
-    private void buildStockList() {
-        stockListContainer.getChildren().clear();
-        for (MockData.Stock s : filteredStocks) {
-            stockListContainer.getChildren().add(stockRow(s));
-        }
-    }
-
     private void refreshStockListSelection() {
+        String sym = selectedStock != null ? selectedStock.symbol() : "";
         stockListContainer.getChildren().forEach(node -> {
-            Object tag = node.getUserData();
-            boolean active = tag instanceof MockData.Stock st && st.symbol().equals(selectedStock.symbol());
             node.getStyleClass().setAll("stock-row");
-            if (active) node.getStyleClass().add("stock-row-active");
+            if (sym.equals(node.getUserData())) node.getStyleClass().add("stock-row-active");
         });
     }
 
     private VBox recentRow(MockData.Stock s) {
-        Label sym  = label(s.symbol(), "stock-row-symbol");
+        Label sym   = label(s.symbol(), "stock-row-symbol");
         Label price = label(String.format("$%.2f", s.price()), "stock-row-name");
-        VBox left = new VBox(2, sym, price);
+        VBox left   = new VBox(2, sym, price);
         HBox.setHgrow(left, Priority.ALWAYS);
 
         boolean pos = s.changePct() >= 0;
-        Label pct = label((pos ? "+" : "") + s.changePct() + "%", pos ? "stock-row-pos" : "stock-row-neg");
+        Label pct   = label((pos ? "+" : "") + s.changePct() + "%", pos ? "stock-row-pos" : "stock-row-neg");
 
-        HBox row = new HBox(left, pct);
+        HBox row  = new HBox(left, pct);
         row.getStyleClass().add("stock-row");
         row.setOnMouseClicked(e -> selectStock(s));
         return new VBox(row);
-    }
-
-    private VBox stockRow(MockData.Stock s) {
-        boolean active = s.symbol().equals(selectedStock.symbol());
-        boolean pos = s.change() >= 0;
-
-        String displaySymbol = favorites.contains(s.symbol()) ? s.symbol() + " ★" : s.symbol();
-        Label sym = label(displaySymbol, "stock-row-symbol");
-        Label name = label(s.name(), "stock-row-name");
-        VBox left = new VBox(2, sym, name);
-        HBox.setHgrow(left, Priority.ALWAYS);
-
-        Label price = label(String.format("$%.2f", s.price()), "stock-row-price");
-        Label pct = label((pos ? "+" : "") + s.changePct() + "%", pos ? "stock-row-pos" : "stock-row-neg");
-        VBox right  = new VBox(2, price, pct);
-        right.setStyle("-fx-alignment: CENTER_RIGHT;");
-
-        HBox row = new HBox(left, right);
-        VBox item = new VBox(row);
-        item.getStyleClass().add("stock-row");
-        if (active) item.getStyleClass().add("stock-row-active");
-        item.setUserData(s);
-        item.setOnMouseClicked(e -> selectStock(s));
-        return item;
     }
 
     private Label label(String text, String... styles) {
@@ -256,13 +387,13 @@ public class TradingController {
     // Order actions
     @FXML
     private void toggleFavorite() {
-        String sym = selectedStock.symbol();
-        if (favorites.contains(sym)) favorites.remove(sym);
-        else favorites.add(sym);
-        boolean isFav = favorites.contains(sym);
+        if (selectedSymbol.isEmpty()) return;
+        if (favorites.contains(selectedSymbol)) favorites.remove(selectedSymbol);
+        else favorites.add(selectedSymbol);
+        boolean isFav = favorites.contains(selectedSymbol);
         favoriteBtn.setText(isFav ? "★" : "☆");
-        if (favoritesOnly.isSelected()) applyFilters();
-        else buildStockList();
+        favoriteBtn.getStyleClass().setAll(isFav ? "fav-btn fav-btn-active" : "fav-btn");
+        applyLiveSearch();
     }
 
     @FXML
