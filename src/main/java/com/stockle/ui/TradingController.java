@@ -14,6 +14,7 @@ import com.stockle.api.data.BarData;
 import com.stockle.api.service.AssetService;
 import com.stockle.api.service.HistoricalDataService;
 import com.stockle.api.service.MarketDataService;
+import com.stockle.api.service.SnapshotService;
 import com.stockle.model.CandleData;
 import com.stockle.model.Stock;
 import com.stockle.model.TradeController;
@@ -80,6 +81,7 @@ public class TradingController {
     private HistoricalDataService historicalDataService;
     private AssetService assetService;
     private MarketDataService marketDataService;
+    private SnapshotService snapshotService;
 
     @FXML
     public void initialize() {
@@ -87,6 +89,7 @@ public class TradingController {
         objectMapper = new ObjectMapper();
         historicalDataService = new HistoricalDataService(apiClient, objectMapper);
         marketDataService = new MarketDataService(apiClient, objectMapper);
+        snapshotService = new SnapshotService(apiClient, objectMapper);
         assetService = new AssetService(apiClient, objectMapper, marketDataService);
 
         allStocks = MockData.allStocks();
