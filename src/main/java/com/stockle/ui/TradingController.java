@@ -4,8 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javafx.fxml.FXML;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.XYChart;
+import com.stockle.model.CandleData;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
@@ -25,7 +24,7 @@ public class TradingController {
     @FXML private Label marketCapLabel;
     @FXML private Label sectorLabel;
     @FXML private Button favoriteBtn;
-    @FXML private LineChart<String, Number> priceChart;
+    @FXML private CandleStickChart priceChart;
 
     // Order form
     @FXML private TextField buySharesField;
@@ -103,13 +102,15 @@ public class TradingController {
     }
 
     private void loadChart(MockData.Stock s) {
-        priceChart.getData().clear();
-        XYChart.Series<String, Number> series = new XYChart.Series<>();
-        double[] prices = MockData.CHART_DATA[s.chartIndex()];
-        for (int i = 0; i < MockData.TIMES.length; i++) {
-            series.getData().add(new XYChart.Data<>(MockData.TIMES[i], prices[i]));
+        double[][] ohlc = MockData.CANDLE_DATA[s.chartIndex()];
+        java.util.List<CandleData> candles = new java.util.ArrayList<>();
+        for (int i = 0; i < ohlc.length; i++) {
+            candles.add(new CandleData(
+                MockData.CANDLE_TIMES[i],
+                ohlc[i][0], ohlc[i][1], ohlc[i][2], ohlc[i][3]
+            ));
         }
-        priceChart.getData().add(series);
+        priceChart.setCandles(candles);
     }
 
     // Estimates
