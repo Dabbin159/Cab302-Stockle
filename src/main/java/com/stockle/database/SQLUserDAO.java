@@ -40,7 +40,7 @@ public class SQLUserDAO implements UserDAO {
 
     private static final String GET_ALL_USERS = "SELECT * FROM users";
 
-    private static final String LOGIN_USER = "SELECT * FROM users WHERE username = ?";
+    private static final String LOGIN_USER = "SELECT * FROM users WHERE email = ?";
 
     private static final String GET_BALANCE_BYID = "SELECT balance FROM users WHERE id = ?";
 
@@ -184,24 +184,24 @@ public class SQLUserDAO implements UserDAO {
     }
 
     /**
-     * @param username The username of the user trying to log in.
+     * @param email The email of the user trying to log in.
      * @param password The password of the user trying to log in.
      * @return The user if login is successful, null otherwise.
      */
     @Override
-    public User login(String username, String password) {
+    public User login(String email, String password) {
         try (
             PreparedStatement statement = connection.prepareStatement(LOGIN_USER)) {
-            statement.setString(1, username);
+            statement.setString(1, email);
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 String storedHash = resultSet.getString("password");
                 if (BCrypt.checkpw(password, storedHash)) {
                     String usernameDB = resultSet.getString("username");
-                    String email = resultSet.getString("email");
+                    String emailDB = resultSet.getString("email");
                     String fullName = resultSet.getString("fullName");
                     LocalDate dob = LocalDate.parse(resultSet.getString("dateOfBirth"));
-                    User user = new User(usernameDB, storedHash, email, fullName, dob);
+                    User user = new User(usernameDB, storedHash, emailDB, fullName, dob);
                     user.setId(resultSet.getInt("id"));
                     return user;
                 }

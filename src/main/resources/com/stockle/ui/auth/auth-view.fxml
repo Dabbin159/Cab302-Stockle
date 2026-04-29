@@ -88,7 +88,6 @@
 
                             <Label fx:id="loginErrorLabel" style="-fx-text-fill: red;"/>
 
-
                             <HBox alignment="CENTER_LEFT" spacing="8">
                                 <CheckBox fx:id="rememberMe" text="Remember me" styleClass="auth-checkbox"/>
                                 <Region HBox.hgrow="ALWAYS"/>
@@ -113,59 +112,68 @@
 
                     <!-- SIGN UP TAB -->
                     <Tab text="Sign Up">
-                        <VBox spacing="12" styleClass="tab-content">
+                        <ScrollPane fitToWidth="true" styleClass="signup-scroll"
+                                    vbarPolicy="AS_NEEDED" hbarPolicy="NEVER">
+                            <VBox spacing="12" styleClass="tab-content">
 
-                            <VBox spacing="4">
-                                <Label text="Full Name" styleClass="field-label"/>
-                                <TextField fx:id="signupName" promptText="John Doe" styleClass="auth-input"/>
-                            </VBox>
-
-                            <VBox spacing="4">
-                                <Label text="Email" styleClass="field-label"/>
-                                <TextField fx:id="signupEmail" promptText="you@example.com" styleClass="auth-input"/>
-                            </VBox>
-
-                            <VBox spacing="4">
-                                <Label text="Username" styleClass="field-label"/>
-                                <TextField fx:id="signupUsername" promptText="abc123" styleClass="auth-input"/>
-                            </VBox>
-
-                            <VBox spacing="4">
-                                <Label text="Date of Birth" styleClass="field-label"/>
-                                <DatePicker fx:id="signupDateOfBirth" promptText="Date of Birth" styleClass="auth-input"/>
-                            </VBox>
-
-                            <VBox spacing="4">
-                                <Label text="Password" styleClass="field-label"/>
-                                <HBox styleClass="password-container">
-                                    <StackPane HBox.hgrow="ALWAYS">
-                                        <PasswordField fx:id="signupPasswordField" styleClass="auth-input-inner" maxWidth="Infinity"/>
-                                        <TextField fx:id="signupPasswordText" styleClass="auth-input-inner" maxWidth="Infinity" visible="false" managed="false"/>
-                                    </StackPane>
-                                    <Button text="Show/Hide" styleClass="toggle-btn" onAction="#toggleSignupPassword"/>
+                                <!-- Row 1: Full Name + Username -->
+                                <HBox spacing="10">
+                                    <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                        <Label text="Full Name" styleClass="field-label"/>
+                                        <TextField fx:id="signupName" promptText="John Doe" styleClass="auth-input"/>
+                                    </VBox>
+                                    <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                        <Label text="Username" styleClass="field-label"/>
+                                        <TextField fx:id="signupUsername" promptText="john_doe" styleClass="auth-input"/>
+                                    </VBox>
                                 </HBox>
+
+                                <!-- Row 2: Email + Date of Birth -->
+                                <HBox spacing="10">
+                                    <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                        <Label text="Email" styleClass="field-label"/>
+                                        <TextField fx:id="signupEmail" promptText="you@example.com" styleClass="auth-input"/>
+                                    </VBox>
+                                    <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                        <Label text="Date of Birth" styleClass="field-label"/>
+                                        <DatePicker fx:id="signupDateOfBirth" promptText="DD/MM/YYYY"
+                                                    styleClass="auth-datepicker" maxWidth="Infinity"/>
+                                    </VBox>
+                                </HBox>
+
+                                <VBox spacing="4">
+                                    <Label text="Password" styleClass="field-label"/>
+                                    <HBox styleClass="password-container">
+                                        <StackPane HBox.hgrow="ALWAYS">
+                                            <PasswordField fx:id="signupPasswordField" styleClass="auth-input-inner" maxWidth="Infinity"/>
+                                            <TextField fx:id="signupPasswordText" styleClass="auth-input-inner" maxWidth="Infinity" visible="false" managed="false"/>
+                                        </StackPane>
+                                        <Button text="Show/Hide" styleClass="toggle-btn" onAction="#toggleSignupPassword"/>
+                                    </HBox>
+                                    <Label text="Must be at least 8 characters" styleClass="hint-text"/>
+                                </VBox>
+
+                                <VBox spacing="4">
+                                    <Label text="Confirm Password" styleClass="field-label"/>
+                                    <PasswordField fx:id="signupConfirmPassword" styleClass="auth-input"/>
+                                </VBox>
+
+                                <Label fx:id="signupErrorLabel" style="-fx-text-fill: red;"/>
+
+                                <HBox alignment="TOP_LEFT" spacing="8">
+                                    <CheckBox fx:id="agreeToTerms" styleClass="auth-checkbox"/>
+                                    <Label text="I agree to the Terms of Service and Privacy Policy"
+                                           styleClass="terms-text" wrapText="true" HBox.hgrow="ALWAYS"/>
+                                </HBox>
+
+                                <Button text="Create Account" styleClass="outline-btn"
+                                        maxWidth="Infinity" onAction="#handleSignup"/>
+
+                                <Label text="By signing up, you'll receive $100,000 in virtual currency to start trading"
+                                       styleClass="hint-text" wrapText="true" maxWidth="Infinity" textAlignment="CENTER"/>
+
                             </VBox>
-
-                            <VBox spacing="4">
-                                <Label text="Confirm Password" styleClass="field-label"/>
-                                <PasswordField fx:id="signupConfirmPassword" styleClass="auth-input"/>
-                            </VBox>
-
-                            <Label fx:id="signupErrorLabel" style="-fx-text-fill: red;"/>
-
-                            <HBox alignment="TOP_LEFT" spacing="8">
-                                <CheckBox fx:id="agreeToTerms" styleClass="auth-checkbox"/>
-                                <Label text="I agree to the Terms of Service and Privacy Policy"
-                                        styleClass="terms-text" wrapText="true" HBox.hgrow="ALWAYS"/>
-                            </HBox>
-
-                            <Button text="Create Account" styleClass="outline-btn"
-                                    maxWidth="Infinity" onAction="#handleSignup"/>
-
-                            <Label text="By signing up, you'll receive $100,000 in virtual currency to start trading"
-                                   styleClass="hint-text" wrapText="true" maxWidth="Infinity" textAlignment="CENTER"/>
-
-                        </VBox>
+                        </ScrollPane>
                     </Tab>
 
                 </TabPane>
