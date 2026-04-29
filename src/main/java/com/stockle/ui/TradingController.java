@@ -63,18 +63,22 @@ public class TradingController {
     @FXML private VBox stockListContainer;
     @FXML private ScrollPane stockListScroll;
 
-    // Mock data (used for selected stock detail / recently viewed)
-    private List<MockData.Stock> allStocks;
-    private List<MockData.Stock> recentlyViewed;
-    private final List<String> favorites = new ArrayList<>();
-    private MockData.Stock selectedStock;
+    // Current selected stock data (from live API)
     private String selectedSymbol = "";
+    private double currentPrice = 0;
+    private String currentExchange = "";
+    private double currentChange = 0;
+    private double currentChangePercent = 0;
+    private long currentVolume = 0;
+    private final List<String> favorites = new ArrayList<>();
 
     // Live stock list (Alpaca)
     private List<Asset> liveAssets = new ArrayList<>();
     private int livePageIndex = 0;
     private boolean isLoadingPage = false;
     private int searchGeneration = 0;
+    private int chartLoadGeneration = 0;  // Prevents stale chart data
+    private int priceLoadGeneration = 0;  // Prevents stale price data
     private static final int PAGE_SIZE = 20;
 
     // API Services
@@ -94,11 +98,6 @@ public class TradingController {
         snapshotService = new SnapshotService(apiClient, objectMapper);
         assetService = new AssetService(apiClient, objectMapper, marketDataService);
 
-        allStocks = MockData.allStocks();
-        recentlyViewed = MockData.recentlyViewed(allStocks);
-        favorites.addAll(MockData.defaultFavorites());
-        selectedStock = allStocks.get(0);
-
         searchField.textProperty().addListener((obs, o, n) -> applyLiveSearch());
         buySharesField.textProperty().addListener((obs, o, n)  -> updateBuyEstimate());
         sellSharesField.textProperty().addListener((obs, o, n) -> updateSellEstimate());
@@ -107,8 +106,8 @@ public class TradingController {
             if (n.doubleValue() >= 0.9 && !isLoadingPage) loadNextPage();
         });
 
-        buildRecentlyViewed();
-        selectStock(selectedStock);
+        // Clear initially since no stock is selected
+        recentlyViewedContainer.getChildren().clear();
 
         new Thread(() -> {
             try {
@@ -124,43 +123,17 @@ public class TradingController {
     }
 
     // Stock selection
-    private void selectStock(MockData.Stock s) {
-        selectedStock = s;
-        selectedSymbol = s.symbol();
-        stockSymbolLabel.setText(s.symbol());
-        stockNameLabel.setText(s.name());
-        stockPriceLabel.setText("—");
-        stockChangeLabel.setText("—");
-        volumeLabel.setText("—");
-        marketCapLabel.setText("—");
-        exchangeLabel.setText("—");
-
-        boolean isFav = favorites.contains(s.symbol());
-        favoriteBtn.setText(isFav ? "★" : "☆");
-        favoriteBtn.getStyleClass().setAll("fav-btn");
-
-        buyButton.setText("Buy " + s.symbol());
-        sellButton.setText("Sell " + s.symbol());
-        alertStockLabel.setText("Alert price for " + s.symbol());
-        clearTradeStatus();
-
-        loadChart(s.symbol());
-        fetchLivePrice(s.symbol());
-        updateBuyEstimate();
-        updateSellEstimate();
-        updateOwnedSharesLabel();
-        refreshStockListSelection();
-    }
-
     private void selectLiveStock(Asset asset) {
         selectedSymbol = asset.symbol;
+        currentExchange = asset.exchange != null ? asset.exchange : "—";
+        
         stockSymbolLabel.setText(asset.symbol);
         stockNameLabel.setText(asset.name != null ? asset.name : asset.symbol);
         stockPriceLabel.setText("—");
         stockChangeLabel.setText("—");
         volumeLabel.setText("—");
         marketCapLabel.setText("—");
-        exchangeLabel.setText(asset.exchange != null ? asset.exchange : "—");
+        exchangeLabel.setText(currentExchange);
 
         boolean isFav = favorites.contains(asset.symbol);
         favoriteBtn.setText(isFav ? "★" : "☆");
@@ -168,12 +141,23 @@ public class TradingController {
         buyButton.setText("Buy " + asset.symbol);
         sellButton.setText("Sell " + asset.symbol);
         alertStockLabel.setText("Alert price for " + asset.symbol);
+        
+        clearTradeStatus();
+        
+        // Increment generation counters to cancel stale requests
+        chartLoadGeneration++;
+        priceLoadGeneration++;
 
         fetchLivePrice(asset.symbol);
         loadChart(asset.symbol);
+        updateBuyEstimate();
+        updateSellEstimate();
+        updateOwnedSharesLabel();
+        refreshStockListSelection();
     }
 
     private void fetchLivePrice(String symbol) {
+        final int gen = priceLoadGeneration;  // Capture current generation
         new Thread(() -> {
             try {
                 Map<String, BarData> bars = marketDataService.getLatestBars(List.of(symbol), "iex");
@@ -188,10 +172,23 @@ public class TradingController {
                 final long fVol = (long) bar.volume;
 
                 Platform.runLater(() -> {
+                    // Only update if this is still the current generation
+                    if (gen != priceLoadGeneration || !symbol.equals(selectedSymbol)) return;
+                    
+                    // Store in fields for use in trades and estimates
+                    currentPrice = fClose;
+                    currentChange = changeAmt;
+                    currentChangePercent = changePct;
+                    currentVolume = fVol;
+                    
                     stockPriceLabel.setText(String.format("$%.2f", fClose));
                     stockChangeLabel.setText(String.format("%s%.2f (%s%.2f%%)", sign, changeAmt, sign, changePct));
                     stockChangeLabel.getStyleClass().setAll(pos ? "stock-change-pos" : "stock-change-neg");
                     volumeLabel.setText(String.format("%,d", fVol));
+                    
+                    // Update estimates with new price
+                    updateBuyEstimate();
+                    updateSellEstimate();
                 });
             } catch (Exception e) {
                 System.err.println("Live price fetch failed for " + symbol + ": " + e.getMessage());
@@ -200,6 +197,7 @@ public class TradingController {
     }
 
     private void loadChart(String symbol) {
+        final int gen = chartLoadGeneration;  // Capture current generation
         new Thread(() -> {
             try {
                 LocalDate today = LocalDate.now();
@@ -211,7 +209,12 @@ public class TradingController {
                 for (BarData bar : last60) {
                     candles.add(new CandleData(bar.timestamp.format(timeFmt), bar.open, bar.high, bar.low, bar.close));
                 }
-                Platform.runLater(() -> priceChart.setCandles(candles));
+                Platform.runLater(() -> {
+                    // Only update if this is still the current generation
+                    if (gen != chartLoadGeneration || !symbol.equals(selectedSymbol)) return;
+                    
+                    priceChart.setCandles(candles);
+                });
             } catch (Exception e) {
                 System.err.println("Error loading chart for " + symbol + ": " + e.getMessage());
             }
@@ -221,14 +224,14 @@ public class TradingController {
     // Estimates
     private void updateBuyEstimate() {
         int quantity = parseQuantity(buySharesField);
-        double cost = quantity * selectedStock.price();
+        double cost = quantity * currentPrice;
         buyEstimateLabel.setText(String.format("$%.2f", cost));
         buyButton.setDisable(cost <= 0);
     }
 
     private void updateSellEstimate() {
         int quantity = parseQuantity(sellSharesField);
-        double proceeds = quantity * selectedStock.price();
+        double proceeds = quantity * currentPrice;
         sellEstimateLabel.setText(String.format("$%.2f", proceeds));
         sellButton.setDisable(proceeds <= 0);
     }
@@ -242,7 +245,7 @@ public class TradingController {
             ownedSharesLabel.setText("Sign in to see owned shares");
             return;
         }
-        int owned = TradeController.getInstance().getOwnedQuantity(user, selectedStock.symbol());
+        int owned = TradeController.getInstance().getOwnedQuantity(user, selectedSymbol);
         ownedSharesLabel.setText("You own " + owned + " shares");
     }
 
@@ -317,11 +320,11 @@ public class TradingController {
 
     private Stock toTradeStock() {
         return new Stock(
-            selectedStock.symbol(),
-            selectedStock.sector(),
-            (int) Math.round(selectedStock.price()),
-            (float) selectedStock.changePct(),
-            parseVolume(selectedStock.volume())
+            selectedSymbol,
+            "N/A",  // sector not available from live API
+            (int) Math.round(currentPrice),
+            (float) currentChangePercent,
+            currentVolume
         );   
     }
 
@@ -427,35 +430,11 @@ public class TradingController {
         return item;
     }
 
-    // Recently viewed / mock list builders
-    private void buildRecentlyViewed() {
-        recentlyViewedContainer.getChildren().clear();
-        for (MockData.Stock s : recentlyViewed) {
-            recentlyViewedContainer.getChildren().add(recentRow(s));
-        }
-    }
-
     private void refreshStockListSelection() {
-        String sym = selectedStock != null ? selectedStock.symbol() : "";
         stockListContainer.getChildren().forEach(node -> {
             node.getStyleClass().setAll("stock-row");
-            if (sym.equals(node.getUserData())) node.getStyleClass().add("stock-row-active");
+            if (selectedSymbol.equals(node.getUserData())) node.getStyleClass().add("stock-row-active");
         });
-    }
-
-    private VBox recentRow(MockData.Stock s) {
-        Label sym   = label(s.symbol(), "stock-row-symbol");
-        Label price = label(String.format("$%.2f", s.price()), "stock-row-name");
-        VBox left   = new VBox(2, sym, price);
-        HBox.setHgrow(left, Priority.ALWAYS);
-
-        boolean pos = s.changePct() >= 0;
-        Label pct   = label((pos ? "+" : "") + s.changePct() + "%", pos ? "stock-row-pos" : "stock-row-neg");
-
-        HBox row  = new HBox(left, pct);
-        row.getStyleClass().add("stock-row");
-        row.setOnMouseClicked(e -> selectStock(s));
-        return new VBox(row);
     }
 
     private Label label(String text, String... styles) {
@@ -497,7 +476,7 @@ public class TradingController {
         if (success) {
             refreshCurrentUser();
             buySharesField.clear();
-            setBuyStatus("Bought " + quantity + " shares of " + selectedStock.symbol(), true);
+            setBuyStatus("Bought " + quantity + " shares of " + selectedSymbol, true);
             updateBuyEstimate();
             updateSellEstimate();
             updateOwnedSharesLabel();
@@ -524,7 +503,7 @@ public class TradingController {
         if (success) {
             refreshCurrentUser();
             sellSharesField.clear();
-            setSellStatus("Sold " + quantity + " shares of " + selectedStock.symbol(), true);
+            setSellStatus("Sold " + quantity + " shares of " + selectedSymbol, true);
             updateBuyEstimate();
             updateSellEstimate();
             updateOwnedSharesLabel();
