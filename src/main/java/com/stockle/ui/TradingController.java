@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.stockle.SessionManager;
 import com.stockle.api.client.ApiClient;
 import com.stockle.api.data.BarData;
 import com.stockle.api.service.HistoricalDataService;
@@ -283,8 +284,10 @@ public class TradingController {
         SceneManager.switchTo("dashboard/dashboard-view.fxml");
     }
 
+    // Signs User out, Sends to Login page and syncs user data
     @FXML
     private void handleSignOut() throws IOException {
+        SessionManager.getInstance().logout();
         SceneManager.switchTo("auth/auth-view.fxml");
     }
 

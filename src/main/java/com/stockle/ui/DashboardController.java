@@ -1,6 +1,7 @@
 package com.stockle.ui;
 import java.io.IOException;
 
+import com.stockle.SessionManager;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.chart.AreaChart;
@@ -114,8 +115,10 @@ public class DashboardController {
         SceneManager.switchTo("ai/ai-view.fxml");
     }
 
+    // Signs User out, Sends to Login page and syncs user data
     @FXML
     private void handleSignOut() throws IOException {
+        SessionManager.getInstance().logout();
         SceneManager.switchTo("auth/auth-view.fxml");
     }
 }
