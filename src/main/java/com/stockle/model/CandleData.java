@@ -8,10 +8,10 @@ public class CandleData {
     public final double close;
 
     public CandleData(String time, double open, double high, double low, double close) {
-        this.time  = time;
-        this.open  = open;
-        this.high  = high;
-        this.low   = low;
+        this.time = time;
+        this.open = open;
+        this.high = high;
+        this.low = low;
         this.close = close;
     }
 }
