@@ -183,18 +183,6 @@
 }
 .alert-btn:hover { -fx-background-color: #1f2937; }
 
-/* Sector ComboBox */
-.sector-combo {
-    -fx-background-color: #f3f3f5;
-    -fx-background-radius: 8;
-    -fx-border-color: rgba(0,0,0,0.1);
-    -fx-border-radius: 8;
-    -fx-border-width: 1;
-    -fx-font-size: 14px;
-    -fx-pref-height: 38;
-}
-.sector-combo .list-cell { -fx-font-size: 14px; }
-
 /* Stock list rows */
 .stock-row {
     -fx-background-color: transparent;

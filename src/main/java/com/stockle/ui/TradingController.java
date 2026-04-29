@@ -24,7 +24,6 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
@@ -40,7 +39,7 @@ public class TradingController {
     @FXML private Label stockChangeLabel;
     @FXML private Label volumeLabel;
     @FXML private Label marketCapLabel;
-    @FXML private Label sectorLabel;
+    @FXML private Label exchangeLabel;
     @FXML private Button favoriteBtn;
     @FXML private CandleStickChart priceChart;
 
@@ -54,7 +53,6 @@ public class TradingController {
 
     // Right panel
     @FXML private TextField searchField;
-    @FXML private ComboBox<String> sectorFilter;
     @FXML private CheckBox favoritesOnly;
     @FXML private Label alertStockLabel;
     @FXML private VBox recentlyViewedContainer;
@@ -97,8 +95,6 @@ public class TradingController {
         favorites.addAll(MockData.defaultFavorites());
         selectedStock = allStocks.get(0);
 
-        sectorFilter.getItems().addAll("All Sectors","Technology","Financial","Healthcare","Consumer","Automotive");
-        sectorFilter.getSelectionModel().selectFirst();
         searchField.textProperty().addListener((obs, o, n) -> applyLiveSearch());
         buySharesField.textProperty().addListener((obs, o, n)  -> updateBuyEstimate());
         sellSharesField.textProperty().addListener((obs, o, n) -> updateSellEstimate());
@@ -133,7 +129,7 @@ public class TradingController {
         stockChangeLabel.setText("—");
         volumeLabel.setText("—");
         marketCapLabel.setText("—");
-        sectorLabel.setText(s.sector());
+        exchangeLabel.setText("—");
 
         boolean isFav = favorites.contains(s.symbol());
         favoriteBtn.setText(isFav ? "★" : "☆");
@@ -158,7 +154,7 @@ public class TradingController {
         stockChangeLabel.setText("—");
         volumeLabel.setText("—");
         marketCapLabel.setText("—");
-        sectorLabel.setText(asset.exchange != null ? asset.exchange : "—");
+        exchangeLabel.setText(asset.exchange != null ? asset.exchange : "—");
 
         boolean isFav = favorites.contains(asset.symbol);
         favoriteBtn.setText(isFav ? "★" : "☆");
@@ -313,9 +309,6 @@ public class TradingController {
         livePageIndex = 0;
         loadNextPage();
     }
-
-    @FXML
-    private void applyFilters() { applyLiveSearch(); }
 
     private VBox liveStockRow(Asset asset, VBox[] priceBoxHolder) {
         String displaySymbol = favorites.contains(asset.symbol) ? asset.symbol + " ★" : asset.symbol;

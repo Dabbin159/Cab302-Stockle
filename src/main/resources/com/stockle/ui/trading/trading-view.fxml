@@ -81,8 +81,8 @@
                                     <Label fx:id="marketCapLabel" text="2.8T" styleClass="stat-meta-value"/>
                                 </VBox>
                                 <VBox GridPane.columnIndex="2" spacing="2">
-                                    <Label text="Sector" styleClass="stat-meta-label"/>
-                                    <Label fx:id="sectorLabel" text="Technology" styleClass="stat-meta-value"/>
+                                    <Label text="Exchange" styleClass="stat-meta-label"/>
+                                    <Label fx:id="exchangeLabel" text="—" styleClass="stat-meta-value"/>
                                 </VBox>
                             </GridPane>
 
@@ -189,11 +189,6 @@
                             <VBox spacing="12" style="-fx-padding: 0 16 16 16;">
                                 <TextField fx:id="searchField" promptText="Search by symbol or name..."
                                            styleClass="trade-input"/>
-                                <VBox spacing="4">
-                                    <Label text="Filter by Sector" styleClass="field-label"/>
-                                    <ComboBox fx:id="sectorFilter" maxWidth="Infinity"
-                                              styleClass="sector-combo" onAction="#applyFilters"/>
-                                </VBox>
                                 <HBox alignment="CENTER_LEFT" spacing="8">
                                     <CheckBox fx:id="favoritesOnly" text="Favorites Only"
                                               styleClass="fav-check" onAction="#applyFilters"/>
