@@ -6,11 +6,12 @@ import java.time.LocalDate;
 import com.stockle.SessionManager;
 import com.stockle.database.SQLUserDAO;
 import com.stockle.model.User;
+
 import javafx.fxml.FXML;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.scene.control.DatePicker;
 
 public class AuthController {
 
