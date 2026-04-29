@@ -191,7 +191,7 @@
                                            styleClass="trade-input"/>
                                 <HBox alignment="CENTER_LEFT" spacing="8">
                                     <CheckBox fx:id="favoritesOnly" text="Favorites Only"
-                                              styleClass="fav-check" onAction="#applyFilters"/>
+                                              styleClass="fav-check" onAction="#applyLiveSearch"/>
                                 </HBox>
                             </VBox>
                         </VBox>

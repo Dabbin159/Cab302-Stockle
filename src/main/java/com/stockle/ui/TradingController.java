@@ -302,6 +302,7 @@ public class TradingController {
         }).start();
     }
 
+    @FXML
     private void applyLiveSearch() {
         searchGeneration++;
         isLoadingPage = false;
