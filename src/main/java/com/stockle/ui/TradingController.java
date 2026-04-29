@@ -89,9 +89,9 @@ public class TradingController {
         apiClient = new ApiClient();
         objectMapper = new ObjectMapper();
         historicalDataService = new HistoricalDataService(apiClient, objectMapper);
-        marketDataService     = new MarketDataService(apiClient, objectMapper);
-        snapshotService       = new SnapshotService(apiClient, objectMapper);
-        assetService          = new AssetService(apiClient, objectMapper, marketDataService);
+        marketDataService = new MarketDataService(apiClient, objectMapper);
+        snapshotService = new SnapshotService(apiClient, objectMapper);
+        assetService = new AssetService(apiClient, objectMapper, marketDataService);
 
         allStocks = MockData.allStocks();
         recentlyViewed = MockData.recentlyViewed(allStocks);
@@ -133,29 +133,51 @@ public class TradingController {
         selectedSymbol = s.symbol();
         stockSymbolLabel.setText(s.symbol());
         stockNameLabel.setText(s.name());
-        stockPriceLabel.setText(String.format("$%.2f", s.price()));
-
-        boolean pos = s.change() >= 0;
-        String sign  = pos ? "+" : "";
-        stockChangeLabel.setText(String.format("%s%.2f (%s%.2f%%)", sign, s.change(), sign, s.changePct()));
-        stockChangeLabel.getStyleClass().setAll(pos ? "stock-change-pos" : "stock-change-neg");
-
-        volumeLabel.setText(s.volume());
-        marketCapLabel.setText(s.marketCap());
+        stockPriceLabel.setText("—");
+        stockChangeLabel.setText("—");
+        volumeLabel.setText("—");
+        marketCapLabel.setText("—");
         sectorLabel.setText(s.sector());
 
         boolean isFav = favorites.contains(s.symbol());
         favoriteBtn.setText(isFav ? "★" : "☆");
-        favoriteBtn.getStyleClass().setAll(isFav ? "fav-btn fav-btn-active" : "fav-btn");
+        favoriteBtn.getStyleClass().setAll("fav-btn");
 
         buyButton.setText("Buy " + s.symbol());
         sellButton.setText("Sell " + s.symbol());
         alertStockLabel.setText("Alert price for " + s.symbol());
 
         loadChart(s);
+        fetchLivePrice(s.symbol());
         updateBuyEstimate();
         updateSellEstimate();
         refreshStockListSelection();
+    }
+    
+    private void fetchLivePrice(String symbol) {
+        new Thread(() -> {
+            try {
+                Map<String, BarData> bars = marketDataService.getLatestBars(List.of(symbol), "iex");
+                BarData bar = bars.get(symbol);
+                if (bar == null) return;
+
+                double changeAmt    = bar.close - bar.open;
+                double changePct    = bar.open != 0 ? (changeAmt / bar.open) * 100 : 0;
+                boolean pos         = changePct >= 0;
+                String sign         = pos ? "+" : "";
+                final double fClose = bar.close;
+                final long   fVol   = (long) bar.volume;
+
+                Platform.runLater(() -> {
+                    stockPriceLabel.setText(String.format("$%.2f", fClose));
+                    stockChangeLabel.setText(String.format("%s%.2f (%s%.2f%%)", sign, changeAmt, sign, changePct));
+                    stockChangeLabel.getStyleClass().setAll(pos ? "stock-change-pos" : "stock-change-neg");
+                    volumeLabel.setText(String.format("%,d", fVol));
+                });
+            } catch (Exception e) {
+                System.err.println("Live price fetch failed for " + symbol + ": " + e.getMessage());
+            }
+        }).start();
     }
 
     private void loadChart(MockData.Stock s) {
@@ -226,8 +248,7 @@ public class TradingController {
         catch (NumberFormatException e) { return 0; }
     }
 
-    // ── Live stock list ───────────────────────────────────────────────────
-
+    // Live stock list
     private void loadNextPage() {
         if (isLoadingPage || livePageIndex >= liveAssets.size()) return;
         isLoadingPage = true;
@@ -272,8 +293,8 @@ public class TradingController {
     }
 
     private void applyLiveSearch() {
-        searchGeneration++;       // invalidate any in-flight background thread
-        isLoadingPage = false;    // release the lock so loadNextPage can run
+        searchGeneration++; // invalidate any in-flight background thread
+        isLoadingPage = false; // release the lock so loadNextPage can run
         stockListContainer.getChildren().clear();
         livePageIndex = 0;
         loadNextPage();
@@ -319,28 +340,16 @@ public class TradingController {
         stockSymbolLabel.setText(asset.symbol);
         stockNameLabel.setText(asset.name != null ? asset.name : asset.symbol);
 
-        if (snap != null && snap.latestBar != null) {
-            double close = snap.latestBar.close;
-            double open  = snap.latestBar.open;
-            double changePct = open != 0 ? ((close - open) / open) * 100 : 0;
-            double changeAmt = close - open;
-            boolean pos = changePct >= 0;
-            String sign = pos ? "+" : "";
-            stockPriceLabel.setText(String.format("$%.2f", close));
-            stockChangeLabel.setText(String.format("%s%.2f (%s%.2f%%)", sign, changeAmt, sign, changePct));
-            stockChangeLabel.getStyleClass().setAll(pos ? "stock-change-pos" : "stock-change-neg");
-            volumeLabel.setText(String.format("%,d", snap.latestBar.volume));
-        } else {
-            stockPriceLabel.setText("—");
-            stockChangeLabel.setText("—");
-            volumeLabel.setText("—");
-        }
+        stockPriceLabel.setText("—");
+        stockChangeLabel.setText("—");
+        volumeLabel.setText("—");
+        fetchLivePrice(asset.symbol);
         marketCapLabel.setText("—");
         sectorLabel.setText(asset.exchange != null ? asset.exchange : "—");
 
         boolean isFav = favorites.contains(asset.symbol);
         favoriteBtn.setText(isFav ? "★" : "☆");
-        favoriteBtn.getStyleClass().setAll(isFav ? "fav-btn fav-btn-active" : "fav-btn");
+        favoriteBtn.getStyleClass().setAll("fav-btn");
         buyButton.setText("Buy " + asset.symbol);
         sellButton.setText("Sell " + asset.symbol);
         alertStockLabel.setText("Alert price for " + asset.symbol);
@@ -365,7 +374,7 @@ public class TradingController {
         }).start();
     }
 
-    // ── Recently viewed / mock list builders ──────────────────────────────
+    // Recently viewed / mock list builders
 
     private void buildRecentlyViewed() {
         recentlyViewedContainer.getChildren().clear();
@@ -411,7 +420,7 @@ public class TradingController {
         else favorites.add(selectedSymbol);
         boolean isFav = favorites.contains(selectedSymbol);
         favoriteBtn.setText(isFav ? "★" : "☆");
-        favoriteBtn.getStyleClass().setAll(isFav ? "fav-btn fav-btn-active" : "fav-btn");
+        favoriteBtn.getStyleClass().setAll("fav-btn");
         applyLiveSearch();
     }
 

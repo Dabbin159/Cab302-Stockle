@@ -42,14 +42,14 @@
 .fav-btn {
     -fx-background-color: transparent;
     -fx-font-size: 18px;
-    -fx-text-fill: #9ca3af;
+    -fx-text-fill: -fx-text-base-color;
     -fx-padding: 2 4;
     -fx-cursor: hand;
     -fx-focus-color: transparent;
     -fx-faint-focus-color: transparent;
 }
-.fav-btn:hover { -fx-text-fill: #eab308; }
-.fav-btn-active { -fx-text-fill: #eab308; }
+.fav-btn:hover { -fx-background-color: transparent; }
+.fav-btn-active { -fx-background-color: transparent; }
 
 /* Volume / cap / sector strip */
 .stock-stats-grid {
