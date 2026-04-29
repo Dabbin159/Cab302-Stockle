@@ -1,6 +1,16 @@
 package com.stockle.model;
 
+import java.util.Collections;
+import java.util.Map;
+
 import org.json.JSONObject;
+
+import com.stockle.api.data.Asset;
+import com.stockle.api.data.BarData;
+import com.stockle.api.data.SnapshotData;
+import com.stockle.api.service.AssetService;
+import com.stockle.api.service.MarketDataService;
+import com.stockle.api.service.SnapshotService;
 
 public class Stock {
 
@@ -19,6 +29,83 @@ public class Stock {
         this.currentPrice = currentPrice;
         this.dailyChange = dailyChange;
         this.volume = volume;
+    }
+
+    /**
+     * Build a Stock model from live API objects.
+     */
+    public static Stock fromApiData(String symbol, Asset asset, SnapshotData snapshot) {
+        String stockId = symbol;
+        if ((stockId == null || stockId.isBlank()) && asset != null) {
+            stockId = asset.symbol;
+        }
+        if (stockId == null || stockId.isBlank()) {
+            throw new IllegalArgumentException("symbol is required to create Stock from API data");
+        }
+
+        String resolvedSector = (asset != null && asset.assetClass != null)
+                ? asset.assetClass
+                : "unknown";
+
+        int resolvedPrice = 0;
+        float resolvedDailyChange = 0f;
+        long resolvedVolume = 0L;
+
+        if (snapshot != null && snapshot.latestBar != null) {
+            double close = snapshot.latestBar.close;
+            double open = snapshot.latestBar.open;
+
+            resolvedPrice = (int) Math.round(close);
+            resolvedDailyChange = open != 0
+                    ? (float) (((close - open) / open) * 100.0)
+                    : 0f;
+            resolvedVolume = snapshot.latestBar.volume;
+        }
+
+        return new Stock(stockId, resolvedSector, resolvedPrice, resolvedDailyChange, resolvedVolume);
+    }
+
+    /**
+     * Fetch and build a Stock model from Alpaca asset + snapshot endpoints.
+     */
+    public static Stock fromApi(String symbol, AssetService assetService, SnapshotService snapshotService, String feed) {
+        return fromApi(symbol, assetService, snapshotService, null, feed);
+    }
+
+    /**
+     * Fetch and build a Stock model from Alpaca APIs with bar fallback.
+     */
+    public static Stock fromApi(
+            String symbol,
+            AssetService assetService,
+            SnapshotService snapshotService,
+            MarketDataService marketDataService,
+            String feed) {
+        if (symbol == null || symbol.isBlank()) {
+            throw new IllegalArgumentException("symbol is required");
+        }
+        if (assetService == null) {
+            throw new IllegalArgumentException("assetService is required");
+        }
+        if (snapshotService == null) {
+            throw new IllegalArgumentException("snapshotService is required");
+        }
+
+        String normalizedFeed = (feed == null || feed.isBlank()) ? "iex" : feed;
+
+        Asset asset = assetService.getAsset(symbol);
+        Map<String, SnapshotData> snapshots = snapshotService.getSnapshots(Collections.singletonList(symbol), normalizedFeed);
+        SnapshotData snapshot = snapshots != null ? snapshots.get(symbol) : null;
+
+        if ((snapshot == null || snapshot.latestBar == null) && marketDataService != null) {
+            Map<String, BarData> bars = marketDataService.getLatestBars(Collections.singletonList(symbol), normalizedFeed);
+            BarData bar = bars != null ? bars.get(symbol) : null;
+            if (bar != null) {
+                snapshot = new SnapshotData(bar, snapshot != null ? snapshot.latestQuote : null);
+            }
+        }
+
+        return fromApiData(symbol, asset, snapshot);
     }
 
     public JSONObject toJSON() {
