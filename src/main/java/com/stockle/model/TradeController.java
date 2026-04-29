@@ -52,6 +52,7 @@ public class TradeController {
         SQLTradeDAO.getInstance().addTrade(trade);
         return true;
     }
+
     // Sell
     public boolean executeSell(User user, Stock stock, int quantity) {
         SQLHoldingDAO holdingDAO = SQLHoldingDAO.getInstance();
@@ -85,7 +86,8 @@ public class TradeController {
         trade.setType(true); // true = SELL
         tradeDAO.addTrade(trade, profit);
         return true;
-    }    
+    }
+
         // Trade History
     public void getTradeHistory(User user) {
         // Implement trade history retrieval logic here

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.stockle.SessionManager;
 import com.stockle.api.client.ApiClient;
 import com.stockle.api.data.Asset;
 import com.stockle.api.data.BarData;
@@ -16,6 +17,9 @@ import com.stockle.api.service.HistoricalDataService;
 import com.stockle.api.service.MarketDataService;
 import com.stockle.api.service.SnapshotService;
 import com.stockle.model.CandleData;
+import com.stockle.model.Stock;
+import com.stockle.model.TradeController;
+import com.stockle.model.User;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -191,15 +195,30 @@ public class TradingController {
 
     // Estimates
     private void updateBuyEstimate() {
-        double cost = parseShares(buySharesField) * selectedStock.price();
+        double cost = parseShares(buySharesField) * getDisplayedPrice();
         buyEstimateLabel.setText(String.format("$%.2f", cost));
         buyButton.setDisable(cost <= 0);
     }
 
     private void updateSellEstimate() {
-        double proceeds = parseShares(sellSharesField) * selectedStock.price();
+        double proceeds = parseShares(sellSharesField) * getDisplayedPrice();
         sellEstimateLabel.setText(String.format("$%.2f", proceeds));
         sellButton.setDisable(proceeds <= 0);
+    }
+
+    private double getDisplayedPrice() {
+        if (stockPriceLabel == null || stockPriceLabel.getText() == null) {
+            return 0;
+        }
+        String value = stockPriceLabel.getText().replace("$", "").replace(",", "").trim();
+        if (value.isEmpty() || "—".equals(value)) {
+            return 0;
+        }
+        try {
+            return Math.max(0, Double.parseDouble(value));
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 
     private double parseShares(TextField field) {
@@ -400,10 +419,40 @@ public class TradingController {
     private void handleSetAlert() {}
 
     @FXML
-    private void handleBuy() {}
+    private void handleBuy() {
+        User user = SessionManager.getInstance().getCurrentUser();
+        int quantity = (int) parseShares(buySharesField);
+
+        if (user == null || selectedSymbol == null || selectedSymbol.isBlank() || quantity <= 0) {
+            return;
+        }
+
+        Stock liveStock = Stock.fromApi(selectedSymbol, assetService, snapshotService, marketDataService, "iex");
+        boolean success = TradeController.getInstance().executeBuy(user, liveStock, quantity);
+
+        if (success) {
+            buySharesField.clear();
+            updateBuyEstimate();
+        }
+    }
 
     @FXML
-    private void handleSell() {}
+    private void handleSell() {
+        User user = SessionManager.getInstance().getCurrentUser();
+        int quantity = (int) parseShares(sellSharesField);
+
+        if (user == null || selectedSymbol == null || selectedSymbol.isBlank() || quantity <= 0) {
+            return;
+        }
+
+        Stock liveStock = Stock.fromApi(selectedSymbol, assetService, snapshotService, marketDataService, "iex");
+        boolean success = TradeController.getInstance().executeSell(user, liveStock, quantity);
+
+        if (success) {
+            sellSharesField.clear();
+            updateSellEstimate();
+        }
+    }
 
     // Navigation
     @FXML
