@@ -1,8 +1,13 @@
 package com.stockle.ui;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.stockle.api.client.ApiClient;
+import com.stockle.api.data.BarData;
+import com.stockle.api.service.HistoricalDataService;
 import com.stockle.model.CandleData;
 
 import javafx.fxml.FXML;
@@ -50,8 +55,18 @@ public class TradingController {
     private MockData.Stock selectedStock;
     private List<MockData.Stock> filteredStocks;
 
+    // API Services
+    private ApiClient apiClient;
+    private ObjectMapper objectMapper;
+    private HistoricalDataService historicalDataService;
+
     @FXML
     public void initialize() {
+        // Initialize API services
+        apiClient = new ApiClient();
+        objectMapper = new ObjectMapper();
+        historicalDataService = new HistoricalDataService(apiClient, objectMapper);
+
         allStocks = MockData.allStocks();
         recentlyViewed = MockData.recentlyViewed(allStocks);
         favorites.addAll(MockData.defaultFavorites());
@@ -98,15 +113,42 @@ public class TradingController {
     }
 
     private void loadChart(MockData.Stock s) {
-        double[][] ohlc = MockData.CANDLE_DATA[s.chartIndex()];
-        java.util.List<CandleData> candles = new java.util.ArrayList<>();
-        for (int i = 0; i < ohlc.length; i++) {
-            candles.add(new CandleData(
-                MockData.CANDLE_TIMES[i],
-                ohlc[i][0], ohlc[i][1], ohlc[i][2], ohlc[i][3]
-            ));
-        }
-        priceChart.setCandles(candles);
+        new Thread(() -> {
+            try {
+                // Fetch the latest 60 one-minute bars
+                LocalDate today = LocalDate.now();
+                List<BarData> bars = historicalDataService.getHistoricalBars(
+                    s.symbol(),
+                    today.minusDays(1),
+                    today,
+                    "1Min",
+                    "iex"
+                );
+
+                // Keep only the last 60 bars
+                List<BarData> last60 = bars.size() > 60
+                    ? bars.subList(bars.size() - 60, bars.size())
+                    : bars;
+
+                // Convert BarData to CandleData
+                List<CandleData> candles = new ArrayList<>();
+                for (BarData bar : last60) {
+                    candles.add(new CandleData(
+                        bar.timestamp.toString(),
+                        bar.open,
+                        bar.high,
+                        bar.low,
+                        bar.close
+                    ));
+                }
+
+                // Update UI on JavaFX thread
+                javafx.application.Platform.runLater(() -> priceChart.setCandles(candles));
+            } catch (Exception e) {
+                System.err.println("Error loading chart for " + s.symbol() + ": " + e.getMessage());
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     // Estimates
