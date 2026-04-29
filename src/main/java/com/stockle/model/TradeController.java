@@ -31,10 +31,10 @@ public class TradeController {
         
         if (existing != null) {
             // Update: recalculate average price
-            int oldCost = existing.getAveragePrice() * existing.getQuantity();
+            long oldCost = existing.getAveragePrice() * existing.getQuantity();
             long newTotalCost = oldCost + totalCost;
             int newQuantity = existing.getQuantity() + quantity;
-            int newAvgPrice = (int) (newTotalCost / newQuantity);
+            long newAvgPrice = (newTotalCost / newQuantity);
             
             existing.setQuantity(newQuantity);
             existing.setAveragePrice(newAvgPrice);
