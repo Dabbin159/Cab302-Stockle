@@ -85,34 +85,6 @@ public class Trade {
         String timeStamp = json.getString("timeStamp");
         return new Trade(id, userNumber, stock, type, quantity, totalValue, timeStamp);
     }
-
-    public int getId() {
-        return id;
-    }
-
-    public int getUserNumber() {
-        return userNumber;
-    }
-
-    public Stock getStock() {
-        return stock;
-    }
-
-    public Boolean isType() {
-        return type;
-    }
-
-    public long getQuantity() {
-        return quantity;
-    }
-
-    public Long getTotalValue() {
-        return totalValue;
-    }
-
-    public String getTimeStamp() {
-        return timeStamp;
-    }
     public void setType(Boolean type) {
         this.type = type;
     }
