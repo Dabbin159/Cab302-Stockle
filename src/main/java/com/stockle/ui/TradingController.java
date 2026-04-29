@@ -13,10 +13,9 @@ import com.stockle.api.data.Asset;
 import com.stockle.api.data.BarData;
 import com.stockle.api.service.AssetService;
 import com.stockle.api.service.HistoricalDataService;
-import com.stockle.database.SQLHoldingDAO;
-import com.stockle.database.SQLUserDAO;
+import com.stockle.api.service.MarketDataService;
+import com.stockle.api.service.SnapshotService;
 import com.stockle.model.CandleData;
-import com.stockle.model.Holding;
 import com.stockle.model.Stock;
 import com.stockle.model.TradeController;
 import com.stockle.model.User;
@@ -214,7 +213,7 @@ public class TradingController {
                 }
                 Platform.runLater(() -> priceChart.setCandles(candles));
             } catch (Exception e) {
-                System.err.println("Error loading chart for " + s.symbol() + ": " + e.getMessage());
+                System.err.println("Error loading chart for " + symbol + ": " + e.getMessage());
             }
         }).start();
     }
@@ -243,8 +242,7 @@ public class TradingController {
             ownedSharesLabel.setText("Sign in to see owned shares");
             return;
         }
-        Holding holding = SQLHoldingDAO.getInstance().getHolding(user.getId(), selectedStock.symbol());
-        int owned = holding != null ? holding.getQuantity() : 0;
+        int owned = TradeController.getInstance().getOwnedQuantity(user, selectedStock.symbol());
         ownedSharesLabel.setText("You own " + owned + " shares");
     }
 
@@ -337,7 +335,7 @@ public class TradingController {
             return;
         }
 
-        User refreshed = SQLUserDAO.getInstance().getUserById(user.getId());
+        User refreshed = TradeController.getInstance().refreshUserFromDb(user);
         if (refreshed != null) {
             SessionManager.getInstance().setCurrentUser(refreshed);
         }

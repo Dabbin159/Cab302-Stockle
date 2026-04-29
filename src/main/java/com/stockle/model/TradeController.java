@@ -109,5 +109,26 @@ public class TradeController {
     public void getTradeHistory(User user) {
         // Implement trade history retrieval logic here
     }
+    
+    // Read-only helpers used by UI controllers to avoid direct DAO usage
+    public Holding getHoldingForUser(User user, String companyID) {
+        if (user == null || companyID == null) return null;
+        return SQLHoldingDAO.getInstance().getHolding(user.getId(), companyID);
+    }
+
+    public int getOwnedQuantity(User user, String companyID) {
+        Holding h = getHoldingForUser(user, companyID);
+        return h != null ? h.getQuantity() : 0;
+    }
+
+    public long getUserBalance(User user) {
+        if (user == null) return 0L;
+        return SQLUserDAO.getInstance().getUserBalance(user.getId());
+    }
+
+    public User refreshUserFromDb(User user) {
+        if (user == null) return null;
+        return SQLUserDAO.getInstance().getUserById(user.getId());
+    }
         
  }    
