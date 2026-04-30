@@ -109,6 +109,7 @@ public class Trade {
         String timeStamp = json.getString("timeStamp");
         return new Trade(id, userNumber, stock, type, quantity, totalValue, timeStamp);
     }
+
     public void setType(Boolean type) {
         this.type = type;
     }

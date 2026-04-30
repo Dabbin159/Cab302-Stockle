@@ -118,6 +118,4 @@ public class User {
     public void setTotalProfit(long totalProfit) {
         this.totalProfit = totalProfit;
     }
-
-
 }
