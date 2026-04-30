@@ -16,6 +16,12 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
+/**
+ * Handles the AI chat screen.
+ *
+ * Takes care of sending messages, showing replies, and wiring up the simple
+ * navigation buttons on the page.
+ */
 public class AIController {
 
     @FXML
@@ -26,6 +32,11 @@ public class AIController {
 
     private GroqService groqService = new GroqService();
 
+    /**
+     * Sends the user's message to the AI and shows both messages in the chat.
+     *
+     * If the input box is empty, nothing is sent.
+     */
     @FXML
     protected void handleSend() {
         String input = userInput.getText();
@@ -41,17 +52,37 @@ public class AIController {
         userInput.clear();
     }
 
+    /**
+     * Fills the input box with one of the suggested prompts.
+     *
+     * This lets the user click a prompt instead of typing it out.
+     *
+     * @param event the button press event from the suggestion chip
+     */
     @FXML
     protected void handleSuggest(ActionEvent event) {
         userInput.setText(((Button) event.getSource()).getText());
         userInput.requestFocus();
     }
 
+    /**
+     * Shows the placeholder analysis message for now.
+     *
+     * The full analysis flow can be swapped in later.
+     */
     @FXML
     protected void handleAnalyse() {
         addMessage("AI: Analysis feature coming soon!");
     }
 
+    /**
+     * Adds a chat bubble to the conversation area.
+     *
+     * Messages that start with "You: " are styled as user messages. Everything
+     * else is treated as an AI reply.
+     *
+     * @param text the message text to display
+     */
     private void addMessage(String text) {
         boolean isUser = text.startsWith("You: ");
         String body = isUser ? text.substring(5) : text.substring(4);
@@ -87,14 +118,29 @@ public class AIController {
 
     // Navigation
 
+    /**
+     * Opens the dashboard screen.
+     *
+     * @throws IOException if the FXML file cannot be loaded
+     */
     @FXML private void navDashboard() throws IOException {
         SceneManager.switchTo("dashboard/dashboard-view.fxml");
     }
 
+    /**
+     * Opens the trading screen.
+     *
+     * @throws IOException if the FXML file cannot be loaded
+     */
     @FXML private void navTrading() throws IOException {
         SceneManager.switchTo("trading/trading-view.fxml");
     }
 
+    /**
+     * Sends the user back to the sign-in screen.
+     *
+     * @throws IOException if the FXML file cannot be loaded
+     */
     @FXML private void handleSignOut() throws IOException {
         SceneManager.switchTo("auth/auth-view.fxml");
     }
