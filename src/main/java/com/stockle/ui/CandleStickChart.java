@@ -20,13 +20,26 @@ public class CandleStickChart extends XYChart<String, Number> {
     private static final Color BEAR_STROKE = Color.web("#b91c1c");
     private static final Color WICK_COLOR  = Color.web("#6b7280");
 
+    /**
+     * Constructs a CandleStickChart with the given axes.
+     * The @NamedArg annotations allow FXMLLoader to instantiate this chart from FXML.
+     *
+     * @param xAxis the category axis used for time labels
+     * @param yAxis the number axis used for price values
+     */
     public CandleStickChart(@NamedArg("xAxis") CategoryAxis xAxis, @NamedArg("yAxis") NumberAxis yAxis) {
         super(xAxis, yAxis);
         setAnimated(false);
         setLegendVisible(false);
     }
 
-    // XYChart methods
+    /**
+     * Creates a candle node and adds it to the plot when a data item is added.
+     *
+     * @param series    the series the item belongs to
+     * @param itemIndex the index of the new item within the series
+     * @param item      the data item that was added
+     */
     @Override
     protected void dataItemAdded(Series<String, Number> series, int itemIndex, Data<String, Number> item) {
         Node candle = createCandleNode();
@@ -34,6 +47,12 @@ public class CandleStickChart extends XYChart<String, Number> {
         getPlotChildren().add(candle);
     }
 
+    /**
+     * Removes the candle node from the plot when a data item is removed.
+     *
+     * @param item   the data item that was removed
+     * @param series the series the item belonged to
+     */
     @Override
     protected void dataItemRemoved(Data<String, Number> item, Series<String, Number> series) {
         getPlotChildren().remove(item.getNode());
@@ -42,6 +61,12 @@ public class CandleStickChart extends XYChart<String, Number> {
     @Override
     protected void dataItemChanged(Data<String, Number> item) {}
 
+    /**
+     * Creates candle nodes for every item when a series is added.
+     *
+     * @param series      the series that was added
+     * @param seriesIndex the index of the series within the chart
+     */
     @Override
     protected void seriesAdded(Series<String, Number> series, int seriesIndex) {
         for (int i = 0; i < series.getData().size(); i++) {
@@ -49,6 +74,11 @@ public class CandleStickChart extends XYChart<String, Number> {
         }
     }
 
+    /**
+     * Removes all candle nodes belonging to a series when it is removed.
+     *
+     * @param series the series that was removed
+     */
     @Override
     protected void seriesRemoved(Series<String, Number> series) {
         for (Data<String, Number> item : series.getData()) {
@@ -56,8 +86,10 @@ public class CandleStickChart extends XYChart<String, Number> {
         }
     }
 
-    // Layout
-
+    /**
+     * Positions and sizes every candle on each layout pass.
+     * Candle width is 60% of the per-category spacing.
+     */
     @Override
     protected void layoutPlotChildren() {
         if (getData().isEmpty()) return;
@@ -105,7 +137,12 @@ public class CandleStickChart extends XYChart<String, Number> {
         }
     }
 
-    // Helpers
+    /**
+     * Creates a blank candle node (wick Line + body Rectangle inside a Group).
+     * Coordinates are set later in layoutPlotChildren.
+     *
+     * @return a new Group representing a single candle
+     */
     private Node createCandleNode() {
         Line wick = new Line();
         wick.setStroke(WICK_COLOR);
@@ -115,7 +152,12 @@ public class CandleStickChart extends XYChart<String, Number> {
         return new Group(wick, body);
     }
 
-    // Load from a list of CandleData
+    /**
+     * Replaces the chart data with the given candles and auto-scales the y-axis.
+     * Adds 10% padding above and below the price range. Tick labels are 2 decimal places.
+     *
+     * @param candles the list of CandleData to display
+     */
     public void setCandles(java.util.List<CandleData> candles) {
         Series<String, Number> series = new Series<>();
         double min = Double.MAX_VALUE, max = Double.MIN_VALUE;
