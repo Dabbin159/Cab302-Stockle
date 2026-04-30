@@ -524,6 +524,7 @@ public class TradingController {
         SceneManager.switchTo("dashboard/dashboard-view.fxml");
     }
 
+    // Signs User out, Sends to Login page and syncs user data
     @FXML
     private void handleSignOut() throws IOException {
         SessionManager.getInstance().logout();
