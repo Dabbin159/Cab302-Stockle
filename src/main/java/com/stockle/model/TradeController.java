@@ -22,9 +22,9 @@ public class TradeController {
 
     /**
      * Executes a buy operation for a given user, stock and quantity. Checks fort sufficient balance, and updates releveant databases.
-     * @param user
-     * @param stock
-     * @param quantity
+     * @param user The user executing the buy
+     * @param stock The stock being bought
+     * @param quantity The quantity being bought
      * @return
      */
     public boolean executeBuy(User user, Stock stock, int quantity) {
@@ -68,9 +68,9 @@ public class TradeController {
 
     /**
      * Executes a sell operation for a given user, stock and quantity. Checks for sufficient holdings, calculates proceeds and profit, and updates releveant databases.
-     * @param user
-     * @param stock
-     * @param quantity
+     * @param user The user executing the sell
+     * @param stock The stock being sold
+     * @param quantity The quantity being sold
      * @return
      */
 

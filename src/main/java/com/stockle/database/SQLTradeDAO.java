@@ -11,6 +11,9 @@ import org.json.JSONObject;
 
 import com.stockle.model.Trade;
 
+/**
+ * T
+ */
 public class SQLTradeDAO implements TradeDAO {
 
     private static SQLTradeDAO instance;

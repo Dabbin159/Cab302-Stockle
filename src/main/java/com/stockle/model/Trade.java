@@ -17,13 +17,13 @@ public class Trade {
 
     /**
      * Constructor for creating a new trade
-     * @param id
-     * @param userNumber
-     * @param stock
-     * @param type
-     * @param quantity
-     * @param totalValue
-     * @param timeStamp
+     * @param id The ID of the trade
+     * @param userNumber The User ID of the trade
+     * @param stock The stock being bought
+     * @param type The type (Buy/Sell)
+     * @param quantity The quantity of the trade
+     * @param totalValue The totale value of the trade
+     * @param timeStamp The timestamp of the trade
      */
     public Trade(int id, int userNumber, Stock stock, boolean type, long quantity, long totalValue, String timeStamp) {
         this.id = id;

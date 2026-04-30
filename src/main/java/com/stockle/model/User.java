@@ -18,11 +18,11 @@ public class User {
 
     /**
      * Constructor for creating a new user with default balance and total profit
-     * @param username
-     * @param password
-     * @param email
-     * @param fullName
-     * @param dateOfBirth
+     * @param username Username of the user
+     * @param password Password of the user
+     * @param email Email address for the user
+     * @param fullName Full name of the user
+     * @param dateOfBirth Data of birth of the user
      */
     public User(String username, String password, String email, String fullName, LocalDate dateOfBirth) {
         this.username = username;
@@ -36,13 +36,13 @@ public class User {
 
     /**
      * Constructor for creating a user with specified balance and total profit
-     * @param username Username for the new user
-     * @param password Password for the new user
-     * @param email Email address for the new user
-     * @param fullName Full name of the new user
-     * @param dateOfBirth Date of birth of the new user
-     * @param balance Initial balance for the new user
-     * @param totalProfit Initial total profit for the new user
+     * @param username Username for the user
+     * @param password Password for the user
+     * @param email Email address for the user
+     * @param fullName Full name of the user
+     * @param dateOfBirth Date of birth of the user
+     * @param balance Initial balance for the user
+     * @param totalProfit Initial total profit for the user
      */
     public User(String username, String password, String email, String fullName, LocalDate dateOfBirth, long balance, long totalProfit) {
         this.username = username;

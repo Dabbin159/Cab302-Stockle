@@ -25,11 +25,11 @@ public class Stock {
 
     /**
      * Constructor for creating a stock object
-     * @param companyName
-     * @param sector
-     * @param currentPrice
-     * @param dailyChange
-     * @param volume
+     * @param companyName The companyname of the stock
+     * @param sector The sector of the stock
+     * @param currentPrice The current price of the stock
+     * @param dailyChange The daily change of the stock in percentage
+     * @param volume The trading volume of the stock
      */
     public Stock(String companyName, String sector, int currentPrice, Float dailyChange, Long volume) {
         this.companyName = companyName;
@@ -117,7 +117,7 @@ public class Stock {
     }
     /**
      * Converts the stock object to a JSON object for the database
-     * @return
+     * @return A JSON object representing the stock
      */
     public JSONObject toJSON() {
         JSONObject json = new JSONObject();
@@ -131,8 +131,8 @@ public class Stock {
 
     /**
      * Creates a stock object from a JSON object retrieved from the database
-     * @param json
-     * @return
+     * @param json The json object of the stock from the database
+     * @return A stock object from the JSON
      */
     public static Stock fromJSON(JSONObject json) {
         String companyName = json.getString("companyName");
