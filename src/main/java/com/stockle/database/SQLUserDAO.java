@@ -56,6 +56,7 @@ public class SQLUserDAO implements UserDAO {
     private static final String UPDATE_PROFIT_BYID = "UPDATE users SET totalProfit = ? WHERE id = ?";
     @Override
     /**
+     * Adds a new user to the database.
      * @param User The user to add.
      */
     public void addUser(User user) {
@@ -74,10 +75,11 @@ public class SQLUserDAO implements UserDAO {
                 user.setId(generatedKeys.getInt(1));
             } // Sets the generated user ID to the User
         } catch (SQLException ex) {
-            logSqlException(ex);
+            ex.printStackTrace();
         }
     }
     /**
+     * Deletes a user from the database.
      * @param User The user to delete.
      */
     @Override
@@ -87,14 +89,15 @@ public class SQLUserDAO implements UserDAO {
             statement.setInt(1, user.getId());
             statement.executeUpdate();
         } catch (SQLException ex) {
-            logSqlException(ex);
+            ex.printStackTrace();
         }
     }
 
     @Override
     /**
-     * @param User The user to update.
-     */
+    * Updates a user's information in the database.
+    * @param User The user to update.
+    */
     public void updateUser(User user) {
         try {
             PreparedStatement statement = connection.prepareStatement(UPDATE_USER);
@@ -108,11 +111,12 @@ public class SQLUserDAO implements UserDAO {
             statement.setInt(8, user.getId());
             statement.executeUpdate();
         } catch (SQLException ex) {
-            logSqlException(ex);
+            ex.printStackTrace();
         }
     }
 
     /**
+     * Retrieves a user from the database by their ID.
      * @param id The ID of the user to retrieve.
      * @return The user with the specified ID, or null if not found.
      */
@@ -135,14 +139,15 @@ public class SQLUserDAO implements UserDAO {
                 return user;
             }
         } catch (SQLException ex) {
-            logSqlException(ex);
+            ex.printStackTrace();
         }
         return null;
     }
 
     /**
-    * @return A list of all users, or null if no users are found.
-    */
+     * Retrieves all users from the database.
+     * @return A list of all users.
+     */ 
     @Override
     public java.util.List<User> getAllUsers() {
         try {
@@ -161,17 +166,18 @@ public class SQLUserDAO implements UserDAO {
             }
             return users;
         } catch (SQLException ex) {
-            logSqlException(ex);
+            ex.printStackTrace();
         }
         return null;
     }
     
     /**
+     * Signs up a new user with the provided information.
      * @param username Username for the new user,
      * @param password Password for the new user,
      * @param email Email address for the new user,
      * @param fullName Full name of the new user,
-     * @param dateOfBirth Date of birth of the new user.
+     * @param dateOfBirth Date of birth of the new user,
      * @return true if the signup was successful, false otherwise.
      */
     @Override
@@ -189,9 +195,10 @@ public class SQLUserDAO implements UserDAO {
     }
 
     /**
+     * Logs in a user with the provided email and password.
      * @param email The email of the user trying to log in.
      * @param password The password of the user trying to log in.
-     * @return The user if login is successful, null otherwise.
+     * @return The User object if login is successful, null otherwise.
      */
     @Override
     public User login(String email, String password) {
@@ -214,15 +221,16 @@ public class SQLUserDAO implements UserDAO {
                 }
             }
         } catch (SQLException ex) {
-            logSqlException(ex);
+            ex.printStackTrace();
         }
         return null;
     }
 
     /**
-    * @param userId The ID of the user.
-    * @return The balance of the user, or 0 if an error occurs.
-    */
+     * Retrieves the balance of a user by their ID.
+     * @param userId The ID of the user.
+     * @return The balance of the user.
+     */
     @Override
     public long getUserBalance(int userId) {
         try {
@@ -233,15 +241,16 @@ public class SQLUserDAO implements UserDAO {
                 return resultSet.getLong("balance");
             }
         } catch (SQLException ex) {
-            logSqlException(ex);
+            ex.printStackTrace();
         }
         return 0;
     }
 
     /**
+     * Retrieves the total profit of a user by their ID.
      * @param userId The ID of the user.
-     * @return The total profit of the user, or 0 if an error occurs.
-     * */
+     * @return The total profit of the user.
+     */
     @Override
     public long getUserTotalProfit(int userId) {
         try {
@@ -252,12 +261,13 @@ public class SQLUserDAO implements UserDAO {
                 return resultSet.getLong("totalProfit");
             }
         } catch (SQLException ex) {
-            logSqlException(ex);
+            ex.printStackTrace();
         }
         return 0;
     }
 
     /**
+     * Updates the balance of a user by their ID.
      * @param userId The ID of the user.
      * @param newBalance The new balance to set for the user.
      */
@@ -269,11 +279,12 @@ public class SQLUserDAO implements UserDAO {
             statement.setInt(2, userId);
             statement.executeUpdate();
         } catch (SQLException ex) {
-            logSqlException(ex);
+            ex.printStackTrace();
         }
     }
 
     /**
+     * Updates the total profit of a user by their ID.
      * @param userId The ID of the user.
      * @param newTotalProfit The new total profit to set for the user.
      */
@@ -285,11 +296,7 @@ public class SQLUserDAO implements UserDAO {
             statement.setInt(2, userId);
             statement.executeUpdate();
         } catch (SQLException ex) {
-            logSqlException(ex);
+            ex.printStackTrace();
         }
-    }
-
-    private void logSqlException(SQLException ex) {
-        System.err.println(ex.getMessage());
     }
 }
