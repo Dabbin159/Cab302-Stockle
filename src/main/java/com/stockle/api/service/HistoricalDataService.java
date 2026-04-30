@@ -12,15 +12,43 @@ import com.stockle.api.data.BarData;
 import com.stockle.api.data.QuoteData;
 import com.stockle.api.data.TradeData;
 
+/**
+ * Service for retrieving historical market data from the Alpaca API.
+ * 
+ * Provides methods to get historical bar data (ohlcv), quote data (bid/ask),
+ * and trade data for stocks within specified date ranges and timeframes.
+ * Supports pagination for large datasets.
+ * 
+ */
 public class HistoricalDataService {
     private final ApiClient apiClient;
     private final ObjectMapper objectMapper;
 
+    /**
+     * Constructs a HistoricalDataService with required dependencies.
+     * 
+     * @param apiClient the API client for making HTTP requests to Alpaca
+     * @param objectMapper the JSON object mapper for parsing API responses
+     */
     public HistoricalDataService(ApiClient apiClient, ObjectMapper objectMapper) {
         this.apiClient = apiClient;
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * Retrieves historical bar data (ohlcv) for a stock within a date range.
+     * 
+     * gets historical bars (open, high, low, close, volume) for the specified symbol
+     * and timeframe from the Alpaca API. Automatically handles pagination to retrieve
+     * all available data up to a maximum of 100 pages.
+     * 
+     * @param symbol the stock symbol (e.g., "AAPL")
+     * @param startDate the start date for the historical data (inclusive)
+     * @param endDate the end date for the historical data (inclusive)
+     * @param timeframe the bar timeframe (e.g., "1Min", "5Min", "1Hour", "1Day")
+     * @param feed the market data feed to use (e.g., "sip" or "iex")
+     * @return a list of BarData objects representing historical bars
+     */
     public List<BarData> getHistoricalBars(String symbol, LocalDate startDate, LocalDate endDate, String timeframe, String feed) {
         List<BarData> bars = new ArrayList<>();
         String nextPageToken = null;
@@ -89,6 +117,19 @@ public class HistoricalDataService {
         return bars;
     }
 
+    /**
+     * Retrieves historical quote data (bid/ask) for a stock within a date range.
+     * 
+     * gets historical quotes including bid/ask prices and sizes for the specified
+     * symbol from the Alpaca API. Automatically handles pagination to retrieve all
+     * available data up to a maximum of 10 pages.
+     * 
+     * @param symbol the stock symbol (e.g., "AAPL")
+     * @param startDate the start date for the historical data (inclusive)
+     * @param endDate the end date for the historical data (inclusive)
+     * @param feed the market data feed to use (e.g., "sip" or "iex")
+     * @return a list of QuoteData objects representing historical quotes
+     */
     public List<QuoteData> getHistoricalQuotes(String symbol, LocalDate startDate, LocalDate endDate, String feed) {
         List<QuoteData> quotes = new ArrayList<>();
         String nextPageToken = null;
@@ -156,6 +197,19 @@ public class HistoricalDataService {
         return quotes;
     }
 
+    /**
+     * Retrieves historical trade data for a stock within a date range.
+     * 
+     * gets historical trade records including price, size, and exchange for the
+     * specified symbol from the Alpaca API. Automatically handles pagination to retrieve
+     * all available data up to a maximum of 100 pages.
+     * 
+     * @param symbol the stock symbol (e.g., "AAPL")
+     * @param startDate the start date for the historical data (inclusive)
+     * @param endDate the end date for the historical data (inclusive)
+     * @param feed the market data feed to use (e.g., "sip" or "iex")
+     * @return a list of TradeData objects representing historical trades
+     */
     public List<TradeData> getHistoricalTrades(String symbol, LocalDate startDate, LocalDate endDate, String feed) {
         List<TradeData> trades = new ArrayList<>();
         String nextPageToken = null;

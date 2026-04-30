@@ -9,19 +9,35 @@ import com.stockle.api.client.ApiClient;
 import com.stockle.api.data.NewsArticle;
 
 /**
- * Service for fetching news articles from Alpaca News v3
+ * Service for fetching news articles from the Alpaca News API.
+ *
+ * Provides methods to retrieve the latest global news and symbol-specific news
+ * from Alpaca's news endpoints. Responses are parsed into `NewsArticle` objects.
+ *
  */
 public class NewsService {
     private final ApiClient apiClient;
     private final ObjectMapper objectMapper;
 
+    /**
+     * Constructs a NewsService with required dependencies.
+     *
+     * @param apiClient the API client for making HTTP requests to Alpaca
+     * @param objectMapper the JSON object mapper for parsing API responses
+     */
     public NewsService(ApiClient apiClient, ObjectMapper objectMapper) {
         this.apiClient = apiClient;
         this.objectMapper = objectMapper;
     }
 
     /**
-     * Get the latest news articles (global). Returns up to `limit` articles.
+     * Retrieves the latest global news articles.
+     *
+     * gets up to a certain amount of most recent articles from the Alpaca News endpoint.
+     * If limit is less than or equal to zero, a default value of 10 is used.
+     *
+     * @param limit maximum number of articles to return
+     * @return a list of newsarticle objects, empty list if an error occurs
      */
     public List<NewsArticle> getLatestNews(int limit) {
         List<NewsArticle> result = new ArrayList<>();
@@ -61,7 +77,15 @@ public class NewsService {
     }
 
     /**
-     * Get the latest news articles related to a specific symbol. Returns up to `limit` articles.
+     * Retrieves the latest news articles for a specific stock symbol.
+     *
+     * gets up to a certain amount of most recent articles filtered by the provided symbol.
+     * If symbol is null or empty, an empty list is returned. If limit
+     * is less than or equal to zero, a default value of 10 is used.
+     *
+     * @param symbol the stock symbol to filter news by (e.g., "AAPL")
+     * @param limit maximum number of articles to return
+     * @return a list of newsarticle objects, empty list if symbol is invalid or an error occurs
      */
     public List<NewsArticle> getLatestNewsForSymbol(String symbol, int limit) {
         List<NewsArticle> result = new ArrayList<>();

@@ -12,25 +12,70 @@ import com.stockle.api.client.ApiClient;
 import com.stockle.api.data.CorporateAction;
 
 /**
- * Service for Alpaca Corporate Actions API.
+ * Service for retrieving corporate action data from the Alpaca API.
+ * 
+ * Provides methods to fetch corporate actions
+ * filtering by symbol, type, date range, and pagination.
+ * 
  */
 public class CorporateActionsService {
     private final ApiClient apiClient;
     private final ObjectMapper objectMapper;
 
+    /**
+     * Constructs a CorporateActionsService with required dependencies.
+     * 
+     * @param apiClient the API client for making HTTP requests to Alpaca
+     * @param objectMapper the JSON object mapper for parsing API responses
+     */
     public CorporateActionsService(ApiClient apiClient, ObjectMapper objectMapper) {
         this.apiClient = apiClient;
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * Retrieves corporate actions with default parameters.
+     * 
+     * gets corporate actions with the specified limit and sort order.
+     * 
+     * @param limit the maximum number of records to return
+     * @param sort the sort order ("asc" or "desc")
+     * @return a list of corporate actions
+     */
     public List<CorporateAction> getCorporateActions(int limit, String sort) {
         return getCorporateActions(null, null, null, null, limit, sort, null);
     }
 
+    /**
+     * Retrieves corporate actions for a specific stock symbol.
+     * 
+     * gets corporate actions for the given symbol with the specified limit and sort order.
+     * 
+     * @param symbol the stock symbol (e.g., "AAPL")
+     * @param limit the maximum number of records to return
+     * @param sort the sort order ("asc" or "desc")
+     * @return a list of corporate actions for the specified symbol
+     */
     public List<CorporateAction> getCorporateActionsBySymbol(String symbol, int limit, String sort) {
         return getCorporateActions(symbol, null, null, null, limit, sort, null);
     }
 
+    /**
+     * Retrieves corporate actions with advanced filtering options.
+     * 
+     * gets corporate actions from the Alpaca API
+     * filtering by symbol, action type, date range.
+     * Limits are between 1 and 1000.
+     * 
+     * @param symbol optional stock symbol to filter by
+     * @param typesCsv optional comma-separated list of action types to filter by
+     * @param start optional start date for filtering (inclusive)
+     * @param end optional end date for filtering (inclusive)
+     * @param limit the maximum number of records to return (will be clamped to 1-1000)
+     * @param sort the sort order ("asc" or "desc"; defaults to "asc")
+     * @param pageToken optional pagination token for retrieving subsequent pages
+     * @return a list of corporate actions matching the specified criteria
+     */
     public List<CorporateAction> getCorporateActions(
             String symbol,
             String typesCsv,

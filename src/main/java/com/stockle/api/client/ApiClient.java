@@ -8,6 +8,16 @@ import java.time.Duration;
 
 /**
  * ApiClient encapsulates HTTP client configuration and retry logic.
+ * @param API_KEY Alpaca API key
+ * @param SECRET_KEY Alpaca secret key
+ * @param BASE_URL alpaca base trading url
+ * @param DATA_URL alpaca market data url
+ * @param CONNECT_TIMEOUT connection timeout duration
+ * @param REQUEST_TIMEOUT request timeout duration
+ * @param MAX_RETRIES maximum number of retry attempts for failed requests
+ * @param RETRY_DELAY_MS base delay in milliseconds for retry backoff
+ * @param httpClient the HttpClient instance used for making requests
+ * 
  */
 public class ApiClient {
     public static final String API_KEY = "PK4A3ZKIHWXHTZT54S7O7UZNRF";
@@ -22,6 +32,9 @@ public class ApiClient {
 
     private final HttpClient httpClient;
 
+    /**
+     * Constructs a new ApiClient with a configured HttpClient.
+     */
     public ApiClient() {
         this.httpClient = HttpClient.newBuilder()
                 .connectTimeout(CONNECT_TIMEOUT)
@@ -29,6 +42,13 @@ public class ApiClient {
                 .build();
     }
 
+    /**
+     * Executes an HTTP GET request to the specified URL with automatic retry logic.
+     * 
+     * @param url the URL endpoint to request
+     * @return the response body as a String
+     * @throws Exception if the request fails after all retry attempts are exhausted or if a non-retryable error occurs
+     */
     public String makeRequest(String url) throws Exception {
         for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
             try {
