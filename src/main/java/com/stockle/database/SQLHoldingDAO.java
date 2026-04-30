@@ -10,7 +10,9 @@ import java.util.List;
 import com.stockle.model.Holding;
 
 
-
+/**
+ * Class to manage holding-related database operations, such as adding, deleting, updating, and retrieving holdings. Implements the TradeDAO interface.
+ */
 public class SQLHoldingDAO implements HoldingDAO {
 
     private static SQLHoldingDAO instance;
@@ -19,7 +21,11 @@ public class SQLHoldingDAO implements HoldingDAO {
     private SQLHoldingDAO() {
         connection = SqliteConnection.getInstance();
     }
-
+    
+    /**
+     * Returns the singleton instance of SQLHoldingDAO
+     * @return the singleton instance of SQLHoldingDAO
+     */
     public static SQLHoldingDAO getInstance() {
         if (instance == null) {
             instance = new SQLHoldingDAO();
@@ -40,6 +46,10 @@ public class SQLHoldingDAO implements HoldingDAO {
     private static final String GET_USER_HOLDINGS = "SELECT * FROM holdings WHERE userID = ?";
 
     @Override
+    /**
+     * Adds a new holding to the database
+     * @param holding the holding to be added to the database
+     */
     public void addHolding(Holding holding) {
         try {
             PreparedStatement statement = connection.prepareStatement(ADD_HOLDING);
@@ -54,6 +64,10 @@ public class SQLHoldingDAO implements HoldingDAO {
     }
 
     @Override
+    /**
+     * Deletes a holding from the database by its ID
+     * @param holdingId the ID of the holding to be deleted
+     */
     public void deleteHolding(int holdingId) {
         try {
             PreparedStatement statement = connection.prepareStatement(DELETE_HOLDING);
@@ -65,6 +79,10 @@ public class SQLHoldingDAO implements HoldingDAO {
     }
 
     @Override
+    /**
+     * Updates a holding in the database
+     * @param holding the holding containing the information to update
+     */
     public void updateHolding(Holding holding) {
         try {
             PreparedStatement statement = connection.prepareStatement(UPDATE_HOLDING);
@@ -78,6 +96,11 @@ public class SQLHoldingDAO implements HoldingDAO {
     }
 
     @Override
+    /**
+     * Retrieves a holding from the database by ID
+     * @param holdingId the ID of the holding to be retrieved
+     * @return the holding as a holding class object or null if none found
+     */
     public Holding getHoldingById(int holdingId) {
         try {
             PreparedStatement statement = connection.prepareStatement(GET_HOLDING_BY_ID);
@@ -101,6 +124,12 @@ public class SQLHoldingDAO implements HoldingDAO {
     }
 
     @Override
+    /**
+     * Retrieves a holding from the database by user ID and company ID
+     * @param userID the ID of the user whose holding is to be retrieved
+     * @param companyID the ID of the company whose holding is to be retrieved
+     * @return the holding as a holding class object or null if none found 
+     */
     public Holding getHolding(int userID, String companyID) {
         try {
             PreparedStatement statement = connection.prepareStatement(GET_HOLDING_BY_USER_AND_COMPANY);
@@ -125,6 +154,11 @@ public class SQLHoldingDAO implements HoldingDAO {
     }
 
     @Override
+    /**
+     * Retrieves all holdings for a specific user
+     * @param userID the ID of the user whose holding is to be retrieved 
+     * @return a list of holdings for the user
+     */
     public List<Holding> getUserHoldings(int userID) {
         try {
             PreparedStatement statement = connection.prepareStatement(GET_USER_HOLDINGS);
