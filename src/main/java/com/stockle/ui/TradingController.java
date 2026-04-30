@@ -115,7 +115,13 @@ public class TradingController {
                 liveAssets = assets.stream()
                     .filter(a -> a.tradable && "us_equity".equals(a.assetClass) && a.symbol != null)
                     .collect(java.util.stream.Collectors.toList());
-                Platform.runLater(this::loadNextPage);
+                Platform.runLater(() -> {
+                    loadNextPage();
+                    liveAssets.stream()
+                        .filter(a -> "AAPL".equals(a.symbol))
+                        .findFirst()
+                        .ifPresent(this::selectLiveStock);
+                });
             } catch (Exception e) {
                 System.err.println("Failed to load assets: " + e.getMessage());
             }
