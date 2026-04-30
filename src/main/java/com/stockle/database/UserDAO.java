@@ -50,8 +50,6 @@ public interface UserDAO {
      * @param email Email address for the new user,
      * @param fullName Full name of the new user,
      * @param dateOfBirth Date of birth of the new user,
-     * @param balance Initial balance for the new user,
-     * @param totalProfit Initial total profit for the new user.
      * @return true if the signup was successful, false otherwise.
      */
     public boolean signup(String username, String password, String email, String fullName, LocalDate dateOfBirth);
