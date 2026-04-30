@@ -72,7 +72,7 @@ public class SQLTradeDAO implements TradeDAO {
             statement.setLong(7, profit);
             statement.executeUpdate();
         } catch (SQLException ex) {
-            logSqlException(ex);
+            ex.printStackTrace();
         }
     }
 
@@ -86,7 +86,7 @@ public class SQLTradeDAO implements TradeDAO {
             statement.setInt(1, tradeId);
             statement.executeUpdate();
         } catch (SQLException ex) {
-            logSqlException(ex);
+            ex.printStackTrace();
         }
     }
     
@@ -113,7 +113,7 @@ public class SQLTradeDAO implements TradeDAO {
                 statement.executeUpdate();
             }
         } catch (SQLException ex) {
-            logSqlException(ex);
+            ex.printStackTrace();
         }
     }
 
@@ -132,7 +132,7 @@ public class SQLTradeDAO implements TradeDAO {
                 return Trade.fromJSON(tradeID, new JSONObject(tradeData));
             }
         } catch (SQLException ex) {
-            logSqlException(ex);
+            ex.printStackTrace();
         }
         return null; // Return null if trade not found
     }
@@ -153,7 +153,7 @@ public class SQLTradeDAO implements TradeDAO {
             }
             return trades.toArray(Trade[]::new);
         } catch (SQLException ex) {
-            logSqlException(ex);
+            ex.printStackTrace();
         }
         return new Trade[0];
     }
@@ -176,12 +176,9 @@ public class SQLTradeDAO implements TradeDAO {
             }
             return trades.toArray(Trade[]::new);
         } catch (SQLException ex) {
-            logSqlException(ex);
+            ex.printStackTrace();
         }
         return new Trade[0];
     }
 
-    private void logSqlException(SQLException ex) {
-        System.err.println(ex.getMessage());
-    }
 }
