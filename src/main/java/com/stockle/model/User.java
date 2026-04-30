@@ -3,7 +3,7 @@ package com.stockle.model;
 import java.time.LocalDate;
 
 /**
- * Class representing a user in the Stockle application. Contains fields for user information such as username, password, email, first name, last name, date of birth, balance, and total profit. Provides constructors for creating new users and loading existing users from the database, as well as getter and setter methods for each field.
+ * Class representing a user. Contains fields for user information such as username, password, email, first name, last name, date of birth, balance, and total profit. Provides constructors for creating new users and loading existing users from the database, as well as getter and setter methods for each field.
  */
 public class User {
 
@@ -35,7 +35,7 @@ public class User {
     }
 
     /**
-     * Constructor for creating a user with specified balance and total profit (e.g., when loading from database)
+     * Constructor for creating a user with specified balance and total profit
      * @param username Username for the new user
      * @param password Password for the new user
      * @param email Email address for the new user

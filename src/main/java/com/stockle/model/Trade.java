@@ -2,16 +2,29 @@ package com.stockle.model;
 
 import org.json.JSONObject;
 
+/**
+ * Class representing a trade. Contains information for trade information such as user id, trade id, stock, type, quantity, total value and timestamp. Provides constructors for creating a trade and getters and setters for each field. 
+ */
 public class Trade {
 
     private int id;
     private int userNumber;
     private Stock stock;
-    private boolean type; // true = SELL, false = BUY
+    private boolean type; // true = Sell, false = Buy
     private long quantity;
     private long totalValue;
     private String timeStamp;
 
+    /**
+     * Constructor for creating a new trade
+     * @param id
+     * @param userNumber
+     * @param stock
+     * @param type
+     * @param quantity
+     * @param totalValue
+     * @param timeStamp
+     */
     public Trade(int id, int userNumber, Stock stock, boolean type, long quantity, long totalValue, String timeStamp) {
         this.id = id;
         this.userNumber = userNumber;
@@ -22,7 +35,7 @@ public class Trade {
         this.timeStamp = timeStamp;
     }
 
-    // Convenience constructor for creating new trades (id assigned by DB)
+    // Convenience constructor for creating new trades (id assigned by DB after creation)
     public Trade(int userNumber, Stock stock, long quantity, long totalValue, String timeStamp) {
         this(0, userNumber, stock, false, quantity, totalValue, timeStamp);
     }
@@ -63,6 +76,11 @@ public class Trade {
         return timeStamp;
     }
 
+    /**
+     * Converts the trade class to a json object for the database
+     * @return A JSON object representing the trade
+     */
+
     public JSONObject toJSON() {
         JSONObject json = new JSONObject();
         json.put("userNumber", userNumber);
@@ -73,6 +91,12 @@ public class Trade {
         json.put("timeStamp", timeStamp);
         return json;
     }
+    /**
+     * Creates a trade object from a JSON object retrieved from the database
+     * @param tradeId the ID of the trade
+     * @param json the JSON object containing the trade data
+     * @return A Trade Object created from the JSON object
+     */
 
     public static Trade fromJSON(int tradeId, JSONObject json) {
         int id = tradeId;
