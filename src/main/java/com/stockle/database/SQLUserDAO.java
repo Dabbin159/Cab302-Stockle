@@ -13,7 +13,7 @@ import com.stockle.model.User;
 
 
 /**
- * Class to manage user-related database operations, such as adding, deleting, updating, and retrieving users. Implements the UserDAO interface to ensure consistency in method signatures and functionality across different DAO implementations.
+ * Class to manage user-related database operations, such as adding, deleting, updating, and retrieving users. Implements the UserDAO interface.
  */
 public class SQLUserDAO implements UserDAO {
 
@@ -24,6 +24,10 @@ public class SQLUserDAO implements UserDAO {
         connection = SqliteConnection.getInstance(); // Retrive the current database connection
     }
 
+    /**
+     * Returns the singleton instance of SQLUserDAO
+     * @return the singleton instance of SQLUserDAO
+     */
     public static SQLUserDAO getInstance() {
         if (instance == null) {
             instance = new SQLUserDAO();
