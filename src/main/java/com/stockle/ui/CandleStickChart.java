@@ -36,9 +36,9 @@ public class CandleStickChart extends XYChart<String, Number> {
     /**
      * Creates a candle node and adds it to the plot when a data item is added.
      *
-     * @param series    the series the item belongs to
+     * @param series the series the item belongs to
      * @param itemIndex the index of the new item within the series
-     * @param item      the data item that was added
+     * @param item the data item that was added
      */
     @Override
     protected void dataItemAdded(Series<String, Number> series, int itemIndex, Data<String, Number> item) {
@@ -50,7 +50,7 @@ public class CandleStickChart extends XYChart<String, Number> {
     /**
      * Removes the candle node from the plot when a data item is removed.
      *
-     * @param item   the data item that was removed
+     * @param item the data item that was removed
      * @param series the series the item belonged to
      */
     @Override
@@ -58,13 +58,14 @@ public class CandleStickChart extends XYChart<String, Number> {
         getPlotChildren().remove(item.getNode());
     }
 
+    /** No-op — candle appearance is driven entirely by layoutPlotChildren. */
     @Override
     protected void dataItemChanged(Data<String, Number> item) {}
 
     /**
      * Creates candle nodes for every item when a series is added.
      *
-     * @param series      the series that was added
+     * @param series the series that was added
      * @param seriesIndex the index of the series within the chart
      */
     @Override
@@ -116,9 +117,9 @@ public class CandleStickChart extends XYChart<String, Number> {
                 Rectangle body = (Rectangle)group.getChildren().get(1);
 
                 // Wick: full high to low range
-                wick.setStartX(x); 
+                wick.setStartX(x);
                 wick.setEndX(x);
-                wick.setStartY(yHigh); 
+                wick.setStartY(yHigh);
                 wick.setEndY(yLow);
 
                 // Body: open to close range

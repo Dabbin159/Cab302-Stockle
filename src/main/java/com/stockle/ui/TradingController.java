@@ -448,7 +448,7 @@ public class TradingController {
      * Builds a stock list row showing the symbol, name, and a price placeholder.
      * priceBoxHolder[0] is set to the right-side VBox so the caller can update prices in-place.
      *
-     * @param asset          the asset to display
+     * @param asset the asset to display
      * @param priceBoxHolder single-element array; [0] receives the price VBox
      * @return the constructed row
      */
