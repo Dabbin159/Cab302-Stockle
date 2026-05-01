@@ -3,7 +3,9 @@ package com.stockle.model;
 import com.stockle.database.SQLHoldingDAO;
 import com.stockle.database.SQLTradeDAO;
 import com.stockle.database.SQLUserDAO;
-
+/**
+ * Trade Controller is a class that handles trading logic within the application it allows for the handling of buy and sell operations.
+*/
 public class TradeController {
 
     private TradeController() {
@@ -18,7 +20,13 @@ public class TradeController {
         return instance;
     }    
 
-    // Buy
+    /**
+     * Executes a buy operation for a given user, stock and quantity. Checks fort sufficient balance, and updates releveant databases.
+     * @param user The user executing the buy
+     * @param stock The stock being bought
+     * @param quantity The quantity being bought
+     * @return
+     */
     public boolean executeBuy(User user, Stock stock, int quantity) {
         if (user == null || stock == null || quantity <= 0) {
             return false; // Invalid input
@@ -58,7 +66,14 @@ public class TradeController {
         return true;
     }
 
-    // Sell
+    /**
+     * Executes a sell operation for a given user, stock and quantity. Checks for sufficient holdings, calculates proceeds and profit, and updates releveant databases.
+     * @param user The user executing the sell
+     * @param stock The stock being sold
+     * @param quantity The quantity being sold
+     * @return
+     */
+
     public boolean executeSell(User user, Stock stock, int quantity) {
         if (user == null || stock == null || quantity <= 0) {
             return false; // Invalid input
@@ -102,11 +117,8 @@ public class TradeController {
         return true;
     }
 
-        // Trade History
-    public void getTradeHistory(User user) {
-        // Implement trade history retrieval logic here
-    }
-    
+    // Trade History
+
     // Read-only helpers used by UI controllers to avoid direct DAO usage
     public Holding getHoldingForUser(User user, String companyID) {
         if (user == null || companyID == null) return null;

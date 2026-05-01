@@ -3,7 +3,7 @@ package com.stockle.model;
 import java.time.LocalDate;
 
 /**
- * Class representing a user in the Stockle application. Contains fields for user information such as username, password, email, first name, last name, date of birth, balance, and total profit. Provides constructors for creating new users and loading existing users from the database, as well as getter and setter methods for each field.
+ * Class representing a user. Contains fields for user information such as username, password, email, first name, last name, date of birth, balance, and total profit. Provides constructors for creating new users and loading existing users from the database, as well as getter and setter methods for each field.
  */
 public class User {
 
@@ -18,11 +18,11 @@ public class User {
 
     /**
      * Constructor for creating a new user with default balance and total profit
-     * @param username
-     * @param password
-     * @param email
-     * @param fullName
-     * @param dateOfBirth
+     * @param username Username of the user
+     * @param password Password of the user
+     * @param email Email address for the user
+     * @param fullName Full name of the user
+     * @param dateOfBirth Data of birth of the user
      */
     public User(String username, String password, String email, String fullName, LocalDate dateOfBirth) {
         this.username = username;
@@ -35,14 +35,14 @@ public class User {
     }
 
     /**
-     * Constructor for creating a user with specified balance and total profit (e.g., when loading from database)
-     * @param username Username for the new user
-     * @param password Password for the new user
-     * @param email Email address for the new user
-     * @param fullName Full name of the new user
-     * @param dateOfBirth Date of birth of the new user
-     * @param balance Initial balance for the new user
-     * @param totalProfit Initial total profit for the new user
+     * Constructor for creating a user with specified balance and total profit
+     * @param username Username for the user
+     * @param password Password for the user
+     * @param email Email address for the user
+     * @param fullName Full name of the user
+     * @param dateOfBirth Date of birth of the user
+     * @param balance Initial balance for the user
+     * @param totalProfit Initial total profit for the user
      */
     public User(String username, String password, String email, String fullName, LocalDate dateOfBirth, long balance, long totalProfit) {
         this.username = username;
@@ -118,6 +118,4 @@ public class User {
     public void setTotalProfit(long totalProfit) {
         this.totalProfit = totalProfit;
     }
-
-
 }

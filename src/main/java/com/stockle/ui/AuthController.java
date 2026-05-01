@@ -13,11 +13,18 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 
+/**
+ * Controller for the authentication screen
+ * Handles both the login and signup functionality
+ */
 public class AuthController {
-
+    // Login Fields
     @FXML private TextField loginEmail;
     @FXML private PasswordField loginPasswordField;
     @FXML private TextField loginPasswordText;
+    @FXML private Label loginErrorLabel;
+
+    // Sign up Fields
     @FXML private TextField signupUsername;
     @FXML private TextField signupName;
     @FXML private TextField signupEmail;
@@ -25,8 +32,9 @@ public class AuthController {
     @FXML private PasswordField signupConfirmPassword;
     @FXML private TextField signupPasswordText;
     @FXML private DatePicker signupDateOfBirth;
-    @FXML private Label loginErrorLabel;
     @FXML private Label signupErrorLabel;
+
+    /* Database access for user operations */
     private final SQLUserDAO userDAO = SQLUserDAO.getInstance();
 
 
@@ -101,16 +109,25 @@ public class AuthController {
         }
     }
 
+    /**
+     * Toggles the login password field between hidden and visible text
+     */
     @FXML
     private void toggleLoginPassword() {
         toggle(loginPasswordField, loginPasswordText);
     }
 
+    /**
+     * Toggles the sign up password field between hidden and visible text
+     */
     @FXML
     private void toggleSignupPassword() {
         toggle(signupPasswordField, signupPasswordText);
     }
 
+    /**
+     * Placeholder for forgotten password functionality
+     */
     @FXML
     private void forgotPassword() {
     }

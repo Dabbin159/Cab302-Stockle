@@ -11,16 +11,42 @@ import com.stockle.api.client.ApiClient;
 import com.stockle.api.data.BarData;
 import com.stockle.api.data.QuoteData;
 
+/**
+ * Service for retrieving latest market data (bars and quotes) from the Alpaca API.
+ *
+ * Provides convenience methods to fetch the most recent bar (ohlcv) and quote
+ * (bid/ask) information for a list of symbols using the configured data feed.
+ * Responses are parsed into `BarData` and `QuoteData` objects keyed by symbol.
+ *
+ */
 public class MarketDataService {
     private final ApiClient apiClient;
     private final ObjectMapper objectMapper;
 
+    /**
+     * Constructs a MarketDataService with required dependencies.
+     *
+     * @param apiClient the API client used to make HTTP requests to the data API
+     * @param objectMapper the JSON object mapper used to parse API responses
+     */
     public MarketDataService(ApiClient apiClient, ObjectMapper objectMapper) {
         this.apiClient = apiClient;
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * gets the latest bar (ohlcv) for each symbol in the provided list.
+     *
+     * Sends a request to the Alpaca latest bars endpoint and parses the
+     * per-symbol bar data into `BarData` instances.
+     *
+     * @param symbols the list of stock symbols to fetch (e.g., ["AAPL","MSFT"])
+     * @param feed the market data feed to use (e.g., "sip" or "iex")
+     * @return a map from symbol to the latest `BarData` for that symbol; symbols
+     *         without data will be absent from the map
+     */
     public Map<String, BarData> getLatestBars(List<String> symbols, String feed) {
+
         Map<String, BarData> result = new HashMap<>();
         try {
             String symbolList = String.join(",", symbols);
@@ -53,7 +79,19 @@ public class MarketDataService {
         return result;
     }
 
+    /**
+     * gets the latest quote (bid/ask) for each symbol in the provided list.
+     *
+     * Sends a request to the Alpaca latest quotes endpoint and parses the
+     * per-symbol quote data into `QuoteData` instances.
+     *
+     * @param symbols the list of stock symbols to fetch (e.g., ["AAPL","MSFT"])
+     * @param feed the market data feed to use (e.g., "sip" or "iex")
+     * @return a map from symbol to the latest `QuoteData` for that symbol; symbols
+     * without data will be absent from the map
+     */
     public Map<String, QuoteData> getLatestQuotes(List<String> symbols, String feed) {
+
         Map<String, QuoteData> result = new HashMap<>();
         try {
             String symbolList = String.join(",", symbols);

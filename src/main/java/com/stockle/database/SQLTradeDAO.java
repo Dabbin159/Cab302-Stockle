@@ -11,6 +11,9 @@ import org.json.JSONObject;
 
 import com.stockle.model.Trade;
 
+/**
+ * Class to manage trade-related database operations, such as adding, deleting, updating, and retrieving trades. Implements the TradeDAO interface.
+ */
 public class SQLTradeDAO implements TradeDAO {
 
     private static SQLTradeDAO instance;
@@ -20,6 +23,10 @@ public class SQLTradeDAO implements TradeDAO {
         connection = SqliteConnection.getInstance(); // Retrive the current database connection
     }
 
+    /**
+     * Returns the singleton instance of SQLTradeDAO
+     * @return the singleton instance of SQLTradeDAO
+     */
     public static SQLTradeDAO getInstance() {
         if (instance == null) {
             instance = new SQLTradeDAO();
@@ -40,11 +47,20 @@ public class SQLTradeDAO implements TradeDAO {
     private static final String GET_TRADES_BY_USER_ID = "SELECT * FROM trades WHERE userID = ?";
 
     @Override
+    /**
+     * Adds a new trade to the database with the profit set to 0
+     * @param trade the trade to be added to the database.
+     */
     public void addTrade(Trade trade) {
         addTrade(trade, 0); // Default profit to 0 for new trades
     }
 
     @Override
+    /**
+     * Adds a new trade to the database with the specified profit
+     * @param trade the trade to be added to the database.
+     * @param profit the profit to be added to the trade
+     */
     public void addTrade(Trade trade, long profit) {
         try (PreparedStatement statement = connection.prepareStatement(ADD_TRADE)) {
             statement.setInt(1, trade.getUserNumber());
@@ -56,21 +72,29 @@ public class SQLTradeDAO implements TradeDAO {
             statement.setLong(7, profit);
             statement.executeUpdate();
         } catch (SQLException ex) {
-            logSqlException(ex);
+            ex.printStackTrace();
         }
     }
 
     @Override
+    /**
+     * Deletes a trade from the database by its ID
+     * @param tradeID the ID of the trade to be deleted
+     */
     public void deleteTrade(int tradeId) {
         try (PreparedStatement statement = connection.prepareStatement(DELETE_TRADE)) {
             statement.setInt(1, tradeId);
             statement.executeUpdate();
         } catch (SQLException ex) {
-            logSqlException(ex);
+            ex.printStackTrace();
         }
     }
     
     @Override
+    /**
+     * Updates a trade in the database.
+     * @param trade The trade containing the information to update
+     */
     public void updateTrade(Trade trade) {
         try (PreparedStatement lookup = connection.prepareStatement(GET_TRADE_BY_ID)) {
             lookup.setInt(1, trade.getId());
@@ -89,26 +113,35 @@ public class SQLTradeDAO implements TradeDAO {
                 statement.executeUpdate();
             }
         } catch (SQLException ex) {
-            logSqlException(ex);
+            ex.printStackTrace();
         }
     }
 
     @Override
-    public Trade getTradeById(int tradeId) {
+    /**
+     * Retrieves a trade from the database by its ID
+     * @param tradeID the ID of the trade to be retrieved
+     * @return the trade as a trade class object or null if none found
+     */
+    public Trade getTradeById(int tradeID) {
         try (PreparedStatement statement = connection.prepareStatement(GET_TRADE_BY_ID)) {
-            statement.setInt(1, tradeId);
+            statement.setInt(1, tradeID);
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 String tradeData = resultSet.getString("tradeData");
-                return Trade.fromJSON(tradeId, new JSONObject(tradeData));
+                return Trade.fromJSON(tradeID, new JSONObject(tradeData));
             }
         } catch (SQLException ex) {
-            logSqlException(ex);
+            ex.printStackTrace();
         }
         return null; // Return null if trade not found
     }
 
     @Override
+    /**
+     * Retrieves all trades from the database
+     * @return An array of all trades in the database
+     */
     public Trade[] getAllTrades() {
         try (PreparedStatement statement = connection.prepareStatement(GET_ALL_TRADES)) {
             ResultSet resultSet = statement.executeQuery();
@@ -120,15 +153,20 @@ public class SQLTradeDAO implements TradeDAO {
             }
             return trades.toArray(Trade[]::new);
         } catch (SQLException ex) {
-            logSqlException(ex);
+            ex.printStackTrace();
         }
         return new Trade[0];
     }
 
     @Override
-    public Trade[] getTradesByUserId(int userId) {
+    /**
+     * Retrieves all trades from the database for a specific user
+     * @param userID the ID of the user whose trades are retrieved
+     * @return An array of trades for the user
+     */
+    public Trade[] getTradesByUserId(int userID) {
         try (PreparedStatement statement = connection.prepareStatement(GET_TRADES_BY_USER_ID)) {
-            statement.setInt(1, userId);
+            statement.setInt(1, userID);
             ResultSet resultSet = statement.executeQuery();
             List<Trade> trades = new ArrayList<>();
             while (resultSet.next()) {
@@ -138,12 +176,9 @@ public class SQLTradeDAO implements TradeDAO {
             }
             return trades.toArray(Trade[]::new);
         } catch (SQLException ex) {
-            logSqlException(ex);
+            ex.printStackTrace();
         }
         return new Trade[0];
     }
 
-    private void logSqlException(SQLException ex) {
-        System.err.println(ex.getMessage());
-    }
 }

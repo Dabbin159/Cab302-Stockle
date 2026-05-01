@@ -12,15 +12,39 @@ import com.stockle.api.data.BarData;
 import com.stockle.api.data.QuoteData;
 import com.stockle.api.data.SnapshotData;
 
+/**
+ * Service for retrieving per-symbol snapshot data from the Alpaca API.
+ *
+ * snapshot contains the most recent bar and quote information for a symbol.
+ * This service gets snapshots for a list of symbols and parses the response
+ * into `SnapshotData` objects keyed by symbol.
+ */
 public class SnapshotService {
     private final ApiClient apiClient;
     private final ObjectMapper objectMapper;
 
+    /**
+     * Constructs a SnapshotService with required dependencies.
+     *
+     * @param apiClient the API client used to make HTTP requests to the data API
+     * @param objectMapper the JSON object mapper used to parse API responses
+     */
     public SnapshotService(ApiClient apiClient, ObjectMapper objectMapper) {
         this.apiClient = apiClient;
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * gets snapshots (latest bar and quote) for the given symbols.
+     *
+     * Sends a request to the Alpaca snapshots endpoint and extracts per-symbol
+     * minute/daily/previous bar and latest quote information. If a bar or quote
+     * is not available for a symbol it will be omitted for that symbol.
+     *
+     * @param symbols the list of stock symbols to fetch snapshots for
+     * @param feed the market data feed to use (e.g., "sip" or "iex")
+     * @return a map from symbol to `SnapshotData` containing bar and quote information
+     */
     public Map<String, SnapshotData> getSnapshots(List<String> symbols, String feed) {
         Map<String, SnapshotData> result = new HashMap<>();
 

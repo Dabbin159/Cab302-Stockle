@@ -12,17 +12,25 @@ import com.stockle.api.service.AssetService;
 import com.stockle.api.service.MarketDataService;
 import com.stockle.api.service.SnapshotService;
 
+/**
+ *  * Class representing a stock. Contains information for stock such as companmy name, sector, current price, daily change, and volume. Provides constructors for creating a stock and getters and setters for each field
+ */
 public class Stock {
 
-    // Fields
-    // Logo
     private String companyName;
     private String sector;
     private int currentPrice;
     private Float dailyChange; // Percentage
     private Long volume;
 
-    // Constructor
+    /**
+     * Constructor for creating a stock object
+     * @param companyName The companyname of the stock
+     * @param sector The sector of the stock
+     * @param currentPrice The current price of the stock
+     * @param dailyChange The daily change of the stock in percentage
+     * @param volume The trading volume of the stock
+     */
     public Stock(String companyName, String sector, int currentPrice, Float dailyChange, Long volume) {
         this.companyName = companyName;
         this.sector = sector;
@@ -107,7 +115,10 @@ public class Stock {
 
         return fromApiData(symbol, asset, snapshot);
     }
-
+    /**
+     * Converts the stock object to a JSON object for the database
+     * @return A JSON object representing the stock
+     */
     public JSONObject toJSON() {
         JSONObject json = new JSONObject();
         json.put("companyName", companyName);
@@ -118,6 +129,11 @@ public class Stock {
         return json;
     }
 
+    /**
+     * Creates a stock object from a JSON object retrieved from the database
+     * @param json The json object of the stock from the database
+     * @return A stock object from the JSON
+     */
     public static Stock fromJSON(JSONObject json) {
         String companyName = json.getString("companyName");
         String sector = json.getString("sector");

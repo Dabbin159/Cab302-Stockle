@@ -89,6 +89,10 @@ public class TradingController {
     private MarketDataService marketDataService;
     private SnapshotService snapshotService;
 
+    /**
+     * Initialises the controller, sets up listeners and API services, then loads
+     * all tradable US equity assets in the background. AAPL is auto-selected on load.
+     */
     @FXML
     public void initialize() {
         apiClient = new ApiClient();
@@ -115,14 +119,25 @@ public class TradingController {
                 liveAssets = assets.stream()
                     .filter(a -> a.tradable && "us_equity".equals(a.assetClass) && a.symbol != null)
                     .collect(java.util.stream.Collectors.toList());
-                Platform.runLater(this::loadNextPage);
+                Platform.runLater(() -> {
+                    loadNextPage();
+                    liveAssets.stream()
+                        .filter(a -> "AAPL".equals(a.symbol))
+                        .findFirst()
+                        .ifPresent(this::selectLiveStock);
+                });
             } catch (Exception e) {
                 System.err.println("Failed to load assets: " + e.getMessage());
             }
         }).start();
     }
 
-    // Stock selection
+    /**
+     * Selects a stock and updates the detail panel, chart, and order form.
+     * Increments generation counters so stale in-flight responses are discarded.
+     *
+     * @param asset the asset to display
+     */
     private void selectLiveStock(Asset asset) {
         selectedSymbol = asset.symbol;
         currentExchange = asset.exchange != null ? asset.exchange : "—";
@@ -156,6 +171,12 @@ public class TradingController {
         refreshStockListSelection();
     }
 
+    /**
+     * Fetches the latest bar for the symbol on a background thread and updates the price labels.
+     * Discards the result if the user has switched to a different stock before it arrives.
+     *
+     * @param symbol the stock ticker to fetch
+     */
     private void fetchLivePrice(String symbol) {
         final int gen = priceLoadGeneration;  // Capture current generation
         new Thread(() -> {
@@ -196,6 +217,12 @@ public class TradingController {
         }).start();
     }
 
+    /**
+     * Fetches the last 60 one-minute bars for the symbol and renders them as a candlestick chart.
+     * Discards the result if the user switches stocks before the request completes.
+     *
+     * @param symbol the stock ticker to chart
+     */
     private void loadChart(String symbol) {
         final int gen = chartLoadGeneration;  // Capture current generation
         new Thread(() -> {
@@ -344,7 +371,10 @@ public class TradingController {
         }
     }
 
-    // Live stock list
+    /**
+     * Loads the next page of stocks into the list, filtered by the current search query and favourites toggle.
+     * Rows appear immediately with placeholder prices; a single background API call fills in prices after.
+     */
     private void loadNextPage() {
         if (isLoadingPage || livePageIndex >= liveAssets.size()) return;
         isLoadingPage = true;
@@ -401,6 +431,10 @@ public class TradingController {
         }).start();
     }
 
+    /**
+     * Clears and reloads the stock list using the current search text and filters.
+     * Increments the search generation to invalidate any in-flight background threads.
+     */
     @FXML
     private void applyLiveSearch() {
         searchGeneration++;
@@ -410,6 +444,14 @@ public class TradingController {
         loadNextPage();
     }
 
+    /**
+     * Builds a stock list row showing the symbol, name, and a price placeholder.
+     * priceBoxHolder[0] is set to the right-side VBox so the caller can update prices in-place.
+     *
+     * @param asset the asset to display
+     * @param priceBoxHolder single-element array; [0] receives the price VBox
+     * @return the constructed row
+     */
     private VBox liveStockRow(Asset asset, VBox[] priceBoxHolder) {
         String displaySymbol = favorites.contains(asset.symbol) ? asset.symbol + " ★" : asset.symbol;
         Label sym  = label(displaySymbol, "stock-row-symbol");
@@ -430,6 +472,9 @@ public class TradingController {
         return item;
     }
 
+    /**
+     * Highlights the currently selected stock row and removes highlighting from all others.
+     */
     private void refreshStockListSelection() {
         stockListContainer.getChildren().forEach(node -> {
             node.getStyleClass().setAll("stock-row");
@@ -443,7 +488,9 @@ public class TradingController {
         return l;
     }
 
-    // Order actions
+    /**
+     * Toggles the currently selected stock in/out of favourites and refreshes the stock list.
+     */
     @FXML
     private void toggleFavorite() {
         if (selectedSymbol.isEmpty()) return;
@@ -518,6 +565,7 @@ public class TradingController {
         SceneManager.switchTo("dashboard/dashboard-view.fxml");
     }
 
+    // Signs User out, Sends to Login page and syncs user data
     @FXML
     private void handleSignOut() throws IOException {
         SessionManager.getInstance().logout();

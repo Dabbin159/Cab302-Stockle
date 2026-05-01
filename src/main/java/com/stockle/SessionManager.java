@@ -3,23 +3,48 @@ package com.stockle;
 import com.stockle.database.SQLUserDAO;
 import com.stockle.model.User;
 
+/**
+ * Manages the current user's session throughout the application
+ * Handles storing the logged in user and syncing their data on logout
+ */
 public class SessionManager {
     private static SessionManager instance;
     private User currentUser;
 
     private SessionManager() {}; //Prevents any external creation
 
-    // Only one Session going at a time
+    /**
+     * Private Constructor prevents external instantiation
+     * Use getInstance() to access the SessionManager
+     * @return
+     */
     public static SessionManager getInstance() {
         if (instance == null) instance = new SessionManager();
         return instance;
     }
 
+    /**
+     * returns the currently logged in user
+     * @return
+     */
     public User getCurrentUser() { return currentUser; } // Returns current user
+
+    /**
+     * Stores the logged in user for the current session
+     * @param user
+     */
     public void setCurrentUser(User user) {this.currentUser = user; } // Stores who logged in
+
+    /**
+     * Checks whether a user is currently logged in
+     * @return
+     */
     public boolean isLoggedIn() {return currentUser != null; } //Determining whether someone is logged io or not
 
-    // On logout User data is updated in the database
+    /**
+     * Logs out the current user
+     * Saves their latest data to the database before exiting the session
+     */
     public void logout()
     {
         if (currentUser != null) {
