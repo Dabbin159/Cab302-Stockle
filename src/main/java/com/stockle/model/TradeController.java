@@ -88,9 +88,6 @@ public class TradeController {
             holdingDAO.updateHolding(holding);
         }
         
-        // Update balance and record trade
-        // user.setBalance(user.getBalance() + proceeds);
-        // SQLUserDAO.getInstance().updateUserBalance(user.getId(), user.getBalance());
         long currentBalance = userDAO.getUserBalance(user.getId());
         user.setBalance(currentBalance + proceeds);
         userDAO.updateUserBalance(user.getId(), user.getBalance());
