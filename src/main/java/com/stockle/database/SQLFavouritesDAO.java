@@ -60,7 +60,10 @@ public class SQLFavouritesDAO implements FavouritesDAO {
             List<String> favourites = new ArrayList<>();
             while (resultSet.next()) {
                 String favouritesString = resultSet.getString("favouritesList");
-                if (favouritesString != null){
+                if (favouritesString.isEmpty()) {
+                    return favourites;
+                }
+                if (!favouritesString.isEmpty()) {
                     favourites.addAll(Arrays.asList(favouritesString.split(",")));
                 }
             }

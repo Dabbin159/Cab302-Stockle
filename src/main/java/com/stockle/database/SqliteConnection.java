@@ -70,7 +70,7 @@ public class SqliteConnection {
 
     private static final String FAVOURITES_TABLE = "CREATE TABLE IF NOT EXISTS favourites ("
             + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-            + "userID INTEGER NOT NULL,"
+            + "userID INTEGER UNIQUE NOT NULL,"
             + "favouritesList TEXT NOT NULL,"
             + "FOREIGN KEY (userID) REFERENCES users(id)"
             + ")";
