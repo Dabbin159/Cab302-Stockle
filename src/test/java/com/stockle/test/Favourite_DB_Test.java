@@ -19,6 +19,7 @@ public class Favourite_DB_Test {
         favouritesDAO = SQLFavouritesDAO.getInstance();
         // Clear favourites for userID 1 before each test
         List<String> emptyList = new ArrayList<>();
+        favouritesDAO.deleteFavourite(1, String.join(",", emptyList));
     }
         
     @Test
@@ -40,7 +41,8 @@ public class Favourite_DB_Test {
     @Test 
     void TestGetFavouritesNone() {
         List<String> favouritesString = new ArrayList<>();
-
-        assertEquals(favouritesString, 0);
+        favouritesDAO.addFavourite(1, favouritesString);
+        List<String> favourites = favouritesDAO.getFavourites(1);
+        assertEquals(favouritesString, favourites);
     }
 }
