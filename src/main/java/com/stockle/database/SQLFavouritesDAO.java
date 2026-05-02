@@ -1,6 +1,8 @@
 package com.stockle.database;
 
 import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SQLFavouritesDAO implements FavouritesDAO {
 
@@ -30,7 +32,7 @@ public class SQLFavouritesDAO implements FavouritesDAO {
 
     @Override
     public String getFavourites(int userID){
-
+        List<String> favouritesList = new ArrayList<>();
         return null;
     }
 }

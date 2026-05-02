@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -149,11 +151,11 @@ public class SQLUserDAO implements UserDAO {
      * @return A list of all users.
      */ 
     @Override
-    public java.util.List<User> getAllUsers() {
+    public List<User> getAllUsers() {
         try {
             PreparedStatement statement = connection.prepareStatement(GET_ALL_USERS);
             ResultSet resultSet = statement.executeQuery();
-            java.util.List<User> users = new java.util.ArrayList<>();
+            List<User> users = new ArrayList<>();
             while (resultSet.next()) {
                 String username = resultSet.getString("username");
                 String password = resultSet.getString("password");
