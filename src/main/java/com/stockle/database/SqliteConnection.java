@@ -68,6 +68,13 @@ public class SqliteConnection {
             + "FOREIGN KEY (userID) REFERENCES users(id)"
             + ")";
 
+    private static final String FAVOURITES_TABLE = "CREATE TABLE IF NOT EXISTS favourites ("
+            + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            + "userID INTEGER NOT NULL,"
+            + "favouritesList TEXT NOT NULL,"
+            + "FOREIGN KEY (userID) REFERENCES users(id)"
+            + ")";
+
     /**
      * Method to set up the database tables if they do not already exist.
      */
@@ -77,6 +84,7 @@ public class SqliteConnection {
             statement.execute(USER_TABLE);
             statement.execute(TRADE_TABLE);
             statement.execute(HOLDING_TABLE);
+            statement.execute(FAVOURITES_TABLE);
         } catch (SQLException ex) {
             ex.printStackTrace();
         }

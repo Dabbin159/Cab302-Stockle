@@ -1,6 +1,8 @@
 package com.stockle.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.List;
@@ -11,6 +13,11 @@ import com.stockle.database.SQLFavouritesDAO;
 public class Favourite_DB_Test {
 
     private SQLFavouritesDAO favouritesDAO;
+
+    @BeforeEach
+    public void setUp() {
+        favouritesDAO = SQLFavouritesDAO.getInstance();
+    }
         
     @Test
     public void testGetFavouritesMany() {
