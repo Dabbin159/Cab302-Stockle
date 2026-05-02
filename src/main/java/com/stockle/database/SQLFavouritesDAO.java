@@ -24,7 +24,7 @@ public class SQLFavouritesDAO implements FavouritesDAO {
         return instance;
     }
 
-    private static final String ADD_FAVOURITE = "INSERT INTO favourites (userID, favouritesList) VALUES (?, ?)";
+    private static final String ADD_FAVOURITE = "INSERT INTO favourites (userID, favouritesList) VALUES (?, ?) ON CONFLICT(userID) DO UPDATE SET favouritesList = favouritesList || ',' || excluded.favouritesList";
     private static final String DELETE_FAVOURITE = "DELETE FROM favourites where userID = ?";
     private static final String GET_FAVOURITES = "SELECT favouritesList FROM favourites where userID = ?";
 

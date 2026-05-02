@@ -45,4 +45,15 @@ public class Favourite_DB_Test {
         List<String> favourites = favouritesDAO.getFavourites(1);
         assertEquals(favouritesString, favourites);
     }
+
+    @Test
+    void TestAddingMultipleFavouries() {
+        List<String> favouritesString = Arrays.asList("AAPL", "TSLA", "BOBS", "GOOG");
+        List<String> favouritesSplit1 = Arrays.asList("AAPL", "TSLA");
+        List<String> favouritesSplit2 = Arrays.asList("BOBS", "GOOG");
+        favouritesDAO.addFavourite(1, favouritesSplit1);
+        favouritesDAO.addFavourite(1, favouritesSplit2);
+        List<String> favourites = favouritesDAO.getFavourites(1);
+        assertEquals(favouritesString, favourites);
+    }
 }
