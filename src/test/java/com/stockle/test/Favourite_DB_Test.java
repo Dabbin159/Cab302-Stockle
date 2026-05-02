@@ -22,8 +22,9 @@ public class Favourite_DB_Test {
     @Test
     public void testGetFavouritesMany() {
         List<String> favouritesString = Arrays.asList("AAPL", "TSLA", "BOBS");
-
-        assertEquals(favouritesString,1);
+        favouritesDAO.addFavourite(1, favouritesString);
+        List<String> favourites = favouritesDAO.getFavourites(1);
+        assertEquals(favouritesString,favourites);
     }
 
     @Test 
