@@ -1,10 +1,12 @@
 package com.stockle.database;
 
+import java.util.List;
+
 public interface FavouritesDAO {
 
-    public Boolean addFavourite(int userID, String favourites);
+    public void addFavourite(int userID, List<String> favourites);
 
-    public Boolean deleteFavourite(int userID, String favourites);
+    public void deleteFavourite(int userID, String favourites);
 
-    public String getFavourites(int userID); 
+    public List<String> getFavourites(int userID); 
 }
