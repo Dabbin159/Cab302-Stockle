@@ -229,7 +229,7 @@ public class TradingController {
             try {
                 LocalDate today = LocalDate.now();
                 List<BarData> bars = historicalDataService.getHistoricalBars(
-                    symbol, today.minusDays(2), today, "1Min", "iex");
+                    symbol, today.minusDays(3), today, "1Min", "iex");
                 List<BarData> last60 = bars.size() > 60 ? bars.subList(bars.size() - 60, bars.size()) : bars;
                 DateTimeFormatter timeFmt = DateTimeFormatter.ofPattern("HH:mm");
                 List<CandleData> candles = new ArrayList<>();
