@@ -229,9 +229,9 @@ public class TradingController {
             try {
                 LocalDate today = LocalDate.now();
                 List<BarData> bars = historicalDataService.getHistoricalBars(
-                    symbol, today.minusDays(1), today, "1Min", "iex");
+                    symbol, today.minusDays(30), today, "1Day", "iex");
                 List<BarData> last60 = bars.size() > 60 ? bars.subList(bars.size() - 60, bars.size()) : bars;
-                DateTimeFormatter timeFmt = DateTimeFormatter.ofPattern("HH:mm");
+                DateTimeFormatter timeFmt = DateTimeFormatter.ofPattern("MM/dd/yyyy");
                 List<CandleData> candles = new ArrayList<>();
                 for (BarData bar : last60) {
                     candles.add(new CandleData(bar.timestamp.format(timeFmt), bar.open, bar.high, bar.low, bar.close));
