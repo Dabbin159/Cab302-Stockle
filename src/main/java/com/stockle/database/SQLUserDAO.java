@@ -6,8 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 
-import org.mindrot.jbcrypt.BCrypt;
-
 import com.stockle.model.User;
 
 
@@ -173,7 +171,7 @@ public class SQLUserDAO implements UserDAO {
     public boolean signup(String username, String password, String email, String fullName, LocalDate dateOfBirth) {
         // Implementation for signing up a new user
         try {
-            String hashed_password = BCrypt.hashpw(password, BCrypt.gensalt());
+            String hashed_password = PasswordUtils.hashPassword(password);
             User user = new User(username, hashed_password, email, fullName, dateOfBirth);
             addUser(user);
             return true;
@@ -196,7 +194,7 @@ public class SQLUserDAO implements UserDAO {
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 String storedHash = resultSet.getString("password");
-                if (BCrypt.checkpw(password, storedHash)) {
+                if (PasswordUtils.verifyPassword(password, storedHash)) {
                     String usernameDB = resultSet.getString("username");
                     String email = resultSet.getString("email");
                     String fullName = resultSet.getString("fullName");
