@@ -9,8 +9,6 @@ import javafx.stage.Stage;
 public class SceneManager {
 
     private static Stage stage;
-    private static boolean isMaximized = true;
-
 
     public static void init(Stage primaryStage) {
         stage = primaryStage;
