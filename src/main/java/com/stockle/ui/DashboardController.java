@@ -1,8 +1,11 @@
 package com.stockle.ui;
 import java.io.IOException;
 import java.text.NumberFormat;
+import java.time.DayOfWeek;
 import java.time.Instant;
+import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
@@ -15,7 +18,6 @@ import com.stockle.model.Holding;
 import com.stockle.model.Trade;
 import com.stockle.model.User;
 
-import com.stockle.SessionManager;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.chart.AreaChart;
@@ -28,10 +30,15 @@ import javafx.scene.layout.VBox;
 
 @SuppressWarnings("unused")
 public class DashboardController {
+    private static final ZoneId MARKET_ZONE = ZoneId.of("America/New_York");
+    private static final LocalTime MARKET_OPEN = LocalTime.of(9, 30);
+    private static final LocalTime MARKET_CLOSE = LocalTime.of(16, 0);
+
     private static final NumberFormat CURRENCY = NumberFormat.getCurrencyInstance();
     private static final DateTimeFormatter TRADE_TIME_FMT =
         DateTimeFormatter.ofPattern("MMM d, HH:mm").withZone(ZoneId.systemDefault());
 
+    @FXML private Label marketStatusLabel;
     @FXML private Label totalValueLabel;
     @FXML private Label totalGainLabel;
     @FXML private Label buyingPowerLabel;
@@ -41,6 +48,7 @@ public class DashboardController {
 
     @FXML
     public void initialize() {
+        updateMarketStatus();
         loadChart();
 
         User currentUser = SessionManager.getInstance().getCurrentUser();
@@ -59,6 +67,27 @@ public class DashboardController {
         long holdingsValue = loadHoldings(freshUser.getId());
         loadTrades(freshUser.getId());
         loadSummary(freshUser, holdingsValue);
+    }
+
+    public static boolean isMarketOpenAtEt(ZonedDateTime etNow) {
+        DayOfWeek d = etNow.getDayOfWeek();
+        LocalTime t = etNow.toLocalTime();
+        boolean weekday = d != DayOfWeek.SATURDAY && d != DayOfWeek.SUNDAY;
+        return weekday && !t.isBefore(LocalTime.of(9, 30)) && t.isBefore(LocalTime.of(16, 0));
+    }
+
+    private void updateMarketStatus() {
+        ZonedDateTime nowEt = ZonedDateTime.now(MARKET_ZONE);
+        DayOfWeek day = nowEt.getDayOfWeek();
+        LocalTime time = nowEt.toLocalTime();
+
+        boolean weekday = day != DayOfWeek.SATURDAY && day != DayOfWeek.SUNDAY;
+        boolean inSession = !time.isBefore(MARKET_OPEN) && !time.isAfter(MARKET_CLOSE);
+        boolean open = weekday && inSession;
+
+        marketStatusLabel.setText(open ? "OPEN" : "CLOSED");
+        marketStatusLabel.getStyleClass().removeAll("market-open", "market-closed");
+        marketStatusLabel.getStyleClass().add(open ? "market-open" : "market-closed");
     }
 
     private void loadMockSummaryAndLists() {
