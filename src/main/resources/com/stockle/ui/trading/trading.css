@@ -241,17 +241,30 @@
     -fx-padding: 2 10;
 }
 
+/* Dark theme adjustments: use same palette and tokens as dashboard for consistency */
+.dark-theme .main-scroll,
+.dark-theme .main-scroll .viewport,
+.dark-theme .main-content {
+    -fx-background-color: #030712;
+    -fx-background: #030712;
+}
+
 .dark-theme .stocks-scroll,
 .dark-theme .stocks-scroll .viewport {
     -fx-background-color: transparent;
 }
 
-.dark-theme .card-header-row,
-.dark-theme .stock-stats-grid,
-.dark-theme .order-tabs .tab-header-background {
-    -fx-border-color: transparent transparent #1f2937 transparent;
+/* Card surface styling */
+.dark-theme .card {
+    -fx-background-color: #0A0A0A;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 24, 0, 0, 6);
+    -fx-border-color: #262626;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-padding: 14;
 }
 
+/* Text tokens */
 .dark-theme .stock-symbol,
 .dark-theme .stock-price,
 .dark-theme .stat-meta-value,
@@ -259,7 +272,7 @@
 .dark-theme .stock-row-symbol,
 .dark-theme .stock-row-price,
 .dark-theme .market-val {
-    -fx-text-fill: #f3f4f6;
+    -fx-text-fill: #FAFAFA;
 }
 
 .dark-theme .stock-name,
@@ -267,7 +280,7 @@
 .dark-theme .estimate-label,
 .dark-theme .stock-row-name,
 .dark-theme .market-key {
-    -fx-text-fill: #94a3b8;
+    -fx-text-fill: #99A1AF;
 }
 
 .dark-theme .stock-change-pos,
@@ -280,73 +293,79 @@
     -fx-text-fill: #ef4444;
 }
 
+/* Chart styling: subtle grid, blue series */
 .dark-theme .price-chart .chart-plot-background,
 .dark-theme .price-chart .chart-content {
     -fx-background-color: transparent;
 }
 
 .dark-theme .price-chart .chart-horizontal-grid-lines {
-    -fx-stroke: rgba(255,255,255,0.05);
+    -fx-stroke: rgba(255,255,255,0.04);
 }
 
 .dark-theme .price-chart .axis {
-    -fx-tick-label-fill: #94a3b8;
+    -fx-tick-label-fill: #99A1AF;
 }
 
 .dark-theme .price-chart .chart-series-line {
-    -fx-stroke: #60a5fa;
+    -fx-stroke: #60A5FA;
+    -fx-stroke-width: 2.5;
 }
 
+/* Tabs and ordering controls */
 .dark-theme .order-tabs .tab-header-background {
-    -fx-background-color: #111827;
+    -fx-background-color: #0F1724;
 }
 
 .dark-theme .order-tabs .tab .tab-label {
-    -fx-text-fill: #94a3b8;
+    -fx-text-fill: #99A1AF;
 }
 
 .dark-theme .order-tabs .tab:selected {
-    -fx-background-color: #0b1220;
+    -fx-background-color: #0B1220;
 }
 
 .dark-theme .order-tabs .tab:selected .tab-label {
-    -fx-text-fill: #f3f4f6;
+    -fx-text-fill: #FAFAFA;
 }
 
-.dark-theme .estimate-row,
-.dark-theme .stock-row {
+/* Inputs and estimate area: darker surfaces */
+.dark-theme .estimate-row {
+    -fx-background-color: #0F1724;
+    -fx-background-radius: 8;
+    -fx-padding: 10 14;
+}
+
+.dark-theme .trade-input {
     -fx-background-color: #111827;
+    -fx-border-color: rgba(255,255,255,0.04);
+    -fx-text-fill: #E5E7EB;
 }
 
-.dark-theme .stock-row:hover {
-    -fx-background-color: #0f172a;
+/* Stock rows, hover and active */
+.dark-theme .stock-row {
+    -fx-background-color: transparent;
 }
 
-.dark-theme .stock-row-active {
-    -fx-background-color: rgba(37,99,235,0.18);
-}
+.dark-theme .stock-row:hover { -fx-background-color: #0f1724; }
 
+.dark-theme .stock-row-active { -fx-background-color: rgba(96,165,250,0.10); }
+
+/* Buttons - keep accents consistent with dashboard */
 .dark-theme .buy-btn {
     -fx-background-color: #2563eb;
+    -fx-text-fill: white;
 }
 
-.dark-theme .buy-btn:hover {
-    -fx-background-color: #1d4ed8;
-}
+.dark-theme .buy-btn:hover { -fx-background-color: #1d4ed8; }
 
-.dark-theme .sell-btn {
-    -fx-background-color: #dc2626;
-}
+.dark-theme .sell-btn { -fx-background-color: #dc2626; }
 
-.dark-theme .sell-btn:hover {
-    -fx-background-color: #b91c1c;
-}
+.dark-theme .sell-btn:hover { -fx-background-color: #b91c1c; }
 
 .dark-theme .alert-btn {
-    -fx-background-color: #e5e7eb;
-    -fx-text-fill: #111827;
+    -fx-background-color: #111827;
+    -fx-text-fill: #E5E7EB;
 }
 
-.dark-theme .alert-btn:hover {
-    -fx-background-color: #f3f4f6;
-}
+.dark-theme .alert-btn:hover { -fx-background-color: #0f1724; }
