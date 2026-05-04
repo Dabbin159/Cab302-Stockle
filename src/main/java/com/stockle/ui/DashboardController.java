@@ -252,6 +252,10 @@ public class DashboardController {
         SceneManager.switchTo("ai/ai-view.fxml");
     }
 
+    @FXML private void navNews() throws IOException {
+        SceneManager.switchTo("news/news-view.fxml");
+    }
+
     // Signs User out, Sends to Login page and syncs user data
     @FXML
     private void handleSignOut() throws IOException {

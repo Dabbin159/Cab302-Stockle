@@ -575,4 +575,8 @@ public class TradingController {
     @FXML private void navAI() throws IOException {
         SceneManager.switchTo("ai/ai-view.fxml");
     }
+
+    @FXML private void navNews() throws IOException {
+        SceneManager.switchTo("news/news-view.fxml");
+    }
 }

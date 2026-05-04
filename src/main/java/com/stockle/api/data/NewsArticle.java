@@ -2,20 +2,22 @@ package com.stockle.api.data;
 
 import java.util.List;
 
-/**
- * Data model for a news article from Alpaca News v3
- */
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class NewsArticle {
-    public String id;
+    public long id;
     public String headline;
     public String summary;
     public String url;
-    public String published_at;
-    public String updated_at;
     public String source;
-    public String image_url;
+
+    @JsonAlias("created_at")
+    public String published_at;
+
+    public String updated_at;
     public List<String> symbols;
 
-    public NewsArticle() {
-    }
+    public NewsArticle() {}
 }

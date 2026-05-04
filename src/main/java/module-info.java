@@ -13,6 +13,7 @@ module com.stockle {
     opens com.stockle.ui to javafx.fxml;
     opens com.stockle.model to javafx.fxml;
     opens com.stockle.database to javafx.fxml;
+    opens com.stockle.api.data to com.fasterxml.jackson.databind;
     
     exports com.stockle.ui;
     exports com.stockle.model;
