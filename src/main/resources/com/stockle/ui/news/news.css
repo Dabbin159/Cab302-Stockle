@@ -100,3 +100,18 @@
     -fx-pref-height: 38;
 }
 .news-filter-combo .list-cell { -fx-font-size: 14px; }
+
+/* Infinite scroll state labels */
+.article-loading {
+    -fx-font-size: 13px;
+    -fx-text-fill: #6b7280;
+    -fx-padding: 12 0;
+    -fx-alignment: CENTER;
+}
+
+.article-empty {
+    -fx-font-size: 14px;
+    -fx-text-fill: #9ca3af;
+    -fx-padding: 24 0;
+    -fx-alignment: CENTER;
+}

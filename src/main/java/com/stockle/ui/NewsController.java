@@ -1,12 +1,20 @@
 package com.stockle.ui;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.stockle.api.client.ApiClient;
+import com.stockle.api.data.NewsArticle;
+import com.stockle.api.service.NewsService;
+
+import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -14,81 +22,139 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 public class NewsController {
-
     @FXML private TextField searchField;
-    @FXML private ComboBox<String> symbolFilter;
     @FXML private VBox articleList;
+    @FXML private ScrollPane mainScroll;
 
-    private static final List<MockData.Article> ARTICLES = MockData.newsArticles();
+    private final NewsService newsService = new NewsService(
+        new ApiClient(),
+        new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+    );
+
+    private static final DateTimeFormatter DATE_FMT =
+        DateTimeFormatter.ofPattern("MMM d, yyyy").withZone(ZoneId.systemDefault());
+
+    private String nextPageToken = null;
+    private String currentSymbol = null;
+    private boolean isLoading = false;
+
+    private final Label loadingLabel = styledLabel("Loading…", "article-loading");
+    private final Label emptyLabel   = styledLabel("No articles found.", "article-empty");
 
     // Initialise
     @FXML
     public void initialize() {
-        symbolFilter.getItems().add("All Symbols");
-        ARTICLES.stream()
-            .flatMap(a -> a.symbols().stream())
-            .distinct().sorted()
-            .forEach(s -> symbolFilter.getItems().add(s));
-        symbolFilter.getSelectionModel().selectFirst();
+        // Search on Enter; clear search restores global feed
+        searchField.setOnAction(e -> {
+            String text = searchField.getText().trim().toUpperCase();
+            resetAndLoad(text.isEmpty() ? null : text);
+        });
+        searchField.textProperty().addListener((obs, o, n) -> {
+            if (n.isEmpty()) resetAndLoad(null);
+        });
 
-        searchField.textProperty().addListener((obs, o, n) -> renderArticles());
-        symbolFilter.setOnAction(e -> renderArticles());
+        // Infinite scroll — load next page when within 15 % of the bottom
+        mainScroll.vvalueProperty().addListener((obs, o, n) -> {
+            if (n.doubleValue() >= 0.85 && !isLoading && nextPageToken != null) {
+                loadNextPage();
+            }
+        });
 
-        renderArticles();
+        resetAndLoad(null);
     }
 
-    // Rendering
-    private void renderArticles() {
-        String query = searchField.getText().toLowerCase().trim();
-        String sym   = symbolFilter.getValue();
-        boolean allSyms = sym == null || sym.equals("All Symbols");
-
-        List<MockData.Article> filtered = ARTICLES.stream()
-            .filter(a -> query.isEmpty()
-                || a.headline().toLowerCase().contains(query)
-                || a.summary().toLowerCase().contains(query)
-                || a.symbols().stream().anyMatch(s -> s.toLowerCase().contains(query)))
-            .filter(a -> allSyms || a.symbols().contains(sym))
-            .collect(Collectors.toList());
-
+    //  Loading
+    private void resetAndLoad(String symbol) {
+        currentSymbol = symbol;
+        nextPageToken = null;
         articleList.getChildren().clear();
-        for (MockData.Article article : filtered) {
-            articleList.getChildren().add(buildArticleCard(article));
-        }
+        loadNextPage();
     }
 
-    private VBox buildArticleCard(MockData.Article article) {
+    private void loadNextPage() {
+        if (isLoading) return;
+        isLoading = true;
+
+        articleList.getChildren().remove(emptyLabel);
+        if (!articleList.getChildren().contains(loadingLabel)) {
+            articleList.getChildren().add(loadingLabel);
+        }
+
+        final String sym = currentSymbol;
+        final String token = nextPageToken;
+
+        Thread.ofVirtual().start(() -> {
+            NewsService.NewsPage page = newsService.getNewsPage(20, token, sym);
+
+            Platform.runLater(() -> {
+                articleList.getChildren().remove(loadingLabel);
+
+                if (page.articles().isEmpty() && articleList.getChildren().isEmpty()) {
+                    articleList.getChildren().add(emptyLabel);
+                } else {
+                    for (NewsArticle article : page.articles()) {
+                        articleList.getChildren().add(buildArticleCard(article));
+                    }
+                }
+
+                nextPageToken = page.nextPageToken();
+                isLoading = false;
+            });
+        });
+    }
+
+    // Card builder 
+    private VBox buildArticleCard(NewsArticle article) {
         // Source badge + date row
-        Label sourceBadge = label(article.source(), "source-badge");
+        Label sourceBadge = styledLabel(article.source != null ? article.source : "News", "source-badge");
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
-        Label date = label(article.date(), "article-date");
+        Label date = styledLabel(formatDate(article.published_at), "article-date");
         HBox topRow = new HBox(6, sourceBadge, spacer, date);
         topRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
 
-        Label headline = label(article.headline(), "article-headline");
-        Label summary  = label(article.summary(),  "article-summary");
+        Label headline = styledLabel(article.headline != null ? article.headline : "", "article-headline");
+        headline.setWrapText(true);
 
         HBox tagsRow = new HBox(6);
-        for (String s : article.symbols()) {
-            tagsRow.getChildren().add(label(s, "symbol-tag"));
+        if (article.symbols != null) {
+            for (String sym : article.symbols) {
+                tagsRow.getChildren().add(styledLabel(sym, "symbol-tag"));
+            }
         }
 
-        VBox card = new VBox(10, topRow, headline, summary, tagsRow);
+        VBox card = new VBox(10, topRow, headline, tagsRow);
+
+        if (article.summary != null && !article.summary.isBlank()) {
+            Label summary = styledLabel(article.summary, "article-summary");
+            summary.setWrapText(true);
+            card.getChildren().add(2, summary);
+        }
         card.getStyleClass().add("article-card");
         return card;
     }
 
-    private Label label(String text, String... styles) {
+    // Helpers 
+    private String formatDate(String isoDate) {
+        if (isoDate == null || isoDate.isEmpty()) return "";
+        try {
+            return DATE_FMT.format(Instant.parse(isoDate));
+        } catch (Exception e) {
+            return isoDate;
+        }
+    }
+
+    private Label styledLabel(String text, String... styles) {
         Label l = new Label(text);
         l.getStyleClass().addAll(styles);
         return l;
     }
 
-    // Navigation 
+    // Navigation
     @FXML private void navDashboard() throws IOException { SceneManager.switchTo("dashboard/dashboard-view.fxml"); }
     @FXML private void navTrading() throws IOException { SceneManager.switchTo("trading/trading-view.fxml"); }
     @FXML private void navAI() throws IOException { SceneManager.switchTo("ai/ai-view.fxml"); }
+
     @FXML
     private void handleSignOut() throws IOException {
         com.stockle.SessionManager.getInstance().logout();

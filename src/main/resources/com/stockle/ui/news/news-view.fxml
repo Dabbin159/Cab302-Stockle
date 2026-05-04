@@ -26,7 +26,7 @@
     </left>
     <!-- Main content -->
     <center>
-        <ScrollPane fitToWidth="true" styleClass="main-scroll" hbarPolicy="NEVER">
+        <ScrollPane fx:id="mainScroll" fitToWidth="true" styleClass="main-scroll" hbarPolicy="NEVER">
             <VBox spacing="20" styleClass="main-content">
                 <padding><Insets top="28" bottom="36" left="28" right="28"/></padding>
 
@@ -36,12 +36,8 @@
                     <Label text="Stay up to date with the latest financial news and market updates." styleClass="page-subtitle"/>
                 </VBox>
                 <!-- Search bar -->
-                <HBox spacing="12" alignment="CENTER_LEFT">
-                    <TextField fx:id="searchField" promptText="Search headlines or symbols..."
-                               styleClass="trade-input" HBox.hgrow="ALWAYS"/>
-                    <ComboBox fx:id="symbolFilter" promptText="All Symbols"
-                              styleClass="news-filter-combo" prefWidth="160"/>
-                </HBox>
+                <TextField fx:id="searchField" promptText="Search by symbol e.g. AAPL"
+                           styleClass="trade-input"/>
                 <!-- Article list -->
                 <VBox fx:id="articleList" spacing="14"/>
             </VBox>
