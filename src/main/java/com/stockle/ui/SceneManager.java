@@ -15,22 +15,23 @@ public class SceneManager {
     }
 
     public static void switchTo(String fxmlFile) throws IOException {
-        FXMLLoader loader = new FXMLLoader(SceneManager.class.getResource(fxmlFile));
-
-        boolean wasMaximized = stage.isMaximized();
         double width = stage.getWidth();
         double height = stage.getHeight();
+        double x = stage.getX();
+        double y = stage.getY();
+
+        FXMLLoader loader = new FXMLLoader(SceneManager.class.getResource(fxmlFile));
         
         Scene scene = new Scene(loader.load(), width, height);
 
         stage.setScene(scene);
 
-        if (wasMaximized) {
-            javafx.application.Platform.runLater(() -> stage.setMaximized(true));
-        } else {
+        javafx.application.Platform.runLater(() -> {
             stage.setWidth(width);
             stage.setHeight(height);
-        }
+            stage.setX(x);
+            stage.setY(y);
+        });
     }
 
     public static Stage getStage() {

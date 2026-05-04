@@ -15,7 +15,8 @@ public class StockleApplication extends Application {
         Scene scene = new Scene(fxmlLoader.load());
         stage.setTitle("Stockle");
         stage.setScene(scene);
-        stage.setMaximized(true);
+        stage.setWidth(1400);
+        stage.setHeight(900);
         stage.show();
     }
 }
