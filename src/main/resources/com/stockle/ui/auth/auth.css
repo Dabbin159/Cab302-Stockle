@@ -1,5 +1,21 @@
 @import "../global.css";
 
+/* Default/light background */
+.auth-root {
+    -fx-background-color: #f9fafb;
+}
+
+/* Dark mode background:
+   top-right -> bottom-left diagonal */
+.auth-root.dark-mode {
+    -fx-background-color: linear-gradient(
+        from 100% 0% to 0% 100%,
+        #030712 0%,
+        #101828 50%,
+        #030712 100%
+    );
+}
+
 /* ── Branding ── */
 .logo-box {
     -fx-background-radius: 16;

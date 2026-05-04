@@ -18,6 +18,8 @@ import javafx.scene.control.TextField;
  * Handles both the login and signup functionality
  */
 public class AuthController {
+    // UI Fields
+
     // Login Fields
     @FXML private TextField loginEmail;
     @FXML private PasswordField loginPasswordField;
