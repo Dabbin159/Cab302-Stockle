@@ -130,6 +130,69 @@ public final class MockData {
         "Jan 22","Jan 23","Jan 24","Jan 27","Jan 28","Jan 29"
     };
 
+    public record Article(
+        String headline,
+        String summary,
+        String source,
+        String date,
+        List<String> symbols
+    ) {}
+
+    public static List<Article> newsArticles() {
+        return List.of(
+            new Article(
+                "Apple Leader in Phone Sales in China for Second Straight Month With 23.6% Share",
+                "Apple maintained its top position in China's smartphone market for the second consecutive month, capturing a 23.6% market share according to the latest research data.",
+                "Benzinga", "Dec 31, 2024", List.of("AAPL")
+            ),
+            new Article(
+                "Tesla Reports Record Q4 Deliveries, Beating Analyst Expectations",
+                "Tesla delivered a record number of vehicles in Q4, surpassing Wall Street estimates and sending shares higher in pre-market trading.",
+                "Reuters", "Jan 2, 2025", List.of("TSLA")
+            ),
+            new Article(
+                "Federal Reserve Signals Potential Rate Cuts in 2025 as Inflation Cools",
+                "Fed officials indicated they may cut interest rates multiple times in 2025, citing cooling inflation and a stable labour market in the latest FOMC meeting minutes.",
+                "Bloomberg", "Jan 3, 2025", List.of("SPY", "QQQ")
+            ),
+            new Article(
+                "Microsoft Azure Revenue Surges 33% on AI Demand, Shares Hit All-Time High",
+                "Microsoft's cloud division posted stronger-than-expected growth driven by enterprise AI adoption, pushing the stock to a new record close.",
+                "CNBC", "Jan 4, 2025", List.of("MSFT")
+            ),
+            new Article(
+                "Nvidia Announces Next-Gen Blackwell Ultra GPU Architecture at CES 2025",
+                "Nvidia unveiled its next generation of AI accelerator chips at CES, reinforcing its dominance in the data centre GPU market ahead of earnings season.",
+                "MarketWatch", "Jan 7, 2025", List.of("NVDA")
+            ),
+            new Article(
+                "Amazon Web Services Wins $10B Pentagon Cloud Contract",
+                "Amazon secured a major multi-year cloud computing deal with the US Department of Defense, a significant win over competing bids from Microsoft and Google.",
+                "Reuters", "Jan 8, 2025", List.of("AMZN")
+            ),
+            new Article(
+                "S&P 500 Closes at Record High as Tech Rally Continues Into New Year",
+                "The S&P 500 reached a fresh all-time high on the back of strong gains in the technology sector, with investors optimistic about earnings season.",
+                "Bloomberg", "Jan 9, 2025", List.of("SPY", "AAPL", "MSFT", "NVDA")
+            ),
+            new Article(
+                "Google Parent Alphabet Faces EU Antitrust Fine Over Search Advertising",
+                "The European Commission is preparing a significant fine against Alphabet for alleged anti-competitive behaviour in online search advertising markets.",
+                "CNBC", "Jan 10, 2025", List.of("GOOGL")
+            ),
+            new Article(
+                "Meta Plans $40B AI Infrastructure Investment Across 2025",
+                "Meta Platforms announced it will significantly increase capital expenditure on AI data centres and computing infrastructure throughout the coming year.",
+                "MarketWatch", "Jan 11, 2025", List.of("META")
+            ),
+            new Article(
+                "JPMorgan Posts Record Annual Profit Driven by Investment Banking Rebound",
+                "JPMorgan Chase reported its highest-ever annual profit, boosted by a surge in investment banking fees and strong consumer spending activity.",
+                "Benzinga", "Jan 13, 2025", List.of("JPM")
+            )
+        );
+    }
+
     private MockData() {
     }
 
