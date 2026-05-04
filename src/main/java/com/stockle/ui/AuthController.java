@@ -41,6 +41,10 @@ public class AuthController {
     /* Database access for user operations */
     private final SQLUserDAO userDAO = SQLUserDAO.getInstance();
 
+    @FXML private void initialize() {
+        authRoot.getStyleClass().add("dark-mode");
+    }
+
     @FXML private void toggleDarkMode() {
         if (authRoot.getStyleClass().contains("dark-mode")) {
             authRoot.getStyleClass().remove("dark-mode");
