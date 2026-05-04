@@ -96,7 +96,7 @@
                                 <Button text="Forgot password?" styleClass="link-btn" onAction="#forgotPassword"/>
                             </HBox>
 
-                            <Button text="Sign In" styleClass="outline-btn" maxWidth="Infinity" onAction="#handleLogin"/>
+                            <Button text="Sign In" styleClass="login-signup-btn" maxWidth="Infinity" onAction="#handleLogin"/>
 
                             <HBox alignment="CENTER" spacing="10" styleClass="or-divider">
                                 <Region HBox.hgrow="ALWAYS" styleClass="divider-line"/>
@@ -168,7 +168,7 @@
                                            styleClass="terms-text" wrapText="true" HBox.hgrow="ALWAYS"/>
                                 </HBox>
 
-                                <Button text="Create Account" styleClass="outline-btn"
+                                <Button text="Create Account" styleClass="login-signup-btn"
                                         maxWidth="Infinity" onAction="#handleSignup"/>
 
                                 <Label text="By signing up, you'll receive $100,000 in virtual currency to start trading"
