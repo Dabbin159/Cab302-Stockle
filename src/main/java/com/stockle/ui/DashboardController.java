@@ -20,6 +20,8 @@ import com.stockle.model.User;
 
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.chart.AreaChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
@@ -45,6 +47,8 @@ public class DashboardController {
     @FXML private AreaChart<String, Number> portfolioChart;
     @FXML private VBox holdingsContainer;
     @FXML private VBox tradesContainer;
+    @FXML private javafx.scene.control.Button darkModeBtn;
+    @FXML private javafx.scene.image.ImageView darkModeIcon;
 
     @FXML
     public void initialize() {
@@ -67,6 +71,27 @@ public class DashboardController {
         long holdingsValue = loadHoldings(freshUser.getId());
         loadTrades(freshUser.getId());
         loadSummary(freshUser, holdingsValue);
+    }
+
+    @FXML
+    private void toggleDarkMode() {
+        if (marketStatusLabel == null) return;
+        Scene scene = marketStatusLabel.getScene();
+        if (scene == null) return;
+        Parent root = scene.getRoot();
+        
+        boolean isDarkTheme = root.getStyleClass().contains("dark-theme");
+        
+        if (isDarkTheme) {
+            root.getStyleClass().remove("dark-theme");
+            String darkIconUrl = getClass().getResource("/com/stockle/ui/images/dark-mode-button.png").toExternalForm();
+            darkModeIcon.setImage(new javafx.scene.image.Image(darkIconUrl));
+            darkModeIcon.setStyle("");
+        } else {
+            root.getStyleClass().add("dark-theme");
+            String lightIconUrl = getClass().getResource("/com/stockle/ui/images/light-mode-button.png").toExternalForm();
+            darkModeIcon.setImage(new javafx.scene.image.Image(lightIconUrl));
+        }
     }
 
     public static boolean isMarketOpenAtEt(ZonedDateTime etNow) {
