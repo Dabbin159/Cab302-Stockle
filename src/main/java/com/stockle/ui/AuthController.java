@@ -12,6 +12,7 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.StackPane;
 
 /**
  * Controller for the authentication screen
@@ -19,6 +20,7 @@ import javafx.scene.control.TextField;
  */
 public class AuthController {
     // UI Fields
+    @FXML private StackPane authRoot;
 
     // Login Fields
     @FXML private TextField loginEmail;
@@ -39,6 +41,13 @@ public class AuthController {
     /* Database access for user operations */
     private final SQLUserDAO userDAO = SQLUserDAO.getInstance();
 
+    @FXML private void toggleDarkMode() {
+        if (authRoot.getStyleClass().contains("dark-mode")) {
+            authRoot.getStyleClass().remove("dark-mode");
+        } else {
+            authRoot.getStyleClass().add("dark-mode");
+        }
+    }
 
     /** Handles user login: validates fields, checks credentials
      * against the database then navigates to the dashboard if
