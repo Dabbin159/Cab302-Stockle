@@ -2,6 +2,7 @@ package com.stockle.ui;
 
 import java.io.IOException;
 
+import com.stockle.SessionManager;
 import com.stockle.api.GroqService;
 
 import javafx.event.ActionEvent;
@@ -10,6 +11,8 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -30,7 +33,15 @@ public class AIController {
     @FXML
     private TextField userInput;
 
-    private GroqService groqService = new GroqService();
+    @FXML
+    private ImageView darkModeIcon;
+
+    private final GroqService groqService = new GroqService();
+
+    @FXML
+    private void initialize() {
+        syncThemeButton();
+    }
 
     /**
      * Sends the user's message to the AI and shows both messages in the chat.
@@ -75,6 +86,18 @@ public class AIController {
         addMessage("AI: Analysis feature coming soon!");
     }
 
+    @FXML
+    private void toggleDarkMode() {
+        if (chatBox == null || chatBox.getScene() == null) {
+            return;
+        }
+
+        SessionManager sessionManager = SessionManager.getInstance();
+        sessionManager.setDarkModeEnabled(!sessionManager.isDarkModeEnabled());
+        SceneManager.applyTheme(chatBox.getScene().getRoot());
+        syncThemeButton();
+    }
+
     /**
      * Adds a chat bubble to the conversation area.
      *
@@ -113,6 +136,22 @@ public class AIController {
             HBox row = new HBox(8, avatar, bubble);
             row.setAlignment(Pos.TOP_LEFT);
             chatBox.getChildren().add(row);
+        }
+    }
+
+    private void syncThemeButton() {
+        if (darkModeIcon == null) {
+            return;
+        }
+
+        boolean darkModeEnabled = SessionManager.getInstance().isDarkModeEnabled();
+        String iconPath = darkModeEnabled
+            ? "/com/stockle/ui/images/light-mode-button.png"
+            : "/com/stockle/ui/images/dark-mode-button.png";
+
+        java.net.URL iconUrl = getClass().getResource(iconPath);
+        if (iconUrl != null) {
+            darkModeIcon.setImage(new Image(iconUrl.toExternalForm()));
         }
     }
 

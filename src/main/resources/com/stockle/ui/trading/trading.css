@@ -240,3 +240,113 @@
     -fx-background-radius: 12;
     -fx-padding: 2 10;
 }
+
+.dark-theme .stocks-scroll,
+.dark-theme .stocks-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+.dark-theme .card-header-row,
+.dark-theme .stock-stats-grid,
+.dark-theme .order-tabs .tab-header-background {
+    -fx-border-color: transparent transparent #1f2937 transparent;
+}
+
+.dark-theme .stock-symbol,
+.dark-theme .stock-price,
+.dark-theme .stat-meta-value,
+.dark-theme .estimate-value,
+.dark-theme .stock-row-symbol,
+.dark-theme .stock-row-price,
+.dark-theme .market-val {
+    -fx-text-fill: #f3f4f6;
+}
+
+.dark-theme .stock-name,
+.dark-theme .stat-meta-label,
+.dark-theme .estimate-label,
+.dark-theme .stock-row-name,
+.dark-theme .market-key {
+    -fx-text-fill: #94a3b8;
+}
+
+.dark-theme .stock-change-pos,
+.dark-theme .trade-status-success {
+    -fx-text-fill: #22c55e;
+}
+
+.dark-theme .stock-change-neg,
+.dark-theme .trade-status-error {
+    -fx-text-fill: #ef4444;
+}
+
+.dark-theme .price-chart .chart-plot-background,
+.dark-theme .price-chart .chart-content {
+    -fx-background-color: transparent;
+}
+
+.dark-theme .price-chart .chart-horizontal-grid-lines {
+    -fx-stroke: rgba(255,255,255,0.05);
+}
+
+.dark-theme .price-chart .axis {
+    -fx-tick-label-fill: #94a3b8;
+}
+
+.dark-theme .price-chart .chart-series-line {
+    -fx-stroke: #60a5fa;
+}
+
+.dark-theme .order-tabs .tab-header-background {
+    -fx-background-color: #111827;
+}
+
+.dark-theme .order-tabs .tab .tab-label {
+    -fx-text-fill: #94a3b8;
+}
+
+.dark-theme .order-tabs .tab:selected {
+    -fx-background-color: #0b1220;
+}
+
+.dark-theme .order-tabs .tab:selected .tab-label {
+    -fx-text-fill: #f3f4f6;
+}
+
+.dark-theme .estimate-row,
+.dark-theme .stock-row {
+    -fx-background-color: #111827;
+}
+
+.dark-theme .stock-row:hover {
+    -fx-background-color: #0f172a;
+}
+
+.dark-theme .stock-row-active {
+    -fx-background-color: rgba(37,99,235,0.18);
+}
+
+.dark-theme .buy-btn {
+    -fx-background-color: #2563eb;
+}
+
+.dark-theme .buy-btn:hover {
+    -fx-background-color: #1d4ed8;
+}
+
+.dark-theme .sell-btn {
+    -fx-background-color: #dc2626;
+}
+
+.dark-theme .sell-btn:hover {
+    -fx-background-color: #b91c1c;
+}
+
+.dark-theme .alert-btn {
+    -fx-background-color: #e5e7eb;
+    -fx-text-fill: #111827;
+}
+
+.dark-theme .alert-btn:hover {
+    -fx-background-color: #f3f4f6;
+}

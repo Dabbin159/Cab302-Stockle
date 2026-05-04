@@ -2,7 +2,10 @@ package com.stockle.ui;
 
 import java.io.IOException;
 
+import com.stockle.SessionManager;
+
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
@@ -10,7 +13,7 @@ public class SceneManager {
 
     private static Stage stage;
 
-    public static void init(Stage primaryStage) {
+    static void init(Stage primaryStage) {
         stage = primaryStage;
     }
 
@@ -21,8 +24,10 @@ public class SceneManager {
         double y = stage.getY();
 
         FXMLLoader loader = new FXMLLoader(SceneManager.class.getResource(fxmlFile));
-        
-        Scene scene = new Scene(loader.load(), width, height);
+        Parent root = loader.load();
+        Scene scene = new Scene(root, width, height);
+
+        applyTheme(root);
 
         stage.setScene(scene);
 
@@ -34,7 +39,21 @@ public class SceneManager {
         });
     }
 
-    public static Stage getStage() {
-        return stage;
+    static void applyTheme(Parent root) {
+        if (root == null) {
+            return;
+        }
+
+        boolean darkModeEnabled = SessionManager.getInstance().isDarkModeEnabled();
+        root.getStyleClass().remove("dark-theme");
+        root.getStyleClass().remove("dark-mode");
+
+        if (darkModeEnabled) {
+            if (root.getStyleClass().contains("auth-root")) {
+                root.getStyleClass().add("dark-mode");
+            } else {
+                root.getStyleClass().add("dark-theme");
+            }
+        }
     }
 }

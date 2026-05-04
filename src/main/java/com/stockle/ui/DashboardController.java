@@ -53,6 +53,7 @@ public class DashboardController {
     @FXML
     public void initialize() {
         updateMarketStatus();
+        syncThemeButton();
         loadChart();
 
         User currentUser = SessionManager.getInstance().getCurrentUser();
@@ -79,18 +80,26 @@ public class DashboardController {
         Scene scene = marketStatusLabel.getScene();
         if (scene == null) return;
         Parent root = scene.getRoot();
-        
-        boolean isDarkTheme = root.getStyleClass().contains("dark-theme");
-        
-        if (isDarkTheme) {
-            root.getStyleClass().remove("dark-theme");
-            String darkIconUrl = getClass().getResource("/com/stockle/ui/images/dark-mode-button.png").toExternalForm();
-            darkModeIcon.setImage(new javafx.scene.image.Image(darkIconUrl));
-            darkModeIcon.setStyle("");
-        } else {
-            root.getStyleClass().add("dark-theme");
-            String lightIconUrl = getClass().getResource("/com/stockle/ui/images/light-mode-button.png").toExternalForm();
-            darkModeIcon.setImage(new javafx.scene.image.Image(lightIconUrl));
+
+        SessionManager sessionManager = SessionManager.getInstance();
+        sessionManager.setDarkModeEnabled(!sessionManager.isDarkModeEnabled());
+        SceneManager.applyTheme(root);
+        syncThemeButton();
+    }
+
+    private void syncThemeButton() {
+        if (darkModeIcon == null) {
+            return;
+        }
+
+        boolean darkModeEnabled = SessionManager.getInstance().isDarkModeEnabled();
+        String iconResource = darkModeEnabled
+            ? "/com/stockle/ui/images/light-mode-button.png"
+            : "/com/stockle/ui/images/dark-mode-button.png";
+
+        java.net.URL iconUrl = getClass().getResource(iconResource);
+        if (iconUrl != null) {
+            darkModeIcon.setImage(new javafx.scene.image.Image(iconUrl.toExternalForm()));
         }
     }
 

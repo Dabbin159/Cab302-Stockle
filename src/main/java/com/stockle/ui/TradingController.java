@@ -27,6 +27,8 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -62,6 +64,8 @@ public class TradingController {
     @FXML private VBox recentlyViewedContainer;
     @FXML private VBox stockListContainer;
     @FXML private ScrollPane stockListScroll;
+    @FXML private Button darkModeBtn;
+    @FXML private ImageView darkModeIcon;
 
     // Current selected stock data (from live API)
     private String selectedSymbol = "";
@@ -101,6 +105,7 @@ public class TradingController {
         marketDataService = new MarketDataService(apiClient, objectMapper);
         snapshotService = new SnapshotService(apiClient, objectMapper);
         assetService = new AssetService(apiClient, objectMapper, marketDataService);
+        syncThemeButton();
 
         searchField.textProperty().addListener((obs, o, n) -> applyLiveSearch());
         buySharesField.textProperty().addListener((obs, o, n)  -> updateBuyEstimate());
@@ -130,6 +135,36 @@ public class TradingController {
                 System.err.println("Failed to load assets: " + e.getMessage());
             }
         }).start();
+    }
+
+    @FXML
+    private void toggleDarkMode() {
+        if (stockSymbolLabel == null || stockSymbolLabel.getScene() == null) {
+            return;
+        }
+
+        SessionManager sessionManager = SessionManager.getInstance();
+        sessionManager.setDarkModeEnabled(!sessionManager.isDarkModeEnabled());
+        SceneManager.applyTheme(stockSymbolLabel.getScene().getRoot());
+        syncThemeButton();
+    }
+
+    private void syncThemeButton() {
+        if (darkModeIcon == null) {
+            return;
+        }
+
+        boolean darkModeEnabled = SessionManager.getInstance().isDarkModeEnabled();
+        String iconPath = darkModeEnabled
+            ? "/com/stockle/ui/images/light-mode-button.png"
+            : "/com/stockle/ui/images/dark-mode-button.png";
+
+        java.net.URL iconUrl = getClass().getResource(iconPath);
+        if (iconUrl != null) {
+            darkModeIcon.setImage(new Image(iconUrl.toExternalForm()));
+        }
+
+        darkModeIcon.setStyle(darkModeEnabled ? "-fx-effect: coloradjust(0, 0, 0.8, 0);" : "");
     }
 
     /**

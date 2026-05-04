@@ -31,7 +31,7 @@
             <Region VBox.vgrow="ALWAYS"/>
             <Button fx:id="darkModeBtn" mnemonicParsing="false" onAction="#toggleDarkMode" styleClass="dark-mode-btn">
                 <graphic>
-                    <ImageView fx:id="darkModeIcon" fitHeight="16.0" fitWidth="14.0" pickOnBounds="true" preserveRatio="true">
+                    <ImageView fx:id="darkModeIcon" fitHeight="14.0" fitWidth="14.0" pickOnBounds="true" preserveRatio="true">
                         <image>
                             <Image url="@../images/dark-mode-button.png" />
                         </image>
