@@ -5,6 +5,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,6 +92,20 @@ class StockDetailManager {
         ctrl.orderManager.updateSellEstimate();
     }
 
+    /** Choose API timeframe based on the requested time span. */
+    private static String chooseTimeframe(Duration span) {
+        long minutes = span.toMinutes();
+        if (minutes <= 60) return "1Min";          // up to 1 hour
+        if (minutes <= 6 * 60) return "5Min";      // up to 6 hours
+        if (minutes <= 24 * 60) return "10Min";    // up to 24 hours
+        if (minutes <= 7 * 24 * 60) return "1H";   // up to 7 days
+        if (minutes <= 30 * 24 * 60) return "1D";  // up to 30 days
+        if (minutes <= 365 * 24 * 60) return "1M"; // up to 1 year
+        return "3M";                               // longer spans
+    }
+
+
+
     // Chart
 
     void loadChart(String symbol) {
@@ -119,7 +134,10 @@ class StockDetailManager {
                 String start = marketOpen.format(formatter);
                 String end = endTime.format(formatter);
 
-                String timeframe = "1Min"; // ----------------------------------------------------------
+                // choose an appropriate timeframe based on the requested span
+                Duration span = endTime.isBefore(marketOpen)
+                    ? Duration.ZERO : Duration.between(marketOpen, endTime);
+                String timeframe = chooseTimeframe(span);
 
                 List<BarData> bars = ctrl.historicalDataService.getHistoricalBars(
                     symbol, start, end, timeframe, "iex");
