@@ -34,10 +34,10 @@ public class TradingUpdater {
 			String feed,
 			long intervalSeconds
 	) {
-		this.marketDataService = Objects.requireNonNull(marketDataService, "marketDataService");
-		this.symbolSupplier = Objects.requireNonNull(symbolSupplier, "symbolSupplier");
-		this.listener = Objects.requireNonNull(listener, "listener");
-		this.feed = (feed == null || feed.isBlank()) ? "iex" : feed;
+		this.marketDataService = marketDataService;
+		this.symbolSupplier = symbolSupplier;
+		this.listener = listener;
+		this.feed = feed;
 		this.intervalSeconds = Math.max(1L, intervalSeconds);
 	}
 
