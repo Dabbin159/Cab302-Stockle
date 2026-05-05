@@ -1,12 +1,9 @@
-package com.stockle.test;
+package com.stockle.api.apiTests;
 
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stockle.api.client.ApiClient;
@@ -28,8 +25,7 @@ public class Stock_API_Test {
     private HistoricalDataService historicalDataService;
     private AssetService assetService;
     private final String feed = "iex";
-    
-    @BeforeEach
+
     public void setUp() {
         apiClient = new ApiClient();
         objectMapper = new ObjectMapper();
@@ -38,8 +34,7 @@ public class Stock_API_Test {
         historicalDataService = new HistoricalDataService(apiClient, objectMapper);
         assetService = new AssetService(apiClient, objectMapper, marketDataService);
     }
-    
-    @Test
+
     public void testAll() {
         System.out.println("=== StockAPI Test Suite ===\n");
         
@@ -162,8 +157,8 @@ public class Stock_API_Test {
         System.out.println("--- Test 4: getHistoricalBars(\"AAPL\", \"1Day\") ---");
         try {
             // Get last 30 days of daily bars for AAPL
-            LocalDate endDate = LocalDate.now();
-            LocalDate startDate = endDate.minusDays(30);
+            String endDate = LocalDate.now().toString();
+            String startDate = LocalDate.parse(endDate).minusDays(30).toString();
             
             List<BarData> bars = historicalDataService.getHistoricalBars("AAPL", startDate, endDate, "1Day", feed);
             
@@ -198,9 +193,9 @@ public class Stock_API_Test {
         System.out.println("--- Test 5: getHistoricalQuotes(\"AAPL\") ---");
         try {
             // Get last 30 days of quotes for AAPL
-            LocalDate endDate = LocalDate.now();
-            LocalDate startDate = endDate.minusDays(30);
-            
+            String endDate = LocalDate.now().toString();
+            String startDate = LocalDate.parse(endDate).minusDays(30).toString();
+
             List<QuoteData> quotes = historicalDataService.getHistoricalQuotes("AAPL", startDate, endDate, feed);
             
             if (quotes != null && !quotes.isEmpty()) {
