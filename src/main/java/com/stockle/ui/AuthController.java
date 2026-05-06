@@ -55,7 +55,6 @@ public class AuthController {
      */
     @FXML
     public void initialize() {
-        SceneManager.applyTheme(authRoot);
         syncThemeButton();
 
         authTabPane.getSelectionModel().selectedItemProperty().addListener(

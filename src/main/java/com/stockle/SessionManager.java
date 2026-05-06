@@ -10,7 +10,7 @@ import com.stockle.model.User;
 public class SessionManager {
     private static SessionManager instance;
     private User currentUser;
-    private boolean darkModeEnabled = true;
+    private boolean darkModeEnabled = false;
 
     private SessionManager() {}; //Prevents any external creation
 
