@@ -1,0 +1,117 @@
+@import "../global.css";
+
+/* Article card */
+.article-card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-padding: 18 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 2);
+    -fx-cursor: hand;
+}
+.article-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 14, 0, 0, 3);
+}
+
+/* Source badge */
+.source-badge {
+    -fx-background-color: #eff6ff;
+    -fx-background-radius: 6;
+    -fx-text-fill: #2563eb;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 2 8;
+}
+
+/* Article headline */
+.article-headline {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+    -fx-wrap-text: true;
+}
+.article-headline:hover {
+    -fx-text-fill: #2563eb;
+}
+
+/* Article summary */
+.article-summary {
+    -fx-font-size: 13px;
+    -fx-text-fill: #6b7280;
+    -fx-wrap-text: true;
+}
+
+/* Date label */
+.article-date {
+    -fx-font-size: 11px;
+    -fx-text-fill: #9ca3af;
+}
+
+/* Symbol tag */
+.symbol-tag {
+    -fx-background-color: #f3f4f6;
+    -fx-background-radius: 6;
+    -fx-text-fill: #374151;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 2 8;
+}
+
+/* Divider line between sections inside a card */
+.article-divider {
+    -fx-background-color: #f3f4f6;
+    -fx-pref-height: 1;
+}
+
+/* Trending symbols */
+.trending-row {
+    -fx-background-color: #f9fafb;
+    -fx-background-radius: 8;
+    -fx-padding: 8 12;
+    -fx-cursor: hand;
+}
+.trending-row:hover {
+    -fx-background-color: #eff6ff;
+}
+.trending-symbol {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+}
+.trending-count {
+    -fx-font-size: 11px;
+    -fx-text-fill: #9ca3af;
+}
+
+/* Sources list */
+.source-item {
+    -fx-font-size: 13px;
+    -fx-text-fill: #374151;
+    -fx-padding: 4 0;
+}
+
+/* Filter combo */
+.news-filter-combo {
+    -fx-background-color: #f3f3f5;
+    -fx-background-radius: 8;
+    -fx-border-color: rgba(0,0,0,0.1);
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-font-size: 14px;
+    -fx-pref-height: 38;
+}
+.news-filter-combo .list-cell { -fx-font-size: 14px; }
+
+/* Infinite scroll state labels */
+.article-loading {
+    -fx-font-size: 13px;
+    -fx-text-fill: #6b7280;
+    -fx-padding: 12 0;
+    -fx-alignment: CENTER;
+}
+
+.article-empty {
+    -fx-font-size: 14px;
+    -fx-text-fill: #9ca3af;
+    -fx-padding: 24 0;
+    -fx-alignment: CENTER;
+}

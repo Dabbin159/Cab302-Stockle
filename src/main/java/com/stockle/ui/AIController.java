@@ -180,6 +180,10 @@ public class AIController {
      *
      * @throws IOException if the FXML file cannot be loaded
      */
+    @FXML private void navNews() throws IOException {
+        SceneManager.switchTo("news/news-view.fxml");
+    }
+
     @FXML private void handleSignOut() throws IOException {
         SceneManager.switchTo("auth/auth-view.fxml");
     }

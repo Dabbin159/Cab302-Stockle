@@ -15,6 +15,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
+import javafx.scene.control.TabPane;
+
 
 /**
  * Controller for the authentication screen
@@ -41,6 +43,9 @@ public class AuthController {
     @FXML private DatePicker signupDateOfBirth;
     @FXML private Label signupErrorLabel;
 
+    // The Tab Pane containing login and sing up tabs
+    @FXML private TabPane authTabPane;
+
     /* Database access for user operations */
     private final SQLUserDAO userDAO = SQLUserDAO.getInstance();
 
@@ -54,6 +59,20 @@ public class AuthController {
         sessionManager.setDarkModeEnabled(!sessionManager.isDarkModeEnabled());
         SceneManager.applyTheme(authRoot);
         syncThemeButton();
+    /**
+     * Called Automatically by JavaFX when Authentication screen loads.
+     * Attaches a listener to clear stale error messages when the user switches tabs.
+     */
+    @FXML
+    public void initialize() {
+
+        authTabPane.getSelectionModel().selectedItemProperty().addListener(
+                (observable, oldTab, newTab) -> {
+                    // Clears both the error labels when tabs switch
+                    loginErrorLabel.setText("");
+                    signupErrorLabel.setText("");
+                }
+        );
     }
 
     /** Handles user login: validates fields, checks credentials
