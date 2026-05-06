@@ -25,6 +25,7 @@ public class NewsController {
     @FXML private TextField searchField;
     @FXML private VBox articleList;
     @FXML private ScrollPane mainScroll;
+    @FXML private javafx.scene.image.ImageView darkModeIcon;
 
     private final NewsService newsService = new NewsService(
         new ApiClient(),
@@ -44,6 +45,8 @@ public class NewsController {
     // Initialise
     @FXML
     public void initialize() {
+        syncThemeButton();
+        
         // Search on Enter; clear search restores global feed
         searchField.setOnAction(e -> {
             String text = searchField.getText().trim().toUpperCase();
@@ -148,6 +151,34 @@ public class NewsController {
         Label l = new Label(text);
         l.getStyleClass().addAll(styles);
         return l;
+    }
+
+    @FXML
+    private void toggleDarkMode() {
+        if (searchField == null || searchField.getScene() == null) {
+            return;
+        }
+
+        com.stockle.SessionManager sessionManager = com.stockle.SessionManager.getInstance();
+        sessionManager.setDarkModeEnabled(!sessionManager.isDarkModeEnabled());
+        SceneManager.applyTheme(searchField.getScene().getRoot());
+        syncThemeButton();
+    }
+
+    private void syncThemeButton() {
+        if (darkModeIcon == null) {
+            return;
+        }
+
+        boolean darkModeEnabled = com.stockle.SessionManager.getInstance().isDarkModeEnabled();
+        String iconPath = darkModeEnabled
+            ? "/com/stockle/ui/images/light-mode-button.png"
+            : "/com/stockle/ui/images/dark-mode-button.png";
+
+        java.net.URL iconUrl = getClass().getResource(iconPath);
+        if (iconUrl != null) {
+            darkModeIcon.setImage(new javafx.scene.image.Image(iconUrl.toExternalForm()));
+        }
     }
 
     // Navigation

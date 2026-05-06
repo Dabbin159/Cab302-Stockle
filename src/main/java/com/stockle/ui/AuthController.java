@@ -11,11 +11,11 @@ import javafx.fxml.FXML;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
-import javafx.scene.control.TabPane;
 
 
 /**
@@ -49,22 +49,14 @@ public class AuthController {
     /* Database access for user operations */
     private final SQLUserDAO userDAO = SQLUserDAO.getInstance();
 
-    @FXML private void initialize() {
-        SceneManager.applyTheme(authRoot);
-        syncThemeButton();
-    }
-
-    @FXML private void toggleDarkMode() {
-        SessionManager sessionManager = SessionManager.getInstance();
-        sessionManager.setDarkModeEnabled(!sessionManager.isDarkModeEnabled());
-        SceneManager.applyTheme(authRoot);
-        syncThemeButton();
     /**
      * Called Automatically by JavaFX when Authentication screen loads.
      * Attaches a listener to clear stale error messages when the user switches tabs.
      */
     @FXML
     public void initialize() {
+        SceneManager.applyTheme(authRoot);
+        syncThemeButton();
 
         authTabPane.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldTab, newTab) -> {
@@ -73,6 +65,13 @@ public class AuthController {
                     signupErrorLabel.setText("");
                 }
         );
+    }
+
+    @FXML private void toggleDarkMode() {
+        SessionManager sessionManager = SessionManager.getInstance();
+        sessionManager.setDarkModeEnabled(!sessionManager.isDarkModeEnabled());
+        SceneManager.applyTheme(authRoot);
+        syncThemeButton();
     }
 
     /** Handles user login: validates fields, checks credentials
@@ -206,6 +205,5 @@ public class AuthController {
             darkModeIcon.setImage(new Image(iconUrl.toExternalForm()));
         }
 
-        darkModeIcon.setStyle(darkModeEnabled ? "-fx-effect: coloradjust(0, 0, 0.8, 0);" : "");
     }
 }

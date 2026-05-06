@@ -22,10 +22,6 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 @SuppressWarnings("unused")
@@ -58,6 +54,7 @@ public class TradingController {
     @FXML VBox recentlyViewedContainer;
     @FXML VBox stockListContainer;
     @FXML ScrollPane stockListScroll;
+    @FXML private javafx.scene.image.ImageView darkModeIcon;
 
     // Shared state
     String selectedSymbol = "";
@@ -93,13 +90,15 @@ public class TradingController {
 
     @FXML
     public void initialize() {
+        SceneManager.applyTheme(stockSymbolLabel);
+        syncThemeButton();
+        
         apiClient = new ApiClient();
         objectMapper = new ObjectMapper();
         historicalDataService = new HistoricalDataService(apiClient, objectMapper);
         marketDataService = new MarketDataService(apiClient, objectMapper);
         snapshotService = new SnapshotService(apiClient, objectMapper);
         assetService = new AssetService(apiClient, objectMapper, marketDataService);
-        syncThemeButton();
 
         listManager = new StockListManager(this);
         detailManager = new StockDetailManager(this);
@@ -158,10 +157,8 @@ public class TradingController {
 
         java.net.URL iconUrl = getClass().getResource(iconPath);
         if (iconUrl != null) {
-            darkModeIcon.setImage(new Image(iconUrl.toExternalForm()));
+            darkModeIcon.setImage(new javafx.scene.image.Image(iconUrl.toExternalForm()));
         }
-
-        darkModeIcon.setStyle(darkModeEnabled ? "-fx-effect: coloradjust(0, 0, 0.8, 0);" : "");
     }
 
     /**
@@ -181,6 +178,8 @@ public class TradingController {
         volumeLabel.setText("—");
         marketCapLabel.setText("—");
         exchangeLabel.setText(currentExchange);
+    }
+
     // FXML handlers
 
     @FXML void applyLiveSearch() { listManager.applyLiveSearch(); }
