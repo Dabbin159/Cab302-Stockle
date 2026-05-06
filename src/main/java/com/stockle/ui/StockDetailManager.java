@@ -1,11 +1,11 @@
 package com.stockle.ui;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -107,7 +107,7 @@ class StockDetailManager {
 
 
     // Chart
-
+    /** Fetches the last 60 one-minute bars and renders them as a candlestick chart. */
     void loadChart(String symbol) {
         final int gen = ctrl.chartLoadGeneration;
         new Thread(() -> {
@@ -118,9 +118,11 @@ class StockDetailManager {
                 ZonedDateTime nowNYSE = ZonedDateTime.now(nyse);
                 ZonedDateTime nowBrisbane = ZonedDateTime.now(brisbane);
 
+                java.time.LocalTime brisbaneTimeOfDay = nowBrisbane.toLocalTime();
+
                 // If before market open, use previous day's session
-                LocalDate sessionDate = nowNYSE.toLocalDate();
-                if (nowNYSE.toLocalTime().isBefore(java.time.LocalTime.of(9, 30))) {
+                LocalDate sessionDate = nowNYSE.toLocalDate().minusDays(1);
+                while (sessionDate.getDayOfWeek().getValue() > 5) {  // Skip weekends
                     sessionDate = sessionDate.minusDays(1);
                 }
 
@@ -128,7 +130,10 @@ class StockDetailManager {
                 ZonedDateTime marketClose = sessionDate.atTime(16, 0).atZone(nyse);
 
                 // Use the lesser of nowNYSE and marketClose as end
-                ZonedDateTime endTime = nowNYSE.isBefore(marketClose) ? nowNYSE : marketClose;
+                ZonedDateTime endTime = sessionDate.atTime(brisbaneTimeOfDay).atZone(nyse);
+                if (endTime.isAfter(marketClose)) {
+                    endTime = marketClose;
+                }
 
                 DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
                 String start = marketOpen.format(formatter);
@@ -137,7 +142,8 @@ class StockDetailManager {
                 // choose an appropriate timeframe based on the requested span
                 Duration span = endTime.isBefore(marketOpen)
                     ? Duration.ZERO : Duration.between(marketOpen, endTime);
-                String timeframe = chooseTimeframe(span);
+                //String timeframe = chooseTimeframe(span);
+                String timeframe = "1Min";
 
                 List<BarData> bars = ctrl.historicalDataService.getHistoricalBars(
                     symbol, start, end, timeframe, "iex");
@@ -163,37 +169,4 @@ class StockDetailManager {
             }
         }).start();
     }
-
-    /** Fetches the last 60 one-minute bars and renders them as a candlestick chart. 
-    void loadChart(String symbol) {
-        final int gen = ctrl.chartLoadGeneration;
-        new Thread(() -> {
-            try {
-                LocalDate today = LocalDate.now();
-                ZoneId brisbane = ZoneId.of("Australia/Brisbane");
-ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
-ZonedDateTime yesterday = now.minusDays(1);
-                DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
-String start = yesterday.toLocalDate().atStartOfDay(ZoneOffset.UTC).format(formatter);
-String end = now.toLocalDate().atStartOfDay(ZoneOffset.UTC).format(formatter);
- 
-                List<BarData> bars = ctrl.historicalDataService.getHistoricalBars(
-                    symbol, start, end, "1Min", "iex");
-                List<BarData> last60 = bars.size() > 60
-                    ? bars.subList(bars.size() - 60, bars.size()) : bars;
-                DateTimeFormatter fmt = DateTimeFormatter.ofPattern("HH:mm");
-                List<CandleData> candles = new ArrayList<>();
-                for (BarData bar : last60) {
-                    candles.add(new CandleData(
-                        bar.timestamp.format(fmt), bar.open, bar.high, bar.low, bar.close));
-                }
-                Platform.runLater(() -> {
-                    if (gen != ctrl.chartLoadGeneration || !symbol.equals(ctrl.selectedSymbol)) return;
-                    ctrl.priceChart.setCandles(candles);
-                });
-            } catch (Exception e) {
-                System.err.println("Error loading chart for " + symbol + ": " + e.getMessage());
-            }
-        }).start();
-    }*/
 }
