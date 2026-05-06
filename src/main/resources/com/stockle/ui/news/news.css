@@ -8,6 +8,7 @@
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 2);
     -fx-cursor: hand;
 }
+
 .article-card:hover {
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 14, 0, 0, 3);
 }
