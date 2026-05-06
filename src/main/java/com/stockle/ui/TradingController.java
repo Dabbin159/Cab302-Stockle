@@ -1,22 +1,17 @@
 package com.stockle.ui;
+
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stockle.SessionManager;
 import com.stockle.api.client.ApiClient;
 import com.stockle.api.data.Asset;
-import com.stockle.api.data.BarData;
 import com.stockle.api.service.AssetService;
 import com.stockle.api.service.HistoricalDataService;
 import com.stockle.api.service.MarketDataService;
 import com.stockle.api.service.SnapshotService;
-import com.stockle.model.CandleData;
-import com.stockle.model.Stock;
 import com.stockle.model.TradeController;
 import com.stockle.model.User;
 
@@ -35,68 +30,66 @@ import javafx.scene.layout.VBox;
 
 @SuppressWarnings("unused")
 public class TradingController {
-    // Stock detail
-    @FXML private Label stockSymbolLabel;
-    @FXML private Label stockNameLabel;
-    @FXML private Label stockPriceLabel;
-    @FXML private Label stockChangeLabel;
-    @FXML private Label volumeLabel;
-    @FXML private Label marketCapLabel;
-    @FXML private Label exchangeLabel;
-    @FXML private Button favoriteBtn;
-    @FXML private CandleStickChart priceChart;
+    // FXML fields (package-private so managers can access them)
+    @FXML Label stockSymbolLabel;
+    @FXML Label stockNameLabel;
+    @FXML Label stockPriceLabel;
+    @FXML Label stockChangeLabel;
+    @FXML Label volumeLabel;
+    @FXML Label marketCapLabel;
+    @FXML Label exchangeLabel;
+    @FXML Button favoriteBtn;
+    @FXML CandleStickChart priceChart;
 
-    // Order form
-    @FXML private TextField buySharesField;
-    @FXML private Label buyEstimateLabel;
-    @FXML private Label buyStatusLabel;
-    @FXML private Button buyButton;
-    @FXML private TextField sellSharesField;
-    @FXML private Label sellEstimateLabel;
-    @FXML private Label sellStatusLabel;
-    @FXML private Button sellButton;
-    @FXML private Label ownedSharesLabel;
+    @FXML TextField buySharesField;
+    @FXML Label buyEstimateLabel;
+    @FXML Label buyStatusLabel;
+    @FXML Button buyButton;
+    @FXML TextField sellSharesField;
+    @FXML Label sellEstimateLabel;
+    @FXML Label sellStatusLabel;
+    @FXML Button sellButton;
+    @FXML Label ownedSharesLabel;
 
-    // Right panel
-    @FXML private TextField searchField;
-    @FXML private CheckBox favoritesOnly;
-    @FXML private Label alertStockLabel;
-    @FXML private VBox recentlyViewedContainer;
-    @FXML private VBox stockListContainer;
-    @FXML private ScrollPane stockListScroll;
-    @FXML private Button darkModeBtn;
-    @FXML private ImageView darkModeIcon;
+    @FXML TextField searchField;
+    @FXML CheckBox favoritesOnly;
+    @FXML Label alertStockLabel;
+    @FXML VBox recentlyViewedContainer;
+    @FXML VBox stockListContainer;
+    @FXML ScrollPane stockListScroll;
 
-    // Current selected stock data (from live API)
-    private String selectedSymbol = "";
-    private double currentPrice = 0;
-    private String currentExchange = "";
-    private double currentChange = 0;
-    private double currentChangePercent = 0;
-    private long currentVolume = 0;
-    private final List<String> favorites = new ArrayList<>();
+    // Shared state
+    String selectedSymbol = "";
+    double currentPrice = 0;
+    String currentExchange = "";
+    double currentChange = 0;
+    double currentChangePercent = 0;
+    long currentVolume = 0;
+    final List<String> favorites = new ArrayList<>();
 
-    // Live stock list (Alpaca)
-    private List<Asset> liveAssets = new ArrayList<>();
-    private int livePageIndex = 0;
-    private boolean isLoadingPage = false;
-    private int searchGeneration = 0;
-    private int chartLoadGeneration = 0;  // Prevents stale chart data
-    private int priceLoadGeneration = 0;  // Prevents stale price data
-    private static final int PAGE_SIZE = 20;
+    List<Asset> liveAssets = new ArrayList<>();
+    int livePageIndex = 0;
+    boolean isLoadingPage = false;
+    int searchGeneration = 0;
+    int chartLoadGeneration = 0;
+    int priceLoadGeneration = 0;
+    static final int PAGE_SIZE = 20;
 
-    // API Services
-    private ApiClient apiClient;
-    private ObjectMapper objectMapper;
-    private HistoricalDataService historicalDataService;
-    private AssetService assetService;
-    private MarketDataService marketDataService;
-    private SnapshotService snapshotService;
+    // API services
+    ApiClient apiClient;
+    ObjectMapper objectMapper;
+    HistoricalDataService historicalDataService;
+    AssetService assetService;
+    MarketDataService marketDataService;
+    SnapshotService snapshotService;
 
-    /**
-     * Initialises the controller, sets up listeners and API services, then loads
-     * all tradable US equity assets in the background. AAPL is auto-selected on load.
-     */
+    // Managers
+    StockListManager listManager;
+    StockDetailManager detailManager;
+    OrderFormManager orderManager;
+
+    // Init
+
     @FXML
     public void initialize() {
         apiClient = new ApiClient();
@@ -107,15 +100,18 @@ public class TradingController {
         assetService = new AssetService(apiClient, objectMapper, marketDataService);
         syncThemeButton();
 
-        searchField.textProperty().addListener((obs, o, n) -> applyLiveSearch());
-        buySharesField.textProperty().addListener((obs, o, n)  -> updateBuyEstimate());
-        sellSharesField.textProperty().addListener((obs, o, n) -> updateSellEstimate());
+        listManager = new StockListManager(this);
+        detailManager = new StockDetailManager(this);
+        orderManager = new OrderFormManager(this);
+
+        searchField.textProperty().addListener((obs, o, n) -> listManager.applyLiveSearch());
+        buySharesField.textProperty().addListener((obs, o, n) -> orderManager.updateBuyEstimate());
+        sellSharesField.textProperty().addListener((obs, o, n) -> orderManager.updateSellEstimate());
 
         stockListScroll.vvalueProperty().addListener((obs, o, n) -> {
-            if (n.doubleValue() >= 0.9 && !isLoadingPage) loadNextPage();
+            if (n.doubleValue() >= 0.9 && !isLoadingPage) listManager.loadNextPage();
         });
 
-        // Clear initially since no stock is selected
         recentlyViewedContainer.getChildren().clear();
 
         new Thread(() -> {
@@ -125,11 +121,11 @@ public class TradingController {
                     .filter(a -> a.tradable && "us_equity".equals(a.assetClass) && a.symbol != null)
                     .collect(java.util.stream.Collectors.toList());
                 Platform.runLater(() -> {
-                    loadNextPage();
+                    listManager.loadNextPage();
                     liveAssets.stream()
                         .filter(a -> "AAPL".equals(a.symbol))
                         .findFirst()
-                        .ifPresent(this::selectLiveStock);
+                        .ifPresent(detailManager::selectStock);
                 });
             } catch (Exception e) {
                 System.err.println("Failed to load assets: " + e.getMessage());
@@ -517,97 +513,52 @@ public class TradingController {
         });
     }
 
-    private Label label(String text, String... styles) {
-        Label l = new Label(text);
-        l.getStyleClass().addAll(styles);
-        return l;
-    }
+    @FXML void applyLiveSearch() { listManager.applyLiveSearch(); }
+    @FXML void handleBuy() { orderManager.handleBuy(); }
+    @FXML void handleSell() { orderManager.handleSell(); }
+    @FXML void handleSetAlert() {}
 
-    /**
-     * Toggles the currently selected stock in/out of favourites and refreshes the stock list.
-     */
     @FXML
     private void toggleFavorite() {
         if (selectedSymbol.isEmpty()) return;
         if (favorites.contains(selectedSymbol)) favorites.remove(selectedSymbol);
         else favorites.add(selectedSymbol);
-        boolean isFav = favorites.contains(selectedSymbol);
-        favoriteBtn.setText(isFav ? "★" : "☆");
+        favoriteBtn.setText(favorites.contains(selectedSymbol) ? "★" : "☆");
         favoriteBtn.getStyleClass().setAll("fav-btn");
-        applyLiveSearch();
+        listManager.applyLiveSearch();
     }
 
-    @FXML
-    private void handleSetAlert() {}
+    // Shared utilities
 
-    @FXML
-    private void handleBuy() {
-        User user = currentUser();
-        if (user == null) {
-            setBuyStatus("Please sign in to trade.", false);
-            return;
-        }
-
-        int quantity = parseQuantity(buySharesField);
-        if (quantity <= 0) {
-            setBuyStatus("Please enter a valid quantity.", false);
-            return;
-        }
-
-        boolean success = TradeController.getInstance().executeBuy(user, toTradeStock(), quantity);
-        if (success) {
-            refreshCurrentUser();
-            buySharesField.clear();
-            setBuyStatus("Bought " + quantity + " shares of " + selectedSymbol, true);
-            updateBuyEstimate();
-            updateSellEstimate();
-            updateOwnedSharesLabel();
-        } else {
-            setBuyStatus("Insufficient balance to buy " + quantity + " shares.", false);
-        }
+    Label label(String text, String... styles) {
+        Label l = new Label(text);
+        l.getStyleClass().addAll(styles);
+        return l;
     }
 
-    @FXML
-    private void handleSell() {
+    int parseQuantity(TextField field) {
+        try { return Math.max(0, Integer.parseInt(field.getText().trim())); }
+        catch (NumberFormatException e) { return 0; }
+    }
+
+    User currentUser() { return SessionManager.getInstance().getCurrentUser(); }
+
+    void refreshCurrentUser() {
         User user = currentUser();
-        if (user == null) {
-            setSellStatus("Please sign in to trade.", false);
-            return;
-        }
-
-        int quantity = parseQuantity(sellSharesField);
-        if (quantity <= 0) {
-            setSellStatus("Please enter a valid quantity.", false);
-            return;
-        }
-
-        boolean success = TradeController.getInstance().executeSell(user, toTradeStock(), quantity);
-        if (success) {
-            refreshCurrentUser();
-            sellSharesField.clear();
-            setSellStatus("Sold " + quantity + " shares of " + selectedSymbol, true);
-            updateBuyEstimate();
-            updateSellEstimate();
-            updateOwnedSharesLabel();
-        } else {
-            setSellStatus("You don't have " + quantity + " shares to sell.", false);
-        }
+        if (user == null) return;
+        User refreshed = TradeController.getInstance().refreshUserFromDb(user);
+        if (refreshed != null) SessionManager.getInstance().setCurrentUser(refreshed);
     }
 
     // Navigation
-    @FXML
-    private void navDashboard() throws IOException {
-        SceneManager.switchTo("dashboard/dashboard-view.fxml");
-    }
 
-    // Signs User out, Sends to Login page and syncs user data
+    @FXML private void navDashboard() throws IOException { SceneManager.switchTo("dashboard/dashboard-view.fxml"); }
+    @FXML private void navAI() throws IOException { SceneManager.switchTo("ai/ai-view.fxml"); }
+    @FXML private void navNews() throws IOException { SceneManager.switchTo("news/news-view.fxml"); }
+
     @FXML
     private void handleSignOut() throws IOException {
         SessionManager.getInstance().logout();
         SceneManager.switchTo("auth/auth-view.fxml");
-    }
-
-    @FXML private void navAI() throws IOException {
-        SceneManager.switchTo("ai/ai-view.fxml");
     }
 }
