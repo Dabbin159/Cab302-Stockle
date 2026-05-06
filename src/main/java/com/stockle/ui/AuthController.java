@@ -11,8 +11,11 @@ import javafx.fxml.FXML;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
 
 
 /**
@@ -20,6 +23,10 @@ import javafx.scene.control.TabPane;
  * Handles both the login and signup functionality
  */
 public class AuthController {
+    // UI Fields
+    @FXML private StackPane authRoot;
+    @FXML private ImageView darkModeIcon;
+
     // Login Fields
     @FXML private TextField loginEmail;
     @FXML private PasswordField loginPasswordField;
@@ -48,6 +55,7 @@ public class AuthController {
      */
     @FXML
     public void initialize() {
+        syncThemeButton();
 
         authTabPane.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldTab, newTab) -> {
@@ -56,6 +64,13 @@ public class AuthController {
                     signupErrorLabel.setText("");
                 }
         );
+    }
+
+    @FXML private void toggleDarkMode() {
+        SessionManager sessionManager = SessionManager.getInstance();
+        sessionManager.setDarkModeEnabled(!sessionManager.isDarkModeEnabled());
+        SceneManager.applyTheme(authRoot);
+        syncThemeButton();
     }
 
     /** Handles user login: validates fields, checks credentials
@@ -77,6 +92,7 @@ public class AuthController {
 
         if (user != null) {
             SessionManager.getInstance().setCurrentUser(user);
+            SceneManager.applyTheme(authRoot);
             SceneManager.switchTo("dashboard/dashboard-" +
                     "view.fxml");
         }
@@ -120,6 +136,7 @@ public class AuthController {
             {
                 User user = userDAO.login(username, password);
                 SessionManager.getInstance().setCurrentUser(user);
+                SceneManager.applyTheme(authRoot);
                 SceneManager.switchTo("dashboard/dashboard-view.fxml");
             }
             else
@@ -170,5 +187,22 @@ public class AuthController {
             masked.requestFocus();
             masked.end();
         }
+    }
+
+    private void syncThemeButton() {
+        if (darkModeIcon == null) {
+            return;
+        }
+
+        boolean darkModeEnabled = SessionManager.getInstance().isDarkModeEnabled();
+        String iconPath = darkModeEnabled
+            ? "/com/stockle/ui/images/light-mode-button.png"
+            : "/com/stockle/ui/images/dark-mode-button.png";
+
+        java.net.URL iconUrl = getClass().getResource(iconPath);
+        if (iconUrl != null) {
+            darkModeIcon.setImage(new Image(iconUrl.toExternalForm()));
+        }
+
     }
 }

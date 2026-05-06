@@ -226,3 +226,85 @@
     -fx-font-size: 12px;
     -fx-text-fill: #6b7280;
 }
+
+.dark-theme .ai-page-root {
+    -fx-background-color: #030712;
+}
+
+.dark-theme .chat-header,
+.dark-theme .card-title-row {
+    -fx-border-color: transparent transparent #1f2937 transparent;
+}
+
+.dark-theme .ai-bubble {
+    -fx-background-color: #111827;
+}
+
+.dark-theme .user-bubble {
+    -fx-background-color: #2563eb;
+}
+
+.dark-theme .ai-msg-text,
+.dark-theme .insight-title {
+    -fx-text-fill: #f3f4f6;
+}
+
+.dark-theme .user-avatar {
+    -fx-background-color: #1f2937;
+}
+
+.dark-theme .user-avatar-lbl,
+.dark-theme .bot-avatar-lbl,
+.dark-theme .bot-avatar-sm-lbl,
+.dark-theme .sparkle-icon {
+    -fx-text-fill: #93c5fd;
+}
+
+.dark-theme .chat-input-bar {
+    -fx-border-color: #1f2937 transparent transparent transparent;
+}
+
+.dark-theme .chat-input {
+    -fx-background-color: #111827;
+    -fx-border-color: rgba(255,255,255,0.08);
+    -fx-text-fill: #f3f4f6;
+    -fx-prompt-text-fill: #64748b;
+}
+
+.dark-theme .chat-input:focused {
+    -fx-background-color: #0b1220;
+    -fx-border-color: #60a5fa;
+}
+
+.dark-theme .suggestion-btn {
+    -fx-background-color: #111827;
+    -fx-text-fill: #e5e7eb;
+    -fx-border-color: #243244;
+}
+
+.dark-theme .suggestion-btn:hover {
+    -fx-background-color: #0f172a;
+}
+
+.dark-theme .suggestion-btn-trade {
+    -fx-background-color: rgba(37,99,235,0.18);
+    -fx-text-fill: #bfdbfe;
+    -fx-border-color: rgba(96,165,250,0.3);
+}
+
+.dark-theme .suggestion-btn-trade:hover {
+    -fx-background-color: rgba(37,99,235,0.28);
+}
+
+.dark-theme .insight-row {
+    -fx-background-color: #111827;
+}
+
+.dark-theme .insight-desc {
+    -fx-text-fill: #94a3b8;
+}
+
+.dark-theme .bot-avatar,
+.dark-theme .bot-avatar-sm {
+    -fx-background-color: #1e293b;
+}

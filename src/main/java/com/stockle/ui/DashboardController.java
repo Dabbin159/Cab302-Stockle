@@ -20,6 +20,8 @@ import com.stockle.model.User;
 
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.chart.AreaChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
@@ -45,10 +47,13 @@ public class DashboardController {
     @FXML private AreaChart<String, Number> portfolioChart;
     @FXML private VBox holdingsContainer;
     @FXML private VBox tradesContainer;
+    @FXML private javafx.scene.control.Button darkModeBtn;
+    @FXML private javafx.scene.image.ImageView darkModeIcon;
 
     @FXML
     public void initialize() {
         updateMarketStatus();
+        syncThemeButton();
         loadChart();
 
         User currentUser = SessionManager.getInstance().getCurrentUser();
@@ -67,6 +72,35 @@ public class DashboardController {
         long holdingsValue = loadHoldings(freshUser.getId());
         loadTrades(freshUser.getId());
         loadSummary(freshUser, holdingsValue);
+    }
+
+    @FXML
+    private void toggleDarkMode() {
+        if (marketStatusLabel == null) return;
+        Scene scene = marketStatusLabel.getScene();
+        if (scene == null) return;
+        Parent root = scene.getRoot();
+
+        SessionManager sessionManager = SessionManager.getInstance();
+        sessionManager.setDarkModeEnabled(!sessionManager.isDarkModeEnabled());
+        SceneManager.applyTheme(root);
+        syncThemeButton();
+    }
+
+    private void syncThemeButton() {
+        if (darkModeIcon == null) {
+            return;
+        }
+
+        boolean darkModeEnabled = SessionManager.getInstance().isDarkModeEnabled();
+        String iconResource = darkModeEnabled
+            ? "/com/stockle/ui/images/light-mode-button.png"
+            : "/com/stockle/ui/images/dark-mode-button.png";
+
+        java.net.URL iconUrl = getClass().getResource(iconResource);
+        if (iconUrl != null) {
+            darkModeIcon.setImage(new javafx.scene.image.Image(iconUrl.toExternalForm()));
+        }
     }
 
     public static boolean isMarketOpenAtEt(ZonedDateTime etNow) {

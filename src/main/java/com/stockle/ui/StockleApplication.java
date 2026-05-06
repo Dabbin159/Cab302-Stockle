@@ -13,9 +13,11 @@ public class StockleApplication extends Application {
         SceneManager.init(stage);
         FXMLLoader fxmlLoader = new FXMLLoader(StockleApplication.class.getResource("auth/auth-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
+        SceneManager.applyTheme(scene.getRoot());
         stage.setTitle("Stockle");
         stage.setScene(scene);
-        stage.setMaximized(true);
+        stage.setWidth(1400);
+        stage.setHeight(900);
         stage.show();
     }
 }
