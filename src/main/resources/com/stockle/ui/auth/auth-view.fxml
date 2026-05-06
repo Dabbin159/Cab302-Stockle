@@ -5,6 +5,7 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.shape.Rectangle?>
 
 <StackPane xmlns:fx="http://javafx.com/fxml"
            xmlns="http://javafx.com/javafx"
@@ -34,7 +35,14 @@
         <VBox spacing="28" HBox.hgrow="ALWAYS" prefWidth="480" maxWidth="480">
             <HBox alignment="CENTER_LEFT" spacing="14">
                 <StackPane styleClass="logo-box" minWidth="64" minHeight="64" maxWidth="64" maxHeight="64">
-                    <Label text=":)" styleClass="logo-icon"/>
+                    <ImageView fx:id="stockleIcon" fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true" styleClass="logo-icon">
+                        <clip>
+                            <Rectangle arcHeight="25" arcWidth="25" height="60.0" width="60.0" />
+                        </clip>
+                        <image>
+                            <Image url="@../images/stockle-icon.png"/>
+                        </image>
+                    </ImageView>
                 </StackPane>
                 <Label text="Stockle" styleClass="brand-title"/>
             </HBox>
