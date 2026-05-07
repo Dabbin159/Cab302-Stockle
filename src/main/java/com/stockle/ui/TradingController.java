@@ -1,297 +1,233 @@
 package com.stockle.ui;
+
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stockle.SessionManager;
 import com.stockle.api.client.ApiClient;
-import com.stockle.api.data.BarData;
+import com.stockle.api.data.Asset;
+import com.stockle.api.service.AssetService;
 import com.stockle.api.service.HistoricalDataService;
-import com.stockle.model.CandleData;
+import com.stockle.api.service.MarketDataService;
+import com.stockle.api.service.SnapshotService;
+import com.stockle.model.TradeController;
+import com.stockle.model.User;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
+@SuppressWarnings("unused")
 public class TradingController {
-    // Stock detail
-    @FXML private Label stockSymbolLabel;
-    @FXML private Label stockNameLabel;
-    @FXML private Label stockPriceLabel;
-    @FXML private Label stockChangeLabel;
-    @FXML private Label volumeLabel;
-    @FXML private Label marketCapLabel;
-    @FXML private Label sectorLabel;
-    @FXML private Button favoriteBtn;
-    @FXML private CandleStickChart priceChart;
 
-    // Order form
-    @FXML private TextField buySharesField;
-    @FXML private Label buyEstimateLabel;
-    @FXML private Button buyButton;
-    @FXML private TextField sellSharesField;
-    @FXML private Label sellEstimateLabel;
-    @FXML private Button sellButton;
+    // FXML fields (package-private so managers can access them)
+    @FXML Label stockSymbolLabel;
+    @FXML Label stockNameLabel;
+    @FXML Label stockPriceLabel;
+    @FXML Label stockChangeLabel;
+    @FXML Label volumeLabel;
+    @FXML Label marketCapLabel;
+    @FXML Label exchangeLabel;
+    @FXML Button favoriteBtn;
+    @FXML CandleStickChart priceChart;
 
-    // Right panel
-    @FXML private TextField searchField;
-    @FXML private ComboBox<String> sectorFilter;
-    @FXML private CheckBox favoritesOnly;
-    @FXML private Label alertStockLabel;
-    @FXML private VBox recentlyViewedContainer;
-    @FXML private VBox stockListContainer;
+    @FXML TextField buySharesField;
+    @FXML Label buyEstimateLabel;
+    @FXML Label buyStatusLabel;
+    @FXML Button buyButton;
+    @FXML TextField sellSharesField;
+    @FXML Label sellEstimateLabel;
+    @FXML Label sellStatusLabel;
+    @FXML Button sellButton;
+    @FXML Label ownedSharesLabel;
 
-    // Data
-    private List<MockData.Stock> allStocks;
-    private List<MockData.Stock> recentlyViewed;
-    private final List<String> favorites = new ArrayList<>();
-    private MockData.Stock selectedStock;
-    private List<MockData.Stock> filteredStocks;
+    @FXML TextField searchField;
+    @FXML CheckBox favoritesOnly;
+    @FXML Label alertStockLabel;
+    @FXML VBox recentlyViewedContainer;
+    @FXML VBox stockListContainer;
+    @FXML ScrollPane stockListScroll;
+    @FXML private javafx.scene.image.ImageView darkModeIcon;
 
-    // API Services
-    private ApiClient apiClient;
-    private ObjectMapper objectMapper;
-    private HistoricalDataService historicalDataService;
+    // Shared state
+    String selectedSymbol = "";
+    double currentPrice = 0;
+    String currentExchange = "";
+    double currentChange = 0;
+    double currentChangePercent = 0;
+    long currentVolume = 0;
+    final List<String> favorites = new ArrayList<>();
+
+    List<Asset> liveAssets = new ArrayList<>();
+    int livePageIndex = 0;
+    boolean isLoadingPage = false;
+    int searchGeneration = 0;
+    int chartLoadGeneration = 0;
+    int priceLoadGeneration = 0;
+    static final int PAGE_SIZE = 20;
+
+    // API services
+    ApiClient apiClient;
+    ObjectMapper objectMapper;
+    HistoricalDataService historicalDataService;
+    AssetService assetService;
+    MarketDataService marketDataService;
+    SnapshotService snapshotService;
+
+    // Managers
+    StockListManager listManager;
+    StockDetailManager detailManager;
+    OrderFormManager orderManager;
+
+    // Init
 
     @FXML
     public void initialize() {
-        // Initialize API services
+        SceneManager.applyTheme(stockSymbolLabel);
+        syncThemeButton();
+        
         apiClient = new ApiClient();
         objectMapper = new ObjectMapper();
         historicalDataService = new HistoricalDataService(apiClient, objectMapper);
+        marketDataService = new MarketDataService(apiClient, objectMapper);
+        snapshotService = new SnapshotService(apiClient, objectMapper);
+        assetService = new AssetService(apiClient, objectMapper, marketDataService);
 
-        allStocks = MockData.allStocks();
-        recentlyViewed = MockData.recentlyViewed(allStocks);
-        favorites.addAll(MockData.defaultFavorites());
-        selectedStock = allStocks.get(0);
-        filteredStocks = new ArrayList<>(allStocks);
-        sectorFilter.getItems().addAll("All Sectors","Technology","Financial","Healthcare","Consumer","Automotive");
-        sectorFilter.getSelectionModel().selectFirst();
-        searchField.textProperty().addListener((obs, o, n) -> applyFilters());
-        buySharesField.textProperty().addListener((obs, o, n)  -> updateBuyEstimate());
-        sellSharesField.textProperty().addListener((obs, o, n) -> updateSellEstimate());
-        buildRecentlyViewed();
-        buildStockList();
-        selectStock(selectedStock);
-    }
+        listManager = new StockListManager(this);
+        detailManager = new StockDetailManager(this);
+        orderManager = new OrderFormManager(this);
 
-    // Stock selection
-    private void selectStock(MockData.Stock s) {
-        selectedStock = s;
-        stockSymbolLabel.setText(s.symbol());
-        stockNameLabel.setText(s.name());
-        stockPriceLabel.setText(String.format("$%.2f", s.price()));
+        searchField.textProperty().addListener((obs, o, n) -> listManager.applyLiveSearch());
+        buySharesField.textProperty().addListener((obs, o, n) -> orderManager.updateBuyEstimate());
+        sellSharesField.textProperty().addListener((obs, o, n) -> orderManager.updateSellEstimate());
 
-        boolean pos = s.change() >= 0;
-        String sign  = pos ? "+" : "";
-        stockChangeLabel.setText(String.format("%s%.2f (%s%.2f%%)", sign, s.change(), sign, s.changePct()));
-        stockChangeLabel.getStyleClass().setAll(pos ? "stock-change-pos" : "stock-change-neg");
+        stockListScroll.vvalueProperty().addListener((obs, o, n) -> {
+            if (n.doubleValue() >= 0.9 && !isLoadingPage) listManager.loadNextPage();
+        });
 
-        volumeLabel.setText(s.volume());
-        marketCapLabel.setText(s.marketCap());
-        sectorLabel.setText(s.sector());
+        recentlyViewedContainer.getChildren().clear();
 
-        boolean isFav = favorites.contains(s.symbol());
-        favoriteBtn.setText(isFav ? "★" : "☆");
-        favoriteBtn.getStyleClass().setAll(isFav ? "fav-btn fav-btn-active" : "fav-btn");
-
-        buyButton.setText("Buy " + s.symbol());
-        sellButton.setText("Sell " + s.symbol());
-        alertStockLabel.setText("Alert price for " + s.symbol());
-
-        loadChart(s);
-        updateBuyEstimate();
-        updateSellEstimate();
-        refreshStockListSelection();
-    }
-
-    private void loadChart(MockData.Stock s) {
         new Thread(() -> {
             try {
-                // Fetch the latest 60 one-minute bars
-                LocalDate today = LocalDate.now();
-                List<BarData> bars = historicalDataService.getHistoricalBars(
-                    s.symbol(),
-                    today.minusDays(1),
-                    today,
-                    "1Min",
-                    "iex"
-                );
-
-                // Keep only the last 60 bars
-                List<BarData> last60 = bars.size() > 60
-                    ? bars.subList(bars.size() - 60, bars.size())
-                    : bars;
-
-                // Convert BarData to CandleData
-                List<CandleData> candles = new ArrayList<>();
-                for (BarData bar : last60) {
-                    candles.add(new CandleData(
-                        bar.timestamp.toString(),
-                        bar.open,
-                        bar.high,
-                        bar.low,
-                        bar.close
-                    ));
-                }
-
-                // Update UI on JavaFX thread
-                javafx.application.Platform.runLater(() -> priceChart.setCandles(candles));
+                List<Asset> assets = assetService.getAllAssets();
+                liveAssets = assets.stream()
+                    .filter(a -> a.tradable && "us_equity".equals(a.assetClass) && a.symbol != null)
+                    .collect(java.util.stream.Collectors.toList());
+                Platform.runLater(() -> {
+                    listManager.loadNextPage();
+                    liveAssets.stream()
+                        .filter(a -> "AAPL".equals(a.symbol))
+                        .findFirst()
+                        .ifPresent(detailManager::selectStock);
+                });
             } catch (Exception e) {
-                System.err.println("Error loading chart for " + s.symbol() + ": " + e.getMessage());
-                e.printStackTrace();
+                System.err.println("Failed to load assets: " + e.getMessage());
             }
         }).start();
     }
 
-    // Estimates
-    private void updateBuyEstimate() {
-        double cost = parseShares(buySharesField) * selectedStock.price();
-        buyEstimateLabel.setText(String.format("$%.2f", cost));
-        buyButton.setDisable(cost <= 0);
-    }
-
-    private void updateSellEstimate() {
-        double proceeds = parseShares(sellSharesField) * selectedStock.price();
-        sellEstimateLabel.setText(String.format("$%.2f", proceeds));
-        sellButton.setDisable(proceeds <= 0);
-    }
-
-    private double parseShares(TextField field) {
-        try { return Math.max(0, Double.parseDouble(field.getText().trim())); }
-        catch (NumberFormatException e) { return 0; }
-    }
-
-    // Filters / list
     @FXML
-    private void applyFilters() {
-        String query  = searchField.getText().toLowerCase().trim();
-        String sector = sectorFilter.getValue();
-        boolean favOnly = favoritesOnly.isSelected();
+    private void toggleDarkMode() {
+        if (stockSymbolLabel == null || stockSymbolLabel.getScene() == null) {
+            return;
+        }
 
-        filteredStocks = allStocks.stream()
-            .filter(s -> query.isEmpty()
-                || s.symbol().toLowerCase().contains(query)
-                || s.name().toLowerCase().contains(query))
-            .filter(s -> sector == null || sector.equals("All Sectors") || s.sector().equals(sector))
-            .filter(s -> !favOnly || favorites.contains(s.symbol()))
-            .toList();
-
-        buildStockList();
+        SessionManager sessionManager = SessionManager.getInstance();
+        sessionManager.setDarkModeEnabled(!sessionManager.isDarkModeEnabled());
+        SceneManager.applyTheme(stockSymbolLabel.getScene().getRoot());
+        syncThemeButton();
     }
 
-    // List builders
-    private void buildRecentlyViewed() {
-        recentlyViewedContainer.getChildren().clear();
-        for (MockData.Stock s : recentlyViewed) {
-            recentlyViewedContainer.getChildren().add(recentRow(s));
+    private void syncThemeButton() {
+        if (darkModeIcon == null) {
+            return;
+        }
+
+        boolean darkModeEnabled = SessionManager.getInstance().isDarkModeEnabled();
+        String iconPath = darkModeEnabled
+            ? "/com/stockle/ui/images/light-mode-button.png"
+            : "/com/stockle/ui/images/dark-mode-button.png";
+
+        java.net.URL iconUrl = getClass().getResource(iconPath);
+        if (iconUrl != null) {
+            darkModeIcon.setImage(new javafx.scene.image.Image(iconUrl.toExternalForm()));
         }
     }
 
-    private void buildStockList() {
-        stockListContainer.getChildren().clear();
-        for (MockData.Stock s : filteredStocks) {
-            stockListContainer.getChildren().add(stockRow(s));
-        }
+    /**
+     * Selects a stock and updates the detail panel, chart, and order form.
+     * Increments generation counters so stale in-flight responses are discarded.
+     *
+     * @param asset the asset to display
+     */
+    private void selectLiveStock(Asset asset) {
+        selectedSymbol = asset.symbol;
+        currentExchange = asset.exchange != null ? asset.exchange : "—";
+        
+        stockSymbolLabel.setText(asset.symbol);
+        stockNameLabel.setText(asset.name != null ? asset.name : asset.symbol);
+        stockPriceLabel.setText("—");
+        stockChangeLabel.setText("—");
+        volumeLabel.setText("—");
+        marketCapLabel.setText("—");
+        exchangeLabel.setText(currentExchange);
     }
 
-    private void refreshStockListSelection() {
-        stockListContainer.getChildren().forEach(node -> {
-            Object tag = node.getUserData();
-            boolean active = tag instanceof MockData.Stock st && st.symbol().equals(selectedStock.symbol());
-            node.getStyleClass().setAll("stock-row");
-            if (active) node.getStyleClass().add("stock-row-active");
-        });
+    // FXML handlers
+
+    @FXML void applyLiveSearch() { listManager.applyLiveSearch(); }
+    @FXML void handleBuy() { orderManager.handleBuy(); }
+    @FXML void handleSell() { orderManager.handleSell(); }
+    @FXML void handleSetAlert() {}
+
+    @FXML
+    private void toggleFavorite() {
+        if (selectedSymbol.isEmpty()) return;
+        if (favorites.contains(selectedSymbol)) favorites.remove(selectedSymbol);
+        else favorites.add(selectedSymbol);
+        favoriteBtn.setText(favorites.contains(selectedSymbol) ? "★" : "☆");
+        favoriteBtn.getStyleClass().setAll("fav-btn");
+        listManager.applyLiveSearch();
     }
 
-    private VBox recentRow(MockData.Stock s) {
-        Label sym  = label(s.symbol(), "stock-row-symbol");
-        Label price = label(String.format("$%.2f", s.price()), "stock-row-name");
-        VBox left = new VBox(2, sym, price);
-        HBox.setHgrow(left, Priority.ALWAYS);
+    // Shared utilities
 
-        boolean pos = s.changePct() >= 0;
-        Label pct = label((pos ? "+" : "") + s.changePct() + "%", pos ? "stock-row-pos" : "stock-row-neg");
-
-        HBox row = new HBox(left, pct);
-        row.getStyleClass().add("stock-row");
-        row.setOnMouseClicked(e -> selectStock(s));
-        return new VBox(row);
-    }
-
-    private VBox stockRow(MockData.Stock s) {
-        boolean active = s.symbol().equals(selectedStock.symbol());
-        boolean pos = s.change() >= 0;
-
-        String displaySymbol = favorites.contains(s.symbol()) ? s.symbol() + " ★" : s.symbol();
-        Label sym = label(displaySymbol, "stock-row-symbol");
-        Label name = label(s.name(), "stock-row-name");
-        VBox left = new VBox(2, sym, name);
-        HBox.setHgrow(left, Priority.ALWAYS);
-
-        Label price = label(String.format("$%.2f", s.price()), "stock-row-price");
-        Label pct = label((pos ? "+" : "") + s.changePct() + "%", pos ? "stock-row-pos" : "stock-row-neg");
-        VBox right  = new VBox(2, price, pct);
-        right.setStyle("-fx-alignment: CENTER_RIGHT;");
-
-        HBox row = new HBox(left, right);
-        VBox item = new VBox(row);
-        item.getStyleClass().add("stock-row");
-        if (active) item.getStyleClass().add("stock-row-active");
-        item.setUserData(s);
-        item.setOnMouseClicked(e -> selectStock(s));
-        return item;
-    }
-
-    private Label label(String text, String... styles) {
+    Label label(String text, String... styles) {
         Label l = new Label(text);
         l.getStyleClass().addAll(styles);
         return l;
     }
 
-    // Order actions
-    @FXML
-    private void toggleFavorite() {
-        String sym = selectedStock.symbol();
-        if (favorites.contains(sym)) favorites.remove(sym);
-        else favorites.add(sym);
-        boolean isFav = favorites.contains(sym);
-        favoriteBtn.setText(isFav ? "★" : "☆");
-        if (favoritesOnly.isSelected()) applyFilters();
-        else buildStockList();
+    int parseQuantity(TextField field) {
+        try { return Math.max(0, Integer.parseInt(field.getText().trim())); }
+        catch (NumberFormatException e) { return 0; }
     }
 
-    @FXML
-    private void handleSetAlert() {}
+    User currentUser() { return SessionManager.getInstance().getCurrentUser(); }
 
-    @FXML
-    private void handleBuy() {}
-
-    @FXML
-    private void handleSell() {}
+    void refreshCurrentUser() {
+        User user = currentUser();
+        if (user == null) return;
+        User refreshed = TradeController.getInstance().refreshUserFromDb(user);
+        if (refreshed != null) SessionManager.getInstance().setCurrentUser(refreshed);
+    }
 
     // Navigation
-    @FXML
-    private void navDashboard() throws IOException {
-        SceneManager.switchTo("dashboard/dashboard-view.fxml");
-    }
 
-    // Signs User out, Sends to Login page and syncs user data
+    @FXML private void navDashboard() throws IOException { SceneManager.switchTo("dashboard/dashboard-view.fxml"); }
+    @FXML private void navAI() throws IOException { SceneManager.switchTo("ai/ai-view.fxml"); }
+    @FXML private void navNews() throws IOException { SceneManager.switchTo("news/news-view.fxml"); }
+
     @FXML
     private void handleSignOut() throws IOException {
         SessionManager.getInstance().logout();
         SceneManager.switchTo("auth/auth-view.fxml");
-    }
-
-    @FXML private void navAI() throws IOException {
-        SceneManager.switchTo("ai/ai-view.fxml");
     }
 }

@@ -2,6 +2,8 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.chart.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.geometry.Insets?>
 <?import com.stockle.ui.CandleStickChart?>
 
@@ -21,10 +23,20 @@
                 <Button text="Practice" maxWidth="Infinity" styleClass="nav-item"/>
                 <Button text="Leaderboard" maxWidth="Infinity" styleClass="nav-item"/>
                 <Button text="AI Chat" maxWidth="Infinity" styleClass="nav-item" onAction="#navAI"/>
-                <Button text="News" maxWidth="Infinity" styleClass="nav-item"/>
+                <Button text="News" maxWidth="Infinity" styleClass="nav-item" onAction="#navNews"/>
                 <Button text="Profile" maxWidth="Infinity" styleClass="nav-item"/>
             </VBox>
             <Region VBox.vgrow="ALWAYS"/>
+            <Button fx:id="darkModeBtn" mnemonicParsing="false" onAction="#toggleDarkMode"
+                    styleClass="dark-mode-btn">
+                <graphic>
+                    <ImageView fx:id="darkModeIcon" fitHeight="14.0" fitWidth="14.0" pickOnBounds="true" preserveRatio="true">
+                        <image>
+                            <Image url="@../images/dark-mode-button.png" />
+                        </image>
+                    </ImageView>
+                </graphic>
+            </Button>
             <Button text="Sign Out" maxWidth="Infinity" styleClass="nav-signout" onAction="#handleSignOut"/>
         </VBox>
     </left>
@@ -81,8 +93,8 @@
                                     <Label fx:id="marketCapLabel" text="2.8T" styleClass="stat-meta-value"/>
                                 </VBox>
                                 <VBox GridPane.columnIndex="2" spacing="2">
-                                    <Label text="Sector" styleClass="stat-meta-label"/>
-                                    <Label fx:id="sectorLabel" text="Technology" styleClass="stat-meta-value"/>
+                                    <Label text="Exchange" styleClass="stat-meta-label"/>
+                                    <Label fx:id="exchangeLabel" text="—" styleClass="stat-meta-value"/>
                                 </VBox>
                             </GridPane>
 
@@ -134,6 +146,9 @@
                                         <Button fx:id="buyButton" text="Buy AAPL"
                                                 styleClass="buy-btn" maxWidth="Infinity"
                                                 onAction="#handleBuy"/>
+
+                                             <Label fx:id="buyStatusLabel" text=""
+                                                 styleClass="trade-status" wrapText="true"/>
                                     </VBox>
                                 </Tab>
 
@@ -172,6 +187,9 @@
                                         <Button fx:id="sellButton" text="Sell AAPL"
                                                 styleClass="sell-btn" maxWidth="Infinity"
                                                 onAction="#handleSell"/>
+
+                                             <Label fx:id="sellStatusLabel" text=""
+                                                 styleClass="trade-status" wrapText="true"/>
                                     </VBox>
                                 </Tab>
 
@@ -189,14 +207,9 @@
                             <VBox spacing="12" style="-fx-padding: 0 16 16 16;">
                                 <TextField fx:id="searchField" promptText="Search by symbol or name..."
                                            styleClass="trade-input"/>
-                                <VBox spacing="4">
-                                    <Label text="Filter by Sector" styleClass="field-label"/>
-                                    <ComboBox fx:id="sectorFilter" maxWidth="Infinity"
-                                              styleClass="sector-combo" onAction="#applyFilters"/>
-                                </VBox>
                                 <HBox alignment="CENTER_LEFT" spacing="8">
                                     <CheckBox fx:id="favoritesOnly" text="Favorites Only"
-                                              styleClass="fav-check" onAction="#applyFilters"/>
+                                              styleClass="fav-check" onAction="#applyLiveSearch"/>
                                 </HBox>
                             </VBox>
                         </VBox>
@@ -227,8 +240,8 @@
                         <VBox styleClass="card">
                             <Label text="All Stocks" styleClass="card-title"
                                    style="-fx-padding: 16 16 8 16;"/>
-                            <ScrollPane prefHeight="300" fitToWidth="true" styleClass="stocks-scroll"
-                                        hbarPolicy="NEVER">
+                            <ScrollPane fx:id="stockListScroll" prefHeight="300" fitToWidth="true"
+                                        styleClass="stocks-scroll" hbarPolicy="NEVER">
                                 <VBox fx:id="stockListContainer" spacing="4"
                                       style="-fx-padding: 0 12 12 12;"/>
                             </ScrollPane>

@@ -50,20 +50,18 @@ public interface UserDAO {
      * @param email Email address for the new user,
      * @param fullName Full name of the new user,
      * @param dateOfBirth Date of birth of the new user,
-     * @param balance Initial balance for the new user,
-     * @param totalProfit Initial total profit for the new user.
      * @return true if the signup was successful, false otherwise.
      */
     public boolean signup(String username, String password, String email, String fullName, LocalDate dateOfBirth);
     
 
     /**
-     * Logs in a user with the provided username and password.
-     * @param username The username of the user trying to log in.
+     * Logs in a user with the provided email and password.
+     * @param email The email of the user trying to log in.
      * @param password The password of the user trying to log in.
      * @return The User object if login is successful, null otherwise.
      */
-    public User login(String username, String password);
+    public User login(String email, String password);
 
     /**
      * Retrieves the balance of a user by their ID.

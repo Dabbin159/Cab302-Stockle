@@ -11,17 +11,41 @@ import com.stockle.api.client.ApiClient;
 import com.stockle.api.data.Asset;
 import com.stockle.api.data.BarData;
 
+/**
+ * Service for retrieving and managing stock asset data from the Alpaca API.
+ * 
+ * gets asset info, list of assets
+ * gets stocks by volume, price, open price
+ * 
+ */
 public class AssetService {
     private final ApiClient apiClient;
     private final ObjectMapper objectMapper;
     private final MarketDataService marketDataService;
 
+    /**
+     * Constructs an AssetService with required dependencies.
+     * 
+     * @param apiClient the API client for making HTTP requests to Alpaca
+     * @param objectMapper the JSON object mapper for parsing API responses
+     * @param marketDataService the service for retrieving market bar data
+     */
     public AssetService(ApiClient apiClient, ObjectMapper objectMapper, MarketDataService marketDataService) {
         this.apiClient = apiClient;
         this.objectMapper = objectMapper;
         this.marketDataService = marketDataService;
     }
 
+    /**
+     * Retrieves all active tradable assets from the Alpaca API.
+     * 
+     * Gets a list of all active assets including details such as
+     * symbol, name, asset class, exchange, trading, shortable, marginable status.
+     * Parses the JSON response into Asset objects. 
+     * Returns an empty list if an error occurs during the request.
+     * 
+     * @return a list of all active assets available for trading
+     */
     public List<Asset> getAllAssets() {
         List<Asset> assets = new ArrayList<>();
 
@@ -53,9 +77,17 @@ public class AssetService {
         return assets;
     }
 
-    public Asset getAsset(String symbolOrId) {
+    /**
+     * Retrieves details for a specific asset by symbol.
+     * 
+     * gets asset information from the Alpaca API for the given symbol.
+     * 
+     * @param symbol the stock symbol (e.g., "AAPL")
+     * @return the Asset object if found, or null if an error occurs
+     */
+    public Asset getAsset(String symbol) {
         try {
-            String url = ApiClient.BASE_URL + "/v2/assets/" + symbolOrId;
+            String url = ApiClient.BASE_URL + "/v2/assets/" + symbol;
             String response = apiClient.makeRequest(url);
 
             JsonNode root = objectMapper.readTree(response);
@@ -72,11 +104,20 @@ public class AssetService {
 
             return asset;
         } catch (Exception e) {
-            System.err.println("Error fetching asset " + symbolOrId + ": " + e.getMessage());
+            System.err.println("Error fetching asset " + symbol + ": " + e.getMessage());
             return null;
         }
     }
 
+    /**
+     * Retrieves the stock symbols with the highest trading volume.
+     * 
+     * gets all tradable US equities and ranks them by trading volume
+     * 
+     * @param limit the maximum number of stock symbols to return
+     * @param feed the market data feed to use (e.g., "sip" or "iex")
+     * @return a list of stock symbols sorted by trading volume in descending order
+     */
     public List<String> getHighestVolumeStocks(int limit, String feed) {
         // Compute using latest bars for tradable US equities (client-side ranking)
         List<Asset> assets = getAllAssets();
@@ -95,6 +136,15 @@ public class AssetService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Retrieves the stock symbols with the highest closing prices.
+     * 
+     * gets all tradable US equities and ranks them by closing price
+     * 
+     * @param limit the maximum number of stock symbols to return
+     * @param feed the market data feed to use (e.g., "sip" or "iex")
+     * @return a list of stock symbols sorted by closing price in descending order
+     */
     public List<String> getHighestPriceStocks(int limit, String feed) {
         List<Asset> assets = getAllAssets();
         List<String> symbols = new ArrayList<>();
@@ -112,6 +162,15 @@ public class AssetService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Retrieves the stock symbols with the highest opening prices.
+     * 
+     * gets all tradable US equities and ranks them by opening price
+     * 
+     * @param limit the maximum number of stock symbols to return
+     * @param feed the market data feed to use (e.g., "sip" or "iex")
+     * @return a list of stock symbols sorted by opening price in descending order
+     */
     public List<String> getHighestOpenStocks(int limit, String feed) {
         List<Asset> assets = getAllAssets();
         List<String> symbols = new ArrayList<>();

@@ -9,19 +9,88 @@ import com.stockle.api.client.ApiClient;
 import com.stockle.api.data.NewsArticle;
 
 /**
- * Service for fetching news articles from Alpaca News v3
+ * Service for fetching news articles from the Alpaca News API.
+ *
+ * Provides methods to retrieve the latest global news and symbol-specific news
+ * from Alpaca's news endpoints. Responses are parsed into NewsArticle objects.
  */
 public class NewsService {
     private final ApiClient apiClient;
     private final ObjectMapper objectMapper;
 
+    /**
+     * A page of news results returned by the API.
+     *
+     * @param articles list of articles in this page
+     * @param nextPageToken token to fetch the next page, or null if no more pages
+     */
+    public record NewsPage(List<NewsArticle> articles, String nextPageToken) {}
+
+    /**
+     * Constructs a NewsService with required dependencies.
+     *
+     * @param apiClient the API client for making HTTP requests to Alpaca
+     * @param objectMapper the JSON object mapper for parsing API responses
+     */
     public NewsService(ApiClient apiClient, ObjectMapper objectMapper) {
         this.apiClient = apiClient;
         this.objectMapper = objectMapper;
     }
 
     /**
-     * Get the latest news articles (global). Returns up to `limit` articles.
+     * Fetches a page of news articles, optionally filtered by symbol and paginated.
+     *
+     * @param limit maximum articles per page (defaults to 20 if &lt;= 0)
+     * @param pageToken pagination token from a previous response, or null for the first page
+     * @param symbol stock symbol to filter by (e.g. "AAPL"), or null for all news
+     * @return a NewsPage with the articles and an optional next page token
+     */
+    public NewsPage getNewsPage(int limit, String pageToken, String symbol) {
+        List<NewsArticle> articles = new ArrayList<>();
+        String nextToken = null;
+        try {
+            if (limit <= 0) limit = 20;
+            StringBuilder url = new StringBuilder(ApiClient.DATA_URL + "/v1beta1/news?limit=" + limit);
+            if (symbol != null && !symbol.isEmpty()) {
+                url.append("&symbols=").append(java.net.URLEncoder.encode(symbol, java.nio.charset.StandardCharsets.UTF_8));
+            }
+            if (pageToken != null && !pageToken.isEmpty()) {
+                url.append("&page_token=").append(java.net.URLEncoder.encode(pageToken, java.nio.charset.StandardCharsets.UTF_8));
+            }
+
+            String response = apiClient.makeRequest(url.toString());
+            JsonNode root = objectMapper.readTree(response);
+
+            JsonNode articlesNode = root.has("news") ? root.get("news")
+                : root.isArray() ? root : null;
+
+            if (articlesNode != null && articlesNode.isArray()) {
+                for (JsonNode item : articlesNode) {
+                    try {
+                        articles.add(objectMapper.convertValue(item, NewsArticle.class));
+                    } catch (Exception ex) {
+                        System.err.println("NewsService: skipping article – " + ex.getMessage());
+                    }
+                }
+            } else {
+                System.err.println("NewsService: unexpected response structure – " + root.toPrettyString().substring(0, Math.min(300, root.toPrettyString().length())));
+            }
+
+            JsonNode tokenNode = root.get("next_page_token");
+            if (tokenNode != null && !tokenNode.isNull()) {
+                nextToken = tokenNode.asText(null);
+            }
+        } catch (Exception e) {
+            System.err.println("Error fetching news page: " + e.getMessage());
+        }
+        return new NewsPage(articles, nextToken);
+    }
+
+    /**
+     * Retrieves the latest global news articles.
+     *
+     * @param limit maximum number of articles to return
+     * @return a list of NewsArticle objects, empty list if an error occurs
      */
     public List<NewsArticle> getLatestNews(int limit) {
         List<NewsArticle> result = new ArrayList<>();
@@ -61,7 +130,15 @@ public class NewsService {
     }
 
     /**
-     * Get the latest news articles related to a specific symbol. Returns up to `limit` articles.
+     * Retrieves the latest news articles for a specific stock symbol.
+     *
+     * gets up to a certain amount of most recent articles filtered by the provided symbol.
+     * If symbol is null or empty, an empty list is returned. If limit
+     * is less than or equal to zero, a default value of 10 is used.
+     *
+     * @param symbol the stock symbol to filter news by (e.g., "AAPL")
+     * @param limit maximum number of articles to return
+     * @return a list of newsarticle objects, empty list if symbol is invalid or an error occurs
      */
     public List<NewsArticle> getLatestNewsForSymbol(String symbol, int limit) {
         List<NewsArticle> result = new ArrayList<>();

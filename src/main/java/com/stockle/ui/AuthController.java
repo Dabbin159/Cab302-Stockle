@@ -6,17 +6,34 @@ import java.time.LocalDate;
 import com.stockle.SessionManager;
 import com.stockle.database.SQLUserDAO;
 import com.stockle.model.User;
+
 import javafx.fxml.FXML;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
-import javafx.scene.control.DatePicker;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
 
+
+/**
+ * Controller for the authentication screen
+ * Handles both the login and signup functionality
+ */
 public class AuthController {
+    // UI Fields
+    @FXML private StackPane authRoot;
+    @FXML private ImageView darkModeIcon;
 
+    // Login Fields
     @FXML private TextField loginEmail;
     @FXML private PasswordField loginPasswordField;
     @FXML private TextField loginPasswordText;
+    @FXML private Label loginErrorLabel;
+
+    // Sign up Fields
     @FXML private TextField signupUsername;
     @FXML private TextField signupName;
     @FXML private TextField signupEmail;
@@ -24,10 +41,37 @@ public class AuthController {
     @FXML private PasswordField signupConfirmPassword;
     @FXML private TextField signupPasswordText;
     @FXML private DatePicker signupDateOfBirth;
-    @FXML private Label loginErrorLabel;
     @FXML private Label signupErrorLabel;
+
+    // The Tab Pane containing login and sing up tabs
+    @FXML private TabPane authTabPane;
+
+    /* Database access for user operations */
     private final SQLUserDAO userDAO = SQLUserDAO.getInstance();
 
+    /**
+     * Called Automatically by JavaFX when Authentication screen loads.
+     * Attaches a listener to clear stale error messages when the user switches tabs.
+     */
+    @FXML
+    public void initialize() {
+        syncThemeButton();
+
+        authTabPane.getSelectionModel().selectedItemProperty().addListener(
+                (observable, oldTab, newTab) -> {
+                    // Clears both the error labels when tabs switch
+                    loginErrorLabel.setText("");
+                    signupErrorLabel.setText("");
+                }
+        );
+    }
+
+    @FXML private void toggleDarkMode() {
+        SessionManager sessionManager = SessionManager.getInstance();
+        sessionManager.setDarkModeEnabled(!sessionManager.isDarkModeEnabled());
+        SceneManager.applyTheme(authRoot);
+        syncThemeButton();
+    }
 
     /** Handles user login: validates fields, checks credentials
      * against the database then navigates to the dashboard if
@@ -48,6 +92,7 @@ public class AuthController {
 
         if (user != null) {
             SessionManager.getInstance().setCurrentUser(user);
+            SceneManager.applyTheme(authRoot);
             SceneManager.switchTo("dashboard/dashboard-" +
                     "view.fxml");
         }
@@ -91,6 +136,7 @@ public class AuthController {
             {
                 User user = userDAO.login(username, password);
                 SessionManager.getInstance().setCurrentUser(user);
+                SceneManager.applyTheme(authRoot);
                 SceneManager.switchTo("dashboard/dashboard-view.fxml");
             }
             else
@@ -100,16 +146,25 @@ public class AuthController {
         }
     }
 
+    /**
+     * Toggles the login password field between hidden and visible text
+     */
     @FXML
     private void toggleLoginPassword() {
         toggle(loginPasswordField, loginPasswordText);
     }
 
+    /**
+     * Toggles the sign up password field between hidden and visible text
+     */
     @FXML
     private void toggleSignupPassword() {
         toggle(signupPasswordField, signupPasswordText);
     }
 
+    /**
+     * Placeholder for forgotten password functionality
+     */
     @FXML
     private void forgotPassword() {
     }
@@ -132,5 +187,22 @@ public class AuthController {
             masked.requestFocus();
             masked.end();
         }
+    }
+
+    private void syncThemeButton() {
+        if (darkModeIcon == null) {
+            return;
+        }
+
+        boolean darkModeEnabled = SessionManager.getInstance().isDarkModeEnabled();
+        String iconPath = darkModeEnabled
+            ? "/com/stockle/ui/images/light-mode-button.png"
+            : "/com/stockle/ui/images/dark-mode-button.png";
+
+        java.net.URL iconUrl = getClass().getResource(iconPath);
+        if (iconUrl != null) {
+            darkModeIcon.setImage(new Image(iconUrl.toExternalForm()));
+        }
+
     }
 }
