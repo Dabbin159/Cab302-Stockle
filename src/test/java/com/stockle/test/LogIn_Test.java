@@ -4,6 +4,7 @@ import com.stockle.database.SQLUserDAO;
 import com.stockle.model.User;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+import java.time.LocalDate;
 
 
 public class LogIn_Test {
@@ -12,7 +13,7 @@ public class LogIn_Test {
     void loginWithValidEmailAndPasswordReturnsUser() {
         SQLUserDAO dao = SQLUserDAO.getInstance();
         dao.signup("testuser", "TestPassword123", "test@example.com",
-                "Test User", null);
+                "Test User", LocalDate.of(2000, 1, 1));
         User result = dao.login("test@example.com", "TestPassword123");
         assertNotNull(result);
     }
@@ -21,7 +22,7 @@ public class LogIn_Test {
     void loginWithWrongPasswordReturnsNull() {
         SQLUserDAO dao = SQLUserDAO.getInstance();
         dao.signup("testuser2", "Testpasteword123", "test2@example.com"
-        , "Test User", null);
+        , "Test User", LocalDate.of(2000, 1, 1));
         User result = dao.login("test2@example.com", "WrongPassword");
         assertNull(result);
     }
