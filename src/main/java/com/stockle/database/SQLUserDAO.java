@@ -232,7 +232,7 @@ public class SQLUserDAO implements UserDAO {
     /**
      * Deletes a user from the database by their email address.
      * Used primarily for test cleanup to ensure a fresh state before each test case.
-     * @param email
+     * @param email The email address of the user to delete
      */
     public void deleteUserByEmail(String email) {
         try {
@@ -245,9 +245,6 @@ public class SQLUserDAO implements UserDAO {
     }
 
     /**
-    * @param userId The ID of the user.
-    * @return The balance of the user, or 0 if an error occurs.
-    */
      * Retrieves the balance of a user by their ID.
      * @param userId The ID of the user.
      * @return The balance of the user.
