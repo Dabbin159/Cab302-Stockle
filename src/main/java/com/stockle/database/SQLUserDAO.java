@@ -38,7 +38,7 @@ public class SQLUserDAO implements UserDAO {
 
     private static final String GET_ALL_USERS = "SELECT * FROM users";
 
-    private static final String LOGIN_USER = "SELECT * FROM users WHERE username = ?";
+    private static final String LOGIN_USER = "SELECT * FROM users WHERE email = ?";
 
     private static final String GET_BALANCE_BYID = "SELECT balance FROM users WHERE id = ?";
 
