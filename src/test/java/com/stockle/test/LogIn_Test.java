@@ -5,9 +5,17 @@ import com.stockle.model.User;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import java.time.LocalDate;
+import org.junit.jupiter.api.BeforeEach;
 
 
 public class LogIn_Test {
+
+    @BeforeEach
+    void cleanUpTestUsers() {
+        SQLUserDAO dao = SQLUserDAO.getInstance();
+        dao.deleteUserByEmail("test@example.com");
+        dao.deleteUserByEmail("test2@example.com");
+    }
 
     @Test
     void loginWithValidEmailAndPasswordReturnsUser() {

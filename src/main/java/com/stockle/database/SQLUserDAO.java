@@ -40,6 +40,8 @@ public class SQLUserDAO implements UserDAO {
 
     private static final String LOGIN_USER = "SELECT * FROM users WHERE email = ?";
 
+    private static final String DELETE_USER_BY_EMAIL = "DELETE FROM users WHERE email = ?";
+
     private static final String GET_BALANCE_BYID = "SELECT balance FROM users WHERE id = ?";
 
     private static final String GET_PROFIT_BYID = "SELECT totalProfit FROM users WHERE id = ?";
@@ -47,6 +49,7 @@ public class SQLUserDAO implements UserDAO {
     private static final String UPDATE_BALANCE_BYID = "UPDATE users SET balance = ? WHERE id = ?";
 
     private static final String UPDATE_PROFIT_BYID = "UPDATE users SET totalProfit = ? WHERE id = ?";
+
     @Override
     /**
      * @param User The user to add.
@@ -208,6 +211,21 @@ public class SQLUserDAO implements UserDAO {
             ex.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * Deletes a user from the database by their email address.
+     * Used primarily for test cleanup to ensure a fresh state before each test case.
+     * @param email
+     */
+    public void deleteUserByEmail(String email) {
+        try {
+            PreparedStatement statement = connection.prepareStatement(DELETE_USER_BY_EMAIL);
+            statement.setString(1, email);
+            statement.executeUpdate();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
     }
 
     /**
