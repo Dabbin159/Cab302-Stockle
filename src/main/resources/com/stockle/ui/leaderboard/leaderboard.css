@@ -146,3 +146,9 @@
 }
 .dark-theme .rank-row:hover { -fx-background-color: #111827; }
 .dark-theme .rank-row-divider { -fx-border-color: transparent transparent #1f2937 transparent; }
+.dark-theme .rank-number { -fx-text-fill: #9ca3af; }
+.dark-theme .rank-number-top { -fx-text-fill: #60a5fa; }
+.dark-theme .rank-username { -fx-text-fill: #9ca3af; }
+.dark-theme .podium-rank { -fx-text-fill: #9ca3af; }
+.dark-theme .podium-change-pos, .dark-theme .rank-change-pos { -fx-text-fill: #4ade80; }
+.dark-theme .podium-change-neg, .dark-theme .rank-change-neg { -fx-text-fill: #f87171; }

@@ -16,6 +16,8 @@ public class LeaderboardController {
 
     @FXML private HBox podiumContainer;
     @FXML private VBox rankingsContainer;
+    @FXML private javafx.scene.control.Button darkModeBtn;
+    @FXML private javafx.scene.image.ImageView darkModeIcon;
 
     private static final NumberFormat CURRENCY = NumberFormat.getCurrencyInstance();
 
@@ -23,9 +25,29 @@ public class LeaderboardController {
 
     @FXML
     public void initialize() {
+        syncThemeButton();
         List<MockData.LeaderboardEntry> entries = MockData.leaderboard();
         buildPodium(entries);
         buildRankings(entries);
+    }
+
+    @FXML
+    private void toggleDarkMode() {
+        if (podiumContainer == null || podiumContainer.getScene() == null) return;
+        com.stockle.SessionManager sessionManager = com.stockle.SessionManager.getInstance();
+        sessionManager.setDarkModeEnabled(!sessionManager.isDarkModeEnabled());
+        SceneManager.applyTheme(podiumContainer.getScene().getRoot());
+        syncThemeButton();
+    }
+
+    private void syncThemeButton() {
+        if (darkModeIcon == null) return;
+        boolean dark = com.stockle.SessionManager.getInstance().isDarkModeEnabled();
+        String iconPath = dark
+            ? "/com/stockle/ui/images/light-mode-button.png"
+            : "/com/stockle/ui/images/dark-mode-button.png";
+        java.net.URL url = getClass().getResource(iconPath);
+        if (url != null) darkModeIcon.setImage(new javafx.scene.image.Image(url.toExternalForm()));
     }
 
     // Podium
