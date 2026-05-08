@@ -31,7 +31,7 @@
     -fx-wrap-text: true;
 }
 .article-headline:hover {
-    -fx-text-fill: #2563eb;
+    -fx-text-fill: #111827;
 }
 
 /* Article summary */
@@ -134,7 +134,7 @@
     -fx-text-fill: #f3f4f6;
 }
 .dark-theme .article-headline:hover {
-    -fx-text-fill: #60a5fa;
+    -fx-text-fill: #f3f4f6;
 }
 .dark-theme .article-summary {
     -fx-text-fill: #9ca3af;
