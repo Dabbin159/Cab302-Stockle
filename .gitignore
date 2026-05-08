@@ -37,6 +37,3 @@ build/
 
 ### Mac OS ###
 .DS_Store
-
-# SQLite database --cached stockle.db
-stockle.db
