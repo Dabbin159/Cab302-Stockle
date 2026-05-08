@@ -63,7 +63,7 @@ public class HistoricalDataService {
                 StringBuilder urlBuilder = new StringBuilder(ApiClient.DATA_URL + "/v2/stocks/bars");
                 urlBuilder.append("?symbols=").append(symbol);
                 urlBuilder.append("&timeframe=").append(timeframe);
-                urlBuilder.append("&start=").append(startDate);
+                //urlBuilder.append("&start=").append(startDate);
                 urlBuilder.append("&end=").append(endDate);
                 urlBuilder.append("&limit=10000");
                 urlBuilder.append("&sort=asc");

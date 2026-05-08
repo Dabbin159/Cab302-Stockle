@@ -1,6 +1,5 @@
 package com.stockle.ui;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -40,6 +39,7 @@ class StockDetailManager {
         clicked.getStyleClass().add("timeframe-btn-active");
 
         System.out.println(selectedTimeframe);
+        loadChart(ctrl.selectedSymbol);
     }
 
     // Stock selection
@@ -111,20 +111,6 @@ class StockDetailManager {
         ctrl.orderManager.updateSellEstimate();
     }
 
-    /** Choose API timeframe based on the requested time span. */
-    private static String chooseTimeframe(Duration span) {
-        long minutes = span.toMinutes();
-        if (minutes <= 60) return "1Min";          // up to 1 hour
-        if (minutes <= 6 * 60) return "5Min";      // up to 6 hours
-        if (minutes <= 24 * 60) return "10Min";    // up to 24 hours
-        if (minutes <= 7 * 24 * 60) return "1H";   // up to 7 days
-        if (minutes <= 30 * 24 * 60) return "1D";  // up to 30 days
-        if (minutes <= 365 * 24 * 60) return "1M"; // up to 1 year
-        return "3M";                               // longer spans
-    }
-
-
-
     // Chart
     /** Fetches the last 60 one-minute bars and renders them as a candlestick chart. */
     void loadChart(String symbol) {
@@ -158,21 +144,17 @@ class StockDetailManager {
                 String start = marketOpen.format(formatter);
                 String end = endTime.format(formatter);
 
-                // choose an appropriate timeframe based on the requested span
-                Duration span = endTime.isBefore(marketOpen)
-                    ? Duration.ZERO : Duration.between(marketOpen, endTime);
-                //String timeframe = chooseTimeframe(span);
-                String timeframe = "1Min";
+                String timeframe = selectedTimeframe;
 
                 List<BarData> bars = ctrl.historicalDataService.getHistoricalBars(
                     symbol, start, end, timeframe, "iex");
 
-                List<BarData> lastHour = bars.size() > 60
+                List<BarData> last60 = bars.size() > 60
                     ? bars.subList(bars.size() - 60, bars.size()) : bars;
 
                 DateTimeFormatter fmt = DateTimeFormatter.ofPattern("HH:mm");
                 List<CandleData> candles = new ArrayList<>();
-                for (BarData bar : lastHour) {
+                for (BarData bar : last60) {
                     // Convert bar timestamp to NYSE time for display
                     ZonedDateTime nyseTime = bar.timestamp.atZone(ZoneOffset.UTC)
                         .withZoneSameInstant(nyse);
