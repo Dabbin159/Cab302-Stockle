@@ -10,6 +10,7 @@ import com.stockle.model.User;
 public class SessionManager {
     private static SessionManager instance;
     private User currentUser;
+    private boolean darkModeEnabled = false;
 
     private SessionManager() {}; //Prevents any external creation
 
@@ -40,6 +41,18 @@ public class SessionManager {
      * @return
      */
     public boolean isLoggedIn() {return currentUser != null; } //Determining whether someone is logged io or not
+
+    /**
+     * Returns whether dark mode is enabled for the current session.
+     * @return true when dark mode is enabled
+     */
+    public boolean isDarkModeEnabled() { return darkModeEnabled; }
+
+    /**
+     * Stores the current dark mode preference for the session.
+     * @param enabled whether dark mode should be enabled
+     */
+    public void setDarkModeEnabled(boolean enabled) { this.darkModeEnabled = enabled; }
 
     /**
      * Logs out the current user

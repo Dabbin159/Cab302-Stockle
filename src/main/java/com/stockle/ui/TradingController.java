@@ -55,6 +55,7 @@ public class TradingController {
     @FXML VBox recentlyViewedContainer;
     @FXML VBox stockListContainer;
     @FXML ScrollPane stockListScroll;
+    @FXML private javafx.scene.image.ImageView darkModeIcon;
 
     // Shared state
     String selectedSymbol = "";
@@ -91,6 +92,9 @@ public class TradingController {
 
     @FXML
     public void initialize() {
+        SceneManager.applyTheme(stockSymbolLabel);
+        syncThemeButton();
+        
         apiClient = new ApiClient();
         objectMapper = new ObjectMapper();
         historicalDataService = new HistoricalDataService(apiClient, objectMapper);
@@ -151,6 +155,53 @@ public class TradingController {
                 System.err.println("Failed to load assets: " + e.getMessage());
             }
         }).start();
+    }
+
+    @FXML
+    private void toggleDarkMode() {
+        if (stockSymbolLabel == null || stockSymbolLabel.getScene() == null) {
+            return;
+        }
+
+        SessionManager sessionManager = SessionManager.getInstance();
+        sessionManager.setDarkModeEnabled(!sessionManager.isDarkModeEnabled());
+        SceneManager.applyTheme(stockSymbolLabel.getScene().getRoot());
+        syncThemeButton();
+    }
+
+    private void syncThemeButton() {
+        if (darkModeIcon == null) {
+            return;
+        }
+
+        boolean darkModeEnabled = SessionManager.getInstance().isDarkModeEnabled();
+        String iconPath = darkModeEnabled
+            ? "/com/stockle/ui/images/light-mode-button.png"
+            : "/com/stockle/ui/images/dark-mode-button.png";
+
+        java.net.URL iconUrl = getClass().getResource(iconPath);
+        if (iconUrl != null) {
+            darkModeIcon.setImage(new javafx.scene.image.Image(iconUrl.toExternalForm()));
+        }
+    }
+
+    /**
+     * Selects a stock and updates the detail panel, chart, and order form.
+     * Increments generation counters so stale in-flight responses are discarded.
+     *
+     * @param asset the asset to display
+     */
+    private void selectLiveStock(Asset asset) {
+        selectedSymbol = asset.symbol;
+        currentExchange = asset.exchange != null ? asset.exchange : "—";
+        
+        stockSymbolLabel.setText(asset.symbol);
+        stockNameLabel.setText(asset.name != null ? asset.name : asset.symbol);
+        stockPriceLabel.setText("—");
+        stockChangeLabel.setText("—");
+        volumeLabel.setText("—");
+        marketCapLabel.setText("—");
+        exchangeLabel.setText(currentExchange);
     }
 
     // FXML handlers

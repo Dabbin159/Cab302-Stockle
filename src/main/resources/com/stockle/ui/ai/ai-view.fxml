@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.geometry.Insets?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
@@ -23,6 +25,16 @@
                 <Button text="Profile" maxWidth="Infinity" styleClass="nav-item"/>
             </VBox>
             <Region VBox.vgrow="ALWAYS"/>
+            <Button fx:id="darkModeBtn" mnemonicParsing="false" onAction="#toggleDarkMode"
+                    styleClass="dark-mode-btn">
+                <graphic>
+                    <ImageView fx:id="darkModeIcon" fitHeight="14.0" fitWidth="14.0" pickOnBounds="true" preserveRatio="true">
+                        <image>
+                            <Image url="@../images/dark-mode-button.png" />
+                        </image>
+                    </ImageView>
+                </graphic>
+            </Button>
             <Button text="Sign Out" maxWidth="Infinity" styleClass="nav-signout" onAction="#handleSignOut"/>
         </VBox>
     </left>
