@@ -130,6 +130,29 @@ public final class MockData {
         "Jan 22","Jan 23","Jan 24","Jan 27","Jan 28","Jan 29"
     };
 
+    public record LeaderboardEntry(
+        int rank,
+        String displayName,
+        String username,
+        double portfolioValue,
+        double changePct
+    ) {}
+
+    public static List<LeaderboardEntry> leaderboard() {
+        return List.of(
+            new LeaderboardEntry(1,  "Sarah Chen",      "@sarahc",    287450.00,  12.4),
+            new LeaderboardEntry(2,  "Marcus Johnson",  "@marcusj",   251200.00,   8.7),
+            new LeaderboardEntry(3,  "Alex Rivera",     "@arivera",   198750.00,   5.2),
+            new LeaderboardEntry(4,  "Jordan Park",     "@jordanp",   175300.00,   3.9),
+            new LeaderboardEntry(5,  "Emily Walsh",     "@ewalsh",    162800.00,   2.1),
+            new LeaderboardEntry(6,  "Tyler Brooks",    "@tbrooks",   145600.00,  -1.3),
+            new LeaderboardEntry(7,  "Priya Sharma",    "@priyas",    134200.00,  -2.8),
+            new LeaderboardEntry(8,  "Chris Morgan",    "@cmorgan",   121500.00,   0.5),
+            new LeaderboardEntry(9,  "Kai Nakamura",    "@kain",      108900.00,  -4.1),
+            new LeaderboardEntry(10, "Sam Taylor",      "@samtaylor",  95400.00,   1.8)
+        );
+    }
+
     private MockData() {
     }
 

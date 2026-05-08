@@ -19,7 +19,7 @@
                 <Button text="Dashboard" maxWidth="Infinity" styleClass="nav-item" onAction="#navDashboard"/>
                 <Button text="Trading" maxWidth="Infinity" styleClass="nav-item" onAction="#navTrading"/>
                 <Button text="Practice" maxWidth="Infinity" styleClass="nav-item"/>
-                <Button text="Leaderboard" maxWidth="Infinity" styleClass="nav-item"/>
+                <Button text="Leaderboard" maxWidth="Infinity" styleClass="nav-item" onAction="#navLeaderboard"/>
                 <Button text="AI Chat" maxWidth="Infinity" styleClass="nav-item-active"/>
                 <Button text="News" maxWidth="Infinity" styleClass="nav-item" onAction="#navNews"/>
                 <Button text="Profile" maxWidth="Infinity" styleClass="nav-item"/>
@@ -107,7 +107,7 @@
                                         styleClass="suggestion-btn" maxWidth="Infinity"
                                         wrapText="true" onAction="#handleSuggest"/>
                                 <Button text="Analyse my last trade"
-                                        styleClass="suggestion-btn suggestion-btn-trade"
+                                        styleClass="suggestion-btn-trade"
                                         maxWidth="Infinity" onAction="#handleSuggest"/>
                             </VBox>
                         </VBox>
