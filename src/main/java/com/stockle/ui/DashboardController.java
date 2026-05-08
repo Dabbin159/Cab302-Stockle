@@ -10,7 +10,10 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stockle.SessionManager;
+import com.stockle.api.client.ApiClient;
+import com.stockle.api.service.AssetService;
 import com.stockle.database.SQLHoldingDAO;
 import com.stockle.database.SQLTradeDAO;
 import com.stockle.database.SQLUserDAO;
@@ -179,13 +182,25 @@ public class DashboardController {
         }
         long totalHoldingsValue = 0L;
 
+        AssetService assetService = new AssetService(new ApiClient(), new ObjectMapper(), null);
+
         for (Holding holding : holdings) {
             long costBasis = (long) holding.getAveragePrice() * holding.getQuantity();
             totalHoldingsValue += costBasis;
+            String companyId = holding.getCompanyID();
+            String companyName = companyId;
+            try {
+                com.stockle.api.data.Asset asset = assetService.getAsset(companyId);
+                if (asset != null && asset.name != null && !asset.name.isBlank()) {
+                    companyName = asset.name;
+                }
+            } catch (Exception ignored) {
+                companyName = companyId;
+            }
             holdingsContainer.getChildren().add(
                 holdingRow(
-                    holding.getCompanyID(),
-                    holding.getCompanyID(),
+                    companyId,
+                    companyName + " (" + companyId + ")",
                     holding.getQuantity() + " shares",
                     CURRENCY.format(holding.getAveragePrice()),
                     CURRENCY.format(costBasis),
