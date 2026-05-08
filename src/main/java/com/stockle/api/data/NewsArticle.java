@@ -12,6 +12,7 @@ public class NewsArticle {
     public String summary;
     public String url;
     public String source;
+    public String author;
 
     @JsonAlias("created_at")
     public String published_at;

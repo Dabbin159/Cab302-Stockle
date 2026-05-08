@@ -295,6 +295,14 @@
 }
 
 /* Dark theme adjustments: use same palette and tokens as dashboard for consistency */
+.dark-theme .card-header-row {
+    -fx-border-color: transparent transparent #262626 transparent;
+}
+
+.dark-theme .stock-stats-grid {
+    -fx-border-color: transparent transparent #262626 transparent;
+}
+
 .dark-theme .main-scroll,
 .dark-theme .main-scroll .viewport,
 .dark-theme .main-content {
@@ -314,7 +322,6 @@
     -fx-border-color: #262626;
     -fx-background-radius: 12;
     -fx-border-radius: 12;
-    -fx-padding: 14;
 }
 
 /* Text tokens */

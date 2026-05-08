@@ -290,6 +290,10 @@ public class DashboardController {
         SceneManager.switchTo("news/news-view.fxml");
     }
 
+    @FXML private void navLeaderboard() throws IOException {
+        SceneManager.switchTo("leaderboard/leaderboard-view.fxml");
+    }
+
     // Signs User out, Sends to Login page and syncs user data
     @FXML
     private void handleSignOut() throws IOException {

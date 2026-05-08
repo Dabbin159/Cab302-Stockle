@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             xmlns="http://javafx.com/javafx"
-            fx:controller="com.stockle.ui.NewsController"
-            stylesheets="@news.css">
+            fx:controller="com.stockle.ui.LeaderboardController"
+            stylesheets="@leaderboard.css">
+
     <!-- Sidebar -->
     <left>
         <VBox styleClass="sidebar">
@@ -17,9 +17,9 @@
                 <Button text="Dashboard" maxWidth="Infinity" styleClass="nav-item" onAction="#navDashboard"/>
                 <Button text="Trading" maxWidth="Infinity" styleClass="nav-item" onAction="#navTrading"/>
                 <Button text="Practice" maxWidth="Infinity" styleClass="nav-item"/>
-                <Button text="Leaderboard" maxWidth="Infinity" styleClass="nav-item" onAction="#navLeaderboard"/>
+                <Button text="Leaderboard" maxWidth="Infinity" styleClass="nav-item-active"/>
                 <Button text="AI Chat" maxWidth="Infinity" styleClass="nav-item" onAction="#navAI"/>
-                <Button text="News" maxWidth="Infinity" styleClass="nav-item-active"/>
+                <Button text="News" maxWidth="Infinity" styleClass="nav-item" onAction="#navNews"/>
                 <Button text="Profile" maxWidth="Infinity" styleClass="nav-item"/>
             </VBox>
             <Region VBox.vgrow="ALWAYS"/>
@@ -35,22 +35,30 @@
             <Button text="Sign Out" maxWidth="Infinity" styleClass="nav-signout" onAction="#handleSignOut"/>
         </VBox>
     </left>
+
     <!-- Main content -->
     <center>
-        <ScrollPane fx:id="mainScroll" fitToWidth="true" styleClass="main-scroll" hbarPolicy="NEVER">
-            <VBox spacing="20" styleClass="main-content">
+        <ScrollPane fitToWidth="true" styleClass="main-scroll" hbarPolicy="NEVER">
+            <VBox spacing="24" styleClass="main-content">
                 <padding><Insets top="28" bottom="36" left="28" right="28"/></padding>
 
                 <!-- Header -->
                 <VBox spacing="2">
-                    <Label text="Market News" styleClass="page-title"/>
-                    <Label text="Stay up to date with the latest financial news and market updates." styleClass="page-subtitle"/>
+                    <Label text="Leaderboard" styleClass="page-title"/>
+                    <Label text="Compete with traders worldwide" styleClass="page-subtitle"/>
                 </VBox>
-                <!-- Search bar -->
-                <TextField fx:id="searchField" promptText="Search by symbol e.g. AAPL"
-                           styleClass="trade-input"/>
-                <!-- Article list -->
-                <VBox fx:id="articleList" spacing="14"/>
+
+                <!-- Podium top 3 -->
+                <HBox fx:id="podiumContainer" spacing="16" alignment="BOTTOM_CENTER"/>
+
+                <!-- Full rankings -->
+                <VBox styleClass="card">
+                    <Label text="Global Rankings" styleClass="card-title"
+                           style="-fx-padding: 16 16 12 16;"/>
+                    <VBox fx:id="rankingsContainer" spacing="0"
+                          style="-fx-padding: 0 16 16 16;"/>
+                </VBox>
+
             </VBox>
         </ScrollPane>
     </center>
