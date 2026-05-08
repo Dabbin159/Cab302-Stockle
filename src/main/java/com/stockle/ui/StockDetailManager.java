@@ -19,6 +19,7 @@ import javafx.application.Platform;
 class StockDetailManager {
 
     private final TradingController ctrl;
+    private final List<CandleData> currentCandles = new ArrayList<>();
 
     StockDetailManager(TradingController ctrl) {
         this.ctrl = ctrl;
@@ -49,6 +50,7 @@ class StockDetailManager {
         ctrl.orderManager.clearTradeStatus();
         ctrl.chartLoadGeneration++;
         ctrl.priceLoadGeneration++;
+        currentCandles.clear();
 
         fetchLivePrice(asset.symbol);
         loadChart(asset.symbol);
@@ -162,11 +164,21 @@ class StockDetailManager {
                 }
                 Platform.runLater(() -> {
                     if (gen != ctrl.chartLoadGeneration || !symbol.equals(ctrl.selectedSymbol)) return;
+                    currentCandles.clear();
+                    currentCandles.addAll(candles);
                     ctrl.priceChart.setCandles(candles);
                 });
             } catch (Exception e) {
                 System.err.println("Error loading chart for " + symbol + ": " + e.getMessage());
             }
         }).start();
+    }
+
+    /** Updates the chart with a new price bar (adds it to the end, removes old one). */
+    void updateChartWithNewBar(String symbol, BarData newBar) {
+        if (!symbol.equals(ctrl.selectedSymbol)) {
+            return;
+        }
+        loadChart(symbol);
     }
 }

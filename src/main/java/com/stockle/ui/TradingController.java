@@ -110,6 +110,7 @@ public class TradingController {
                 public void onPriceUpdate(String symbol, com.stockle.api.data.BarData bar) {
                     Platform.runLater(() -> {
                         detailManager.applyLivePriceUpdate(symbol, bar);
+                        detailManager.updateChartWithNewBar(symbol, bar);  // ← Add this
                     });
                 }
 
@@ -119,7 +120,7 @@ public class TradingController {
                 }
             },
             "iex",
-            10L
+            30L
         );
         tradingUpdater.start();
 
@@ -205,4 +206,5 @@ public class TradingController {
         SessionManager.getInstance().logout();
         SceneManager.switchTo("auth/auth-view.fxml");
     }
+    
 }
