@@ -19,7 +19,7 @@ public class User_DB_Test {
     @BeforeEach
     public void setUp() {
         userDAO = SQLUserDAO.getInstance();
-        randomId = new Random().nextInt(SQLUserDAO.getInstance().getAllUsers().size()) + 1;
+        randomId = new Random().nextInt((SQLUserDAO.getInstance().getAllUsers().size()) + 1);
     }
 
     @Test
