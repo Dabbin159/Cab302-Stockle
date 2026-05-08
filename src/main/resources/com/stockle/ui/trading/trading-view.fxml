@@ -98,6 +98,16 @@
                                 </VBox>
                             </GridPane>
 
+                            <!-- Timeframe selector -->
+                            <HBox styleClass="timeframe-bar" spacing="4">
+                                <Button text="1m"  styleClass="timeframe-btn,timeframe-btn-active" onAction="#handleTimeframe" userData="1Min"/>
+                                <Button text="5m"  styleClass="timeframe-btn" onAction="#handleTimeframe" userData="5Min"/>
+                                <Button text="10m" styleClass="timeframe-btn" onAction="#handleTimeframe" userData="10Min"/>
+                                <Button text="1h"  styleClass="timeframe-btn" onAction="#handleTimeframe" userData="1Hour"/>
+                                <Button text="1D"  styleClass="timeframe-btn" onAction="#handleTimeframe" userData="1Day"/>
+                                <Button text="1M"  styleClass="timeframe-btn" onAction="#handleTimeframe" userData="1Month"/>
+                            </HBox>
+
                             <!-- Price chart -->
                             <CandleStickChart fx:id="priceChart" styleClass="price-chart"
                                               prefHeight="240">

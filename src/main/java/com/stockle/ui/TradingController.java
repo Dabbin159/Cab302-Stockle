@@ -212,6 +212,11 @@ public class TradingController {
     @FXML void handleSetAlert() {}
 
     @FXML
+    private void handleTimeframe(javafx.event.ActionEvent event) {
+        detailManager.handleTimeframe(event);
+    }
+
+    @FXML
     private void toggleFavorite() {
         if (selectedSymbol.isEmpty()) return;
         if (favorites.contains(selectedSymbol)) favorites.remove(selectedSymbol);

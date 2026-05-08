@@ -20,9 +20,26 @@ class StockDetailManager {
 
     private final TradingController ctrl;
     private final List<CandleData> currentCandles = new ArrayList<>();
+    String selectedTimeframe = "1Min";
 
     StockDetailManager(TradingController ctrl) {
         this.ctrl = ctrl;
+    }
+
+    void handleTimeframe(javafx.event.ActionEvent event) {
+        javafx.scene.control.Button clicked = (javafx.scene.control.Button) event.getSource();
+        selectedTimeframe = (String) clicked.getUserData();
+
+        javafx.scene.layout.HBox bar = (javafx.scene.layout.HBox) clicked.getParent();
+        for (javafx.scene.Node node : bar.getChildren()) {
+            if (node instanceof javafx.scene.control.Button btn) {
+                btn.getStyleClass().removeAll("timeframe-btn-active");
+                btn.getStyleClass().add("timeframe-btn");
+            }
+        }
+        clicked.getStyleClass().add("timeframe-btn-active");
+
+        System.out.println(selectedTimeframe);
     }
 
     // Stock selection
