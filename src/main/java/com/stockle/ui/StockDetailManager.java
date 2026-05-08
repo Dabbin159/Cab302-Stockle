@@ -7,6 +7,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.stockle.api.data.Asset;
 import com.stockle.api.data.BarData;
@@ -71,6 +72,7 @@ class StockDetailManager {
 
         fetchLivePrice(asset.symbol);
         loadChart(asset.symbol);
+        loadPreviousDayVolume(asset.symbol);
         ctrl.orderManager.updateBuyEstimate();
         ctrl.orderManager.updateSellEstimate();
         ctrl.orderManager.updateOwnedSharesLabel();
@@ -98,17 +100,41 @@ class StockDetailManager {
 
         ctrl.currentChange = changeAmt;
         ctrl.currentChangePercent = changePct;
-        ctrl.currentVolume = (long) bar.volume;
 
         ctrl.stockPriceLabel.setText(String.format("$%.2f", bar.close));
         ctrl.stockChangeLabel.setText(
             String.format("%s%.2f (%s%.2f%%)", sign, changeAmt, sign, changePct));
         ctrl.stockChangeLabel.getStyleClass().setAll(
             pos ? "stock-change-pos" : "stock-change-neg");
-        ctrl.volumeLabel.setText(String.format("%,d", (long) bar.volume));
 
         ctrl.orderManager.updateBuyEstimate();
         ctrl.orderManager.updateSellEstimate();
+    }
+
+    /** Fetches previous day's daily bar data and updates volume display. */
+    void loadPreviousDayVolume(String symbol) {
+        new Thread(() -> {
+            try {
+                List<String> symbols = java.util.List.of(symbol);
+                Map<String, com.stockle.api.data.SnapshotData> snapshots = 
+                    ctrl.snapshotService.getSnapshots(symbols, "iex");
+
+                if (snapshots.containsKey(symbol)) {
+                    com.stockle.api.data.SnapshotData snapshot = snapshots.get(symbol);
+                    if (snapshot != null && snapshot.latestBar != null) {
+                        BarData prevDayBar = snapshot.latestBar;
+                        Platform.runLater(() -> {
+                            if (symbol.equals(ctrl.selectedSymbol)) {
+                                ctrl.currentVolume = (long) prevDayBar.volume;
+                                ctrl.volumeLabel.setText(String.format("%,d", (long) prevDayBar.volume));
+                            }
+                        });
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("Error loading snapshot volume for " + symbol + ": " + e.getMessage());
+            }
+        }).start();
     }
 
     // Chart
@@ -147,14 +173,15 @@ class StockDetailManager {
                 String timeframe = selectedTimeframe;
 
                 List<BarData> bars = ctrl.historicalDataService.getHistoricalBars(
-                    symbol, start, end, timeframe, "iex");
+                    symbol, timeframe, "iex");
+                //Collections.reverse(bars);
 
                 List<BarData> last60 = bars.size() > 60
                     ? bars.subList(bars.size() - 60, bars.size()) : bars;
 
                 DateTimeFormatter fmt = DateTimeFormatter.ofPattern("HH:mm");
                 List<CandleData> candles = new ArrayList<>();
-                for (BarData bar : last60) {
+                for (BarData bar : bars) {
                     // Convert bar timestamp to NYSE time for display
                     ZonedDateTime nyseTime = bar.timestamp.atZone(ZoneOffset.UTC)
                         .withZoneSameInstant(nyse);

@@ -160,7 +160,7 @@ public class Stock_API_Test {
             String endDate = LocalDate.now().toString();
             String startDate = LocalDate.parse(endDate).minusDays(30).toString();
             
-            List<BarData> bars = historicalDataService.getHistoricalBars("AAPL", startDate, endDate, "1Day", feed);
+            List<BarData> bars = historicalDataService.getHistoricalBars("AAPL", "1Day", feed);
             
             if (bars != null && !bars.isEmpty()) {
                 System.out.println("Fetched " + bars.size() + " historical bars for AAPL:");
