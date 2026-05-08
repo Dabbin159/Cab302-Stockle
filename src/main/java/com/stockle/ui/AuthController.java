@@ -57,6 +57,9 @@ public class AuthController {
     @FXML
     public void initialize() {
         syncThemeButton();
+        loginEmail.setText("admin@admin.admin");
+        loginPasswordField.setText("Admin123");
+        loginPasswordText.setText("Admin123");
 
         authTabPane.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldTab, newTab) -> {
