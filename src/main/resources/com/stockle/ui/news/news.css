@@ -57,6 +57,23 @@
     -fx-padding: 2 8;
 }
 
+/* Copyable URL */
+.article-url {
+    -fx-font-size: 11px;
+    -fx-text-fill: #2563eb;
+    -fx-cursor: hand;
+    -fx-underline: true;
+}
+.article-url:hover {
+    -fx-text-fill: #1d4ed8;
+}
+.dark-theme .article-url {
+    -fx-text-fill: #60a5fa;
+}
+.dark-theme .article-url:hover {
+    -fx-text-fill: #93c5fd;
+}
+
 /* Divider line between sections inside a card */
 .article-divider {
     -fx-background-color: #f3f4f6;

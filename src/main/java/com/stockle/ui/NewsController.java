@@ -109,7 +109,8 @@ public class NewsController {
     // Card builder 
     private VBox buildArticleCard(NewsArticle article) {
         // Source badge + date row
-        Label sourceBadge = styledLabel(article.source != null ? article.source : "News", "source-badge");
+        String badgeText = (article.author != null && !article.author.isBlank()) ? article.author : (article.source != null ? article.source : "News");
+        Label sourceBadge = styledLabel(badgeText, "source-badge");
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
         Label date = styledLabel(formatDate(article.published_at), "article-date");
@@ -133,6 +134,26 @@ public class NewsController {
             summary.setWrapText(true);
             card.getChildren().add(2, summary);
         }
+
+        if (article.url != null && !article.url.isBlank()) {
+            Label urlLabel = styledLabel(article.url, "article-url");
+            urlLabel.setWrapText(false);
+            urlLabel.setEllipsisString("...");
+            urlLabel.setMaxWidth(Double.MAX_VALUE);
+            urlLabel.setOnMouseClicked(e -> {
+                javafx.scene.input.Clipboard cb = javafx.scene.input.Clipboard.getSystemClipboard();
+                javafx.scene.input.ClipboardContent content = new javafx.scene.input.ClipboardContent();
+                content.putString(article.url);
+                cb.setContent(content);
+                urlLabel.setText("Copied!");
+                new Thread(() -> {
+                    try { Thread.sleep(1500); } catch (InterruptedException ignored) {}
+                    javafx.application.Platform.runLater(() -> urlLabel.setText(article.url));
+                }).start();
+            });
+            card.getChildren().add(urlLabel);
+        }
+
         card.getStyleClass().add("article-card");
         return card;
     }
