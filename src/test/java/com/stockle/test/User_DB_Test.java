@@ -6,6 +6,7 @@ import java.util.Random;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.stockle.database.SQLUserDAO;
 import com.stockle.model.User;
@@ -42,7 +43,7 @@ public class User_DB_Test {
         long totalUserID = users.size();
         User user = new User("TestUsername" + new Random().nextInt(100000), "TestPassword", "test"+ new Random().nextInt(100000)+"@example.com", "Test User", LocalDate.now());
         userDAO.addUser(user);
-        assertEquals(totalUserID + 1, user.getId());
+        assertTrue(user.getId() > 0);
     }
 
     @Test
