@@ -9,8 +9,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.mindrot.jbcrypt.BCrypt;
-
 import com.stockle.model.User;
 
 
@@ -49,6 +47,8 @@ public class SQLUserDAO implements UserDAO {
 
     private static final String LOGIN_USER = "SELECT * FROM users WHERE email = ?";
 
+    private static final String DELETE_USER_BY_EMAIL = "DELETE FROM users WHERE email = ?";
+
     private static final String GET_BALANCE_BYID = "SELECT balance FROM users WHERE id = ?";
 
     private static final String GET_PROFIT_BYID = "SELECT totalProfit FROM users WHERE id = ?";
@@ -56,6 +56,7 @@ public class SQLUserDAO implements UserDAO {
     private static final String UPDATE_BALANCE_BYID = "UPDATE users SET balance = ? WHERE id = ?";
 
     private static final String UPDATE_PROFIT_BYID = "UPDATE users SET totalProfit = ? WHERE id = ?";
+
     @Override
     /**
      * Adds a new user to the database.
@@ -186,7 +187,7 @@ public class SQLUserDAO implements UserDAO {
     public boolean signup(String username, String password, String email, String fullName, LocalDate dateOfBirth) {
         // Implementation for signing up a new user
         try {
-            String hashed_password = BCrypt.hashpw(password, BCrypt.gensalt());
+            String hashed_password = PasswordUtils.hashPassword(password);
             User user = new User(username, hashed_password, email, fullName, dateOfBirth);
             addUser(user);
             return true;
@@ -210,7 +211,7 @@ public class SQLUserDAO implements UserDAO {
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 String storedHash = resultSet.getString("password");
-                if (BCrypt.checkpw(password, storedHash)) {
+                if (PasswordUtils.verifyPassword(password, storedHash)) {
                     String usernameDB = resultSet.getString("username");
                     String emailDB = resultSet.getString("email");
                     String fullName = resultSet.getString("fullName");
@@ -226,6 +227,21 @@ public class SQLUserDAO implements UserDAO {
             ex.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * Deletes a user from the database by their email address.
+     * Used primarily for test cleanup to ensure a fresh state before each test case.
+     * @param email The email address of the user to delete
+     */
+    public void deleteUserByEmail(String email) {
+        try {
+            PreparedStatement statement = connection.prepareStatement(DELETE_USER_BY_EMAIL);
+            statement.setString(1, email);
+            statement.executeUpdate();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
     }
 
     /**
