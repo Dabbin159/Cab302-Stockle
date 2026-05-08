@@ -190,6 +190,9 @@ public class SQLUserDAO implements UserDAO {
             String hashed_password = PasswordUtils.hashPassword(password);
             User user = new User(username, hashed_password, email, fullName, dateOfBirth);
             addUser(user);
+            if (user.getId() == 0) {
+                return false;
+            }
             return true;
         } catch (Exception ex) {
             System.err.println(ex.getMessage());
