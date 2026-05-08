@@ -8,12 +8,18 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stockle.SessionManager;
 import com.stockle.api.client.ApiClient;
+import com.stockle.api.data.QuoteData;
 import com.stockle.api.service.AssetService;
+import com.stockle.api.service.MarketDataService;
 import com.stockle.database.SQLHoldingDAO;
 import com.stockle.database.SQLTradeDAO;
 import com.stockle.database.SQLUserDAO;
@@ -184,16 +190,33 @@ public class DashboardController {
 
         AssetService assetService = new AssetService(new ApiClient(), new ObjectMapper(), null);
 
+        // Creates a set of all companys the user Holds
+        Set<String> allCompanyIds = holdings.stream()
+            .map(Holding::getCompanyID)
+            .collect(Collectors.toSet());
+        // Gets the quotes for each symbol reduces calls by queirying all at once
+        MarketDataService marketDataService = new MarketDataService(new ApiClient(), new ObjectMapper());
+        Map<String, QuoteData> quotesForSymbols = marketDataService.getLatestQuotes(new ArrayList<>(allCompanyIds), "iex");
+
+        // TODO: if map has no bidprice then need to go to historical bars implementation
+
         for (Holding holding : holdings) {
-            long costBasis = (long) holding.getAveragePrice() * holding.getQuantity();
+            // Gets current value of holding
+            QuoteData quote = quotesForSymbols.get(holding.getCompanyID());
+            double bidPrice = quote != null ? quote.bidPrice : 0.0;
+            long costBasis = (long) bidPrice * holding.getQuantity();
             totalHoldingsValue += costBasis;
+
             String companyId = holding.getCompanyID();
             String companyName = companyId;
+            // A call for each asset must be done as querying name only avaliable on single Symbol calls
             try {
+                // Gets symbols company name
                 com.stockle.api.data.Asset asset = assetService.getAsset(companyId);
                 if (asset != null && asset.name != null && !asset.name.isBlank()) {
                     companyName = asset.name;
                 }
+                // Gets symbols buy price
             } catch (Exception ignored) {
                 companyName = companyId;
             }
