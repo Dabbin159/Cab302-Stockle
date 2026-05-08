@@ -182,9 +182,10 @@ public class NewsController {
     }
 
     // Navigation
-    @FXML private void navDashboard() throws IOException { SceneManager.switchTo("dashboard/dashboard-view.fxml"); }
-    @FXML private void navTrading() throws IOException { SceneManager.switchTo("trading/trading-view.fxml"); }
-    @FXML private void navAI() throws IOException { SceneManager.switchTo("ai/ai-view.fxml"); }
+    @FXML private void navDashboard()   throws IOException { SceneManager.switchTo("dashboard/dashboard-view.fxml"); }
+    @FXML private void navTrading()     throws IOException { SceneManager.switchTo("trading/trading-view.fxml"); }
+    @FXML private void navAI()          throws IOException { SceneManager.switchTo("ai/ai-view.fxml"); }
+    @FXML private void navLeaderboard() throws IOException { SceneManager.switchTo("leaderboard/leaderboard-view.fxml"); }
 
     @FXML
     private void handleSignOut() throws IOException {
