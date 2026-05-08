@@ -22,7 +22,6 @@ public class LeaderboardController {
     private static final NumberFormat CURRENCY = NumberFormat.getCurrencyInstance();
 
     // Init
-
     @FXML
     public void initialize() {
         syncThemeButton();

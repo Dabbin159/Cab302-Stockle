@@ -107,7 +107,7 @@
                                         styleClass="suggestion-btn" maxWidth="Infinity"
                                         wrapText="true" onAction="#handleSuggest"/>
                                 <Button text="Analyse my last trade"
-                                        styleClass="suggestion-btn suggestion-btn-trade"
+                                        styleClass="suggestion-btn-trade"
                                         maxWidth="Infinity" onAction="#handleSuggest"/>
                             </VBox>
                         </VBox>
