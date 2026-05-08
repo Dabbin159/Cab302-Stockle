@@ -26,6 +26,7 @@ public class AuthController {
     // UI Fields
     @FXML private StackPane authRoot;
     @FXML private ImageView darkModeIcon;
+    @FXML private ImageView stockleIcon;
 
     // Login Fields
     @FXML private TextField loginEmail;
@@ -204,5 +205,15 @@ public class AuthController {
             darkModeIcon.setImage(new Image(iconUrl.toExternalForm()));
         }
 
+        // Update the main Stockle logo to match the active theme
+        if (stockleIcon != null) {
+            String logoPath = darkModeEnabled
+                ? "/com/stockle/ui/images/stockle-icon-dark-mode.png"
+                : "/com/stockle/ui/images/stockle-icon-light-mode.png";
+            java.net.URL logoUrl = getClass().getResource(logoPath);
+            if (logoUrl != null) {
+                stockleIcon.setImage(new Image(logoUrl.toExternalForm()));
+            }
+        }
     }
 }

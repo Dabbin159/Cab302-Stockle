@@ -40,7 +40,7 @@
                             <Rectangle arcHeight="25" arcWidth="25" height="60.0" width="60.0" />
                         </clip>
                         <image>
-                            <Image url="@../images/stockle-icon.png"/>
+                            <Image url="@../images/stockle-icon-dark-mode.png"/>
                         </image>
                     </ImageView>
                 </StackPane>
