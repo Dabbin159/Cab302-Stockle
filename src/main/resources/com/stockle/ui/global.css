@@ -208,6 +208,10 @@
     -fx-effect: none;
 }
 
+.dark-theme .sidebar-logo {
+    -fx-text-fill: white;
+}
+
 .dark-theme .nav-item,
 .dark-theme .nav-signout {
     -fx-text-fill: #99A1AF;

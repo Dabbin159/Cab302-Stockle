@@ -178,13 +178,15 @@
 }
 
 .suggestion-btn-trade {
-    -fx-background-color: #eff6ff;
-    -fx-text-fill: #2563eb;
-    -fx-border-color: #bfdbfe;
+    -fx-background-color: #2563eb;
+    -fx-text-fill: white;
+    -fx-border-color: transparent;
     -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(37,99,235,0.3), 8, 0, 0, 2);
 }
 .suggestion-btn-trade:hover {
-    -fx-background-color: #dbeafe;
+    -fx-background-color: #1d4ed8;
+    -fx-effect: dropshadow(gaussian, rgba(37,99,235,0.45), 10, 0, 0, 3);
 }
 
 /* AI Insights */
@@ -287,13 +289,14 @@
 }
 
 .dark-theme .suggestion-btn-trade {
-    -fx-background-color: rgba(37,99,235,0.18);
-    -fx-text-fill: #bfdbfe;
-    -fx-border-color: rgba(96,165,250,0.3);
+    -fx-background-color: #2563eb;
+    -fx-text-fill: white;
+    -fx-border-color: transparent;
+    -fx-effect: dropshadow(gaussian, rgba(37,99,235,0.4), 10, 0, 0, 3);
 }
 
 .dark-theme .suggestion-btn-trade:hover {
-    -fx-background-color: rgba(37,99,235,0.28);
+    -fx-background-color: #1d4ed8;
 }
 
 .dark-theme .insight-row {

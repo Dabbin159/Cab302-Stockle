@@ -22,7 +22,7 @@
                 <Button fx:id="navDashboard" text="Dashboard" maxWidth="Infinity" styleClass="nav-item-active" onAction="#navDashboard"/>
                 <Button text="Trading" maxWidth="Infinity" styleClass="nav-item" onAction="#navTrading"/>
                 <Button text="Practice" maxWidth="Infinity" styleClass="nav-item"/>
-                <Button text="Leaderboard" maxWidth="Infinity" styleClass="nav-item"/>
+                <Button text="Leaderboard" maxWidth="Infinity" styleClass="nav-item" onAction="#navLeaderboard"/>
                 <Button text="AI Chat" maxWidth="Infinity" styleClass="nav-item" onAction="#navAI"/>
                 <Button text="News" maxWidth="Infinity" styleClass="nav-item" onAction="#navNews"/>
                 <Button text="Profile" maxWidth="Infinity" styleClass="nav-item"/>
@@ -92,8 +92,8 @@
                         <HBox alignment="CENTER_LEFT">
                             <Label text="Total Trades" styleClass="stat-label" HBox.hgrow="ALWAYS"/>
                         </HBox>
-                        <Label text="127" styleClass="stat-value"/>
-                        <Label text="23 this month" styleClass="stat-neutral"/>
+                        <Label fx:id="totalTradesLabel" text="0" styleClass="stat-value"/>
+                        <Label fx:id="totalTradesSubLabel" text="0 this month" styleClass="stat-neutral"/>
                     </VBox>
 
                     <!-- Win Rate -->
