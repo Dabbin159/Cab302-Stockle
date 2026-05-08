@@ -25,7 +25,7 @@ public class Stock_DB_Test {
         controller =  TradeController.getInstance();
         userDAO = SQLUserDAO.getInstance();
         holdingDAO = SQLHoldingDAO.getInstance();
-        user = new User("Test Username" + new Random().nextInt(100000), "Test1234", "test@test.test", "Test User", LocalDate.now(), 100000, 0);
+        user = new User("Test Username" + new Random().nextInt(100000), "Test1234", "test"+ new Random().nextInt(100000)+"@test.test", "Test User", LocalDate.now(), 100000, 0);
         userDAO.addUser(user);
     }
 

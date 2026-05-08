@@ -25,7 +25,7 @@ public class User_DB_Test {
     @Test
     public void testUserName() {
         String username = "TestUsername" + new Random().nextInt(100000);
-        User user = new User(username, "TestPassword", "test@example.com", "Test User", LocalDate.now());
+        User user = new User(username, "TestPassword", "test"+ new Random().nextInt(100000)+"@example.com", "Test User", LocalDate.now());
         assertEquals(username, user.getUsername());
     }
 
@@ -40,7 +40,7 @@ public class User_DB_Test {
     public void testUserID() {
         java.util.List<User> users = userDAO.getAllUsers();
         long totalUserID = users.size();
-        User user = new User("TestUsername" + new Random().nextInt(100000), "TestPassword", "test@example.com", "Test User", LocalDate.now());
+        User user = new User("TestUsername" + new Random().nextInt(100000), "TestPassword", "test"+ new Random().nextInt(100000)+"@example.com", "Test User", LocalDate.now());
         userDAO.addUser(user);
         assertEquals(totalUserID + 1, user.getId());
     }
@@ -48,14 +48,14 @@ public class User_DB_Test {
     @Test
     public void testUserBalance() {
         long initialBalance = 100000;
-        User user = new User("TestUsername" + new Random().nextInt(100000), "TestPassword", "test@example.com", "Test User", LocalDate.now());
+        User user = new User("TestUsername" + new Random().nextInt(100000), "TestPassword", "test"+ new Random().nextInt(100000)+"@example.com", "Test User", LocalDate.now());
         assertEquals(initialBalance, user.getBalance());
     }
 
     @Test
     public void testUserProfit() {
         long initialProfit = 0;
-        User user = new User("TestUsername" + new Random().nextInt(100000), "TestPassword", "test@example.com", "Test User", LocalDate.now());
+        User user = new User("TestUsername" + new Random().nextInt(100000), "TestPassword", "test"+ new Random().nextInt(100000)+"@example.com", "Test User", LocalDate.now());
         assertEquals(initialProfit, user.getTotalProfit());
     }
 }
