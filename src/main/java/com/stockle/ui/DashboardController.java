@@ -44,6 +44,8 @@ public class DashboardController {
     @FXML private Label totalValueLabel;
     @FXML private Label totalGainLabel;
     @FXML private Label buyingPowerLabel;
+    @FXML private Label totalTradesLabel;
+    @FXML private Label totalTradesSubLabel;
     @FXML private AreaChart<String, Number> portfolioChart;
     @FXML private VBox holdingsContainer;
     @FXML private VBox tradesContainer;
@@ -134,10 +136,12 @@ public class DashboardController {
     }
 
     private void loadChart() {
+        portfolioChart.getData().clear();
         XYChart.Series<String, Number> series = new XYChart.Series<>();
         for (MockData.DashboardChartPoint point : MockData.dashboardChart()) {
             series.getData().add(new XYChart.Data<>(point.label(), point.value()));
         }
+
         portfolioChart.getData().add(series);
     }
 
@@ -173,8 +177,8 @@ public class DashboardController {
             holdingsContainer.getChildren().add(styledLabel("No holdings yet", "row-sub"));
             return 0L;
         }
-
         long totalHoldingsValue = 0L;
+
         for (Holding holding : holdings) {
             long costBasis = (long) holding.getAveragePrice() * holding.getQuantity();
             totalHoldingsValue += costBasis;
@@ -189,6 +193,7 @@ public class DashboardController {
                 )
             );
         }
+
         return totalHoldingsValue;
     }
 
@@ -221,6 +226,17 @@ public class DashboardController {
         String sign = totalProfit >= 0 ? "+" : "-";
         totalGainLabel.setText(sign + CURRENCY.format(Math.abs(totalProfit)));
         totalGainLabel.getStyleClass().setAll(totalProfit >= 0 ? "stat-positive" : "stat-negative");
+
+        // Load trade statistics (total trades and this month's trades)
+        loadTradeStats(user.getId());
+    }
+
+    private void loadTradeStats(int userId) {
+        if (totalTradesLabel == null || totalTradesSubLabel == null) return;
+        int total = SQLTradeDAO.getInstance().getTotalTradesCountByUser(userId);
+        int monthCount = SQLTradeDAO.getInstance().getTradesCountByUserLastMonth(userId);
+        totalTradesLabel.setText(String.valueOf(total));
+        totalTradesSubLabel.setText(monthCount + " this month");
     }
 
     private String formatTradeTime(String timestamp) {
