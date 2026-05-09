@@ -92,8 +92,8 @@
                         <HBox alignment="CENTER_LEFT">
                             <Label text="Total Trades" styleClass="stat-label" HBox.hgrow="ALWAYS"/>
                         </HBox>
-                        <Label text="127" styleClass="stat-value"/>
-                        <Label text="23 this month" styleClass="stat-neutral"/>
+                        <Label fx:id="totalTradesLabel" text="0" styleClass="stat-value"/>
+                        <Label fx:id="totalTradesSubLabel" text="0 this month" styleClass="stat-neutral"/>
                     </VBox>
 
                     <!-- Win Rate -->

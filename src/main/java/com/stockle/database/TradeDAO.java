@@ -53,4 +53,27 @@ public interface TradeDAO {
      */
     public Trade[] getTradesByUserId(int userId);
     
+    /**
+     * Returns the total number of trades for a user.
+     * @param userId
+     * @return total trades count
+     */
+    public int getTotalTradesCountByUser(int userId);
+
+    /**
+     * Returns the number of trades for a user in a specific year/month.
+     * @param userId
+     * @param year four-digit year (e.g., 2026)
+     * @param month 1-12
+     * @return trades count for the month
+     */
+    public int getTradesCountByUserInMonth(int userId, int year, int month);
+
+    /**
+     * Returns the number of trades for a user in the previous calendar month.
+     * @param userId
+     * @return trades count for last month
+     */
+    public int getTradesCountByUserLastMonth(int userId);
+    
 }

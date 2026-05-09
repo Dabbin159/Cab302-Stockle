@@ -10,7 +10,10 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stockle.SessionManager;
+import com.stockle.api.client.ApiClient;
+import com.stockle.api.service.AssetService;
 import com.stockle.database.SQLHoldingDAO;
 import com.stockle.database.SQLTradeDAO;
 import com.stockle.database.SQLUserDAO;
@@ -44,6 +47,8 @@ public class DashboardController {
     @FXML private Label totalValueLabel;
     @FXML private Label totalGainLabel;
     @FXML private Label buyingPowerLabel;
+    @FXML private Label totalTradesLabel;
+    @FXML private Label totalTradesSubLabel;
     @FXML private AreaChart<String, Number> portfolioChart;
     @FXML private VBox holdingsContainer;
     @FXML private VBox tradesContainer;
@@ -134,10 +139,12 @@ public class DashboardController {
     }
 
     private void loadChart() {
+        portfolioChart.getData().clear();
         XYChart.Series<String, Number> series = new XYChart.Series<>();
         for (MockData.DashboardChartPoint point : MockData.dashboardChart()) {
             series.getData().add(new XYChart.Data<>(point.label(), point.value()));
         }
+
         portfolioChart.getData().add(series);
     }
 
@@ -173,15 +180,27 @@ public class DashboardController {
             holdingsContainer.getChildren().add(styledLabel("No holdings yet", "row-sub"));
             return 0L;
         }
-
         long totalHoldingsValue = 0L;
+
+        AssetService assetService = new AssetService(new ApiClient(), new ObjectMapper(), null);
+
         for (Holding holding : holdings) {
             long costBasis = (long) holding.getAveragePrice() * holding.getQuantity();
             totalHoldingsValue += costBasis;
+            String companyId = holding.getCompanyID();
+            String companyName = companyId;
+            try {
+                com.stockle.api.data.Asset asset = assetService.getAsset(companyId);
+                if (asset != null && asset.name != null && !asset.name.isBlank()) {
+                    companyName = asset.name;
+                }
+            } catch (Exception ignored) {
+                companyName = companyId;
+            }
             holdingsContainer.getChildren().add(
                 holdingRow(
-                    holding.getCompanyID(),
-                    holding.getCompanyID(),
+                    companyId,
+                    companyName + " (" + companyId + ")",
                     holding.getQuantity() + " shares",
                     CURRENCY.format(holding.getAveragePrice()),
                     CURRENCY.format(costBasis),
@@ -189,6 +208,7 @@ public class DashboardController {
                 )
             );
         }
+
         return totalHoldingsValue;
     }
 
@@ -221,6 +241,17 @@ public class DashboardController {
         String sign = totalProfit >= 0 ? "+" : "-";
         totalGainLabel.setText(sign + CURRENCY.format(Math.abs(totalProfit)));
         totalGainLabel.getStyleClass().setAll(totalProfit >= 0 ? "stat-positive" : "stat-negative");
+
+        // Load trade statistics (total trades and this month's trades)
+        loadTradeStats(user.getId());
+    }
+
+    private void loadTradeStats(int userId) {
+        if (totalTradesLabel == null || totalTradesSubLabel == null) return;
+        int total = SQLTradeDAO.getInstance().getTotalTradesCountByUser(userId);
+        int monthCount = SQLTradeDAO.getInstance().getTradesCountByUserLastMonth(userId);
+        totalTradesLabel.setText(String.valueOf(total));
+        totalTradesSubLabel.setText(monthCount + " this month");
     }
 
     private String formatTradeTime(String timestamp) {

@@ -125,7 +125,7 @@ public class AuthController {
         if (fullName.isEmpty() || email.isEmpty() || password.isEmpty()
                 || confirmPassword.isEmpty())
         {
-            signupErrorLabel.setText("Please fill in all sections");
+            signupErrorLabel.setText("Signup failed. Username may be taken.");
             return;
         }
         else

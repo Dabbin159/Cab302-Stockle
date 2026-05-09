@@ -46,6 +46,10 @@ public class SQLTradeDAO implements TradeDAO {
 
     private static final String GET_TRADES_BY_USER_ID = "SELECT * FROM trades WHERE userID = ?";
 
+    private static final String COUNT_TRADES_BY_USER_ID = "SELECT COUNT(*) AS cnt FROM trades WHERE userID = ?";
+
+    private static final String COUNT_TRADES_BY_USER_YEAR_MONTH = "SELECT COUNT(*) AS cnt FROM trades WHERE userID = ? AND strftime('%Y', (CAST(createdAt AS INTEGER)/1000), 'unixepoch') = ? AND strftime('%m', (CAST(createdAt AS INTEGER)/1000), 'unixepoch') = ?";
+
     @Override
     /**
      * Adds a new trade to the database with the profit set to 0
@@ -179,6 +183,45 @@ public class SQLTradeDAO implements TradeDAO {
             ex.printStackTrace();
         }
         return new Trade[0];
+    }
+
+    @Override
+    public int getTotalTradesCountByUser(int userID) {
+        try (PreparedStatement statement = connection.prepareStatement(COUNT_TRADES_BY_USER_ID)) {
+            statement.setInt(1, userID);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt("cnt");
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return 0;
+    }
+
+    @Override
+    public int getTradesCountByUserInMonth(int userID, int year, int month) {
+        try (PreparedStatement statement = connection.prepareStatement(COUNT_TRADES_BY_USER_YEAR_MONTH)) {
+            statement.setInt(1, userID);
+            statement.setString(2, String.format("%04d", year));
+            statement.setString(3, String.format("%02d", month));
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt("cnt");
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return 0;
+    }
+
+    @Override
+    public int getTradesCountByUserLastMonth(int userID) {
+        java.time.ZonedDateTime now = java.time.ZonedDateTime.now();
+        java.time.ZonedDateTime lastMonth = now.minusMonths(1);
+        int year = lastMonth.getYear();
+        int month = lastMonth.getMonthValue();
+        return getTradesCountByUserInMonth(userID, year, month);
     }
 
 }
