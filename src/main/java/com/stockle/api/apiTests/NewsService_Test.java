@@ -1,9 +1,6 @@
-package com.stockle.test;
+package com.stockle.api.apiTests;
 
 import java.util.List;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stockle.api.client.ApiClient;
@@ -16,14 +13,12 @@ public class NewsService_Test {
     private ObjectMapper objectMapper;
     private NewsService newsService;
 
-    @BeforeEach
     public void setUp() {
         apiClient = new ApiClient();
         objectMapper = new ObjectMapper();
         newsService = new NewsService(apiClient, objectMapper);
     }
 
-    @Test
     public void testLatestNews() {
         System.out.println("--- NewsService Test: getLatestNews(10) ---");
         try {
@@ -44,7 +39,6 @@ public class NewsService_Test {
         System.out.println();
     }
 
-    @Test
     public void testLatestNewsForSymbol() {
         System.out.println("--- NewsService Test: getLatestNewsForSymbol(\"AAPL\", 10) ---");
         try {

@@ -14,6 +14,7 @@ import com.stockle.api.service.MarketDataService;
 import com.stockle.api.service.SnapshotService;
 import com.stockle.model.TradeController;
 import com.stockle.model.User;
+import com.stockle.updater.TradingUpdater;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -80,6 +81,7 @@ public class TradingController {
     AssetService assetService;
     MarketDataService marketDataService;
     SnapshotService snapshotService;
+    TradingUpdater tradingUpdater;
 
     // Managers
     StockListManager listManager;
@@ -103,6 +105,28 @@ public class TradingController {
         listManager = new StockListManager(this);
         detailManager = new StockDetailManager(this);
         orderManager = new OrderFormManager(this);
+
+        tradingUpdater = new TradingUpdater(
+            marketDataService,
+            () -> selectedSymbol,
+            new TradingUpdater.Listener() {
+                @Override
+                public void onPriceUpdate(String symbol, com.stockle.api.data.BarData bar) {
+                    Platform.runLater(() -> {
+                        detailManager.applyLivePriceUpdate(symbol, bar);
+                        detailManager.updateChartWithNewBar(symbol, bar);  // ← Add this
+                    });
+                }
+
+                @Override
+                public void onError(String symbol, Exception exception) {
+                    System.err.println("Live price update failed for " + symbol + ": " + exception.getMessage());
+                }
+            },
+            "iex",
+            30L
+        );
+        tradingUpdater.start();
 
         searchField.textProperty().addListener((obs, o, n) -> listManager.applyLiveSearch());
         buySharesField.textProperty().addListener((obs, o, n) -> orderManager.updateBuyEstimate());
@@ -188,6 +212,11 @@ public class TradingController {
     @FXML void handleSetAlert() {}
 
     @FXML
+    private void handleTimeframe(javafx.event.ActionEvent event) {
+        detailManager.handleTimeframe(event);
+    }
+
+    @FXML
     private void toggleFavorite() {
         if (selectedSymbol.isEmpty()) return;
         if (favorites.contains(selectedSymbol)) favorites.remove(selectedSymbol);
@@ -228,7 +257,11 @@ public class TradingController {
 
     @FXML
     private void handleSignOut() throws IOException {
+        if (tradingUpdater != null) {
+            tradingUpdater.stop();
+        }
         SessionManager.getInstance().logout();
         SceneManager.switchTo("auth/auth-view.fxml");
     }
+    
 }

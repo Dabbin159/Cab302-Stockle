@@ -1,7 +1,4 @@
-package com.stockle.test;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+package com.stockle.api.apiTests;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stockle.api.client.ApiClient;
@@ -14,14 +11,12 @@ public class LogoService_Test {
     private ObjectMapper objectMapper;
     private LogoService logoService;
 
-    @BeforeEach
     public void setUp() {
         apiClient = new ApiClient();
         objectMapper = new ObjectMapper();
         logoService = new LogoService(apiClient, objectMapper);
     }
 
-    @Test
     public void testGetCompanyLogoUrl() {
         System.out.println("--- LogoService Test: getCompanyLogo(\"AAPL\") ---");
         try {
@@ -40,7 +35,6 @@ public class LogoService_Test {
         System.out.println();
     }
 
-    @Test
     public void testGetCompanyLogoWithoutPlaceholder() {
         System.out.println("--- LogoService Test: getCompanyLogo(\"TSLA\", false) ---");
         try {
