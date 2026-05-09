@@ -6,6 +6,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +22,8 @@ class StockDetailManager {
     private final TradingController ctrl;
     private final List<CandleData> currentCandles = new ArrayList<>();
     String selectedTimeframe = "1Min";
+    private static final ZoneId NYSE_ZONE = ZoneId.of("America/New_York");
+    private static final DateTimeFormatter API_TIME_FORMAT = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
     StockDetailManager(TradingController ctrl) {
         this.ctrl = ctrl;
@@ -55,7 +58,7 @@ class StockDetailManager {
         ctrl.stockPriceLabel.setText("—");
         ctrl.stockChangeLabel.setText("—");
         ctrl.volumeLabel.setText("—");
-        ctrl.marketCapLabel.setText("—");
+        ctrl.marketCapLabel.setText("2.8T");
         ctrl.exchangeLabel.setText(ctrl.currentExchange);
 
         boolean isFav = ctrl.favorites.contains(asset.symbol);
@@ -143,48 +146,32 @@ class StockDetailManager {
         final int gen = ctrl.chartLoadGeneration;
         new Thread(() -> {
             try {
-                ZoneId nyse = ZoneId.of("America/New_York");
-                ZoneId brisbane = ZoneId.of("Australia/Brisbane");
-                
-                ZonedDateTime nowNYSE = ZonedDateTime.now(nyse);
-                ZonedDateTime nowBrisbane = ZonedDateTime.now(brisbane);
-
-                java.time.LocalTime brisbaneTimeOfDay = nowBrisbane.toLocalTime();
-
-                // If before market open, use previous day's session
-                LocalDate sessionDate = nowNYSE.toLocalDate().minusDays(1);
-                while (sessionDate.getDayOfWeek().getValue() > 5) {  // Skip weekends
-                    sessionDate = sessionDate.minusDays(1);
-                }
-
-                ZonedDateTime marketOpen = sessionDate.atTime(9, 30).atZone(nyse);
-                ZonedDateTime marketClose = sessionDate.atTime(16, 0).atZone(nyse);
-
-                // Use the lesser of nowNYSE and marketClose as end
-                ZonedDateTime endTime = sessionDate.atTime(brisbaneTimeOfDay).atZone(nyse);
-                if (endTime.isAfter(marketClose)) {
-                    endTime = marketClose;
-                }
-
-                DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
-                String start = marketOpen.format(formatter);
-                String end = endTime.format(formatter);
-
                 String timeframe = selectedTimeframe;
+                ZonedDateTime nowNyse = ZonedDateTime.now(NYSE_ZONE);
+                TimeRange range = resolveTimeRange(timeframe, nowNyse);
+
+                String start = range.start.format(API_TIME_FORMAT);
+                String end = range.end.format(API_TIME_FORMAT);
 
                 List<BarData> bars = ctrl.historicalDataService.getHistoricalBars(
-                    symbol, timeframe, "iex");
-                //Collections.reverse(bars);
+                    symbol, start, end, timeframe, "iex");
+                Collections.reverse(bars);
 
                 List<BarData> last60 = bars.size() > 60
                     ? bars.subList(bars.size() - 60, bars.size()) : bars;
 
-                DateTimeFormatter fmt = DateTimeFormatter.ofPattern("HH:mm");
+                long timeframeVolume = 0L;
+                for (BarData bar : last60) {
+                    timeframeVolume += bar.volume;
+                }
+                final long volumeToShow = timeframeVolume;
+
+                DateTimeFormatter fmt = resolveLabelFormatter(timeframe);
                 List<CandleData> candles = new ArrayList<>();
-                for (BarData bar : bars) {
+                for (BarData bar : last60) {
                     // Convert bar timestamp to NYSE time for display
                     ZonedDateTime nyseTime = bar.timestamp.atZone(ZoneOffset.UTC)
-                        .withZoneSameInstant(nyse);
+                        .withZoneSameInstant(NYSE_ZONE);
                     candles.add(new CandleData(
                         nyseTime.format(fmt), bar.open, bar.high, bar.low, bar.close));
                 }
@@ -193,6 +180,8 @@ class StockDetailManager {
                     currentCandles.clear();
                     currentCandles.addAll(candles);
                     ctrl.priceChart.setCandles(candles);
+                    ctrl.currentVolume = volumeToShow;
+                    ctrl.volumeLabel.setText(formatVolume(volumeToShow));
                 });
             } catch (Exception e) {
                 System.err.println("Error loading chart for " + symbol + ": " + e.getMessage());
@@ -206,5 +195,56 @@ class StockDetailManager {
             return;
         }
         loadChart(symbol);
+    }
+
+    private TimeRange resolveTimeRange(String timeframe, ZonedDateTime end) {
+        ZonedDateTime start;
+        switch (timeframe) {
+            case "1Min" -> start = end.minusDays(1);
+            case "5Min" -> start = end.minusDays(2);
+            case "10Min"-> start = end.minusDays(3);
+            case "1Hour" -> start = end.minusDays(7);
+            case "1Day" -> start = end.minusDays(75);
+            case "1Month" -> start = ZonedDateTime.of(LocalDate.of(2000, 1, 1),
+                java.time.LocalTime.MIDNIGHT, NYSE_ZONE);
+            default -> start = end.minusDays(1);
+        }
+
+        return new TimeRange(start, end);
+    }
+
+    private DateTimeFormatter resolveLabelFormatter(String timeframe) {
+        return switch (timeframe) {
+            case "5Min", "10Min", "1Hour" -> DateTimeFormatter.ofPattern("d/MM HH:mm");
+            case "1Day" -> DateTimeFormatter.ofPattern("d/MM");
+            case "1Month" -> DateTimeFormatter.ofPattern("MMM yyyy");
+            default -> DateTimeFormatter.ofPattern("HH:mm");
+        };
+    }
+
+    private String formatVolume(long volume) {
+        if (volume < 1_000) {
+            return String.format("%,d", volume);
+        }
+        if (volume < 1_000_000) {
+            return String.format("%.1fK", volume / 1_000.0);
+        }
+        if (volume < 1_000_000_000) {
+            return String.format("%.1fM", volume / 1_000_000.0);
+        }
+        if (volume < 1_000_000_000_000L) {
+            return String.format("%.1fB", volume / 1_000_000_000.0);
+        }
+        return String.format("%.1fT", volume / 1_000_000_000_000.0);
+    }
+
+    private static class TimeRange {
+        private final ZonedDateTime start;
+        private final ZonedDateTime end;
+
+        private TimeRange(ZonedDateTime start, ZonedDateTime end) {
+            this.start = start;
+            this.end = end;
+        }
     }
 }

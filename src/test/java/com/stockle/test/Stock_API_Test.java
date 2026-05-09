@@ -1,9 +1,12 @@
-package com.stockle.api.apiTests;
+package com.stockle.test;
 
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stockle.api.client.ApiClient;
@@ -26,6 +29,7 @@ public class Stock_API_Test {
     private AssetService assetService;
     private final String feed = "iex";
 
+    @BeforeEach
     public void setUp() {
         apiClient = new ApiClient();
         objectMapper = new ObjectMapper();
@@ -35,6 +39,7 @@ public class Stock_API_Test {
         assetService = new AssetService(apiClient, objectMapper, marketDataService);
     }
 
+    @Test
     public void testAll() {
         System.out.println("=== StockAPI Test Suite ===\n");
         

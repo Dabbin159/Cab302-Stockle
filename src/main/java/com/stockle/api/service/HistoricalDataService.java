@@ -48,7 +48,7 @@ public class HistoricalDataService {
      * @param feed the market data feed to use (e.g., "sip" or "iex")
      * @return a list of BarData objects representing historical bars
      */
-    public List<BarData> getHistoricalBars(String symbol, String timeframe, String feed) {
+    public List<BarData> getHistoricalBars(String symbol, String startDate, String endDate, String timeframe, String feed) {
         List<BarData> bars = new ArrayList<>();
         String nextPageToken = null;
         int maxIterations = 100;
@@ -63,10 +63,10 @@ public class HistoricalDataService {
                 StringBuilder urlBuilder = new StringBuilder(ApiClient.DATA_URL + "/v2/stocks/bars");
                 urlBuilder.append("?symbols=").append(symbol);
                 urlBuilder.append("&timeframe=").append(timeframe);
-                //urlBuilder.append("&start=").append(startDate);
-                //urlBuilder.append("&end=").append(endDate);
+                urlBuilder.append("&start=").append(startDate);
+                urlBuilder.append("&end=").append(endDate);
                 urlBuilder.append("&limit=60");
-                urlBuilder.append("&sort=asc");
+                urlBuilder.append("&sort=desc");
                 urlBuilder.append("&feed=").append(feed);
 
                 if (nextPageToken != null) {
