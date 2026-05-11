@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.stockle.api.data.Asset;
 import com.stockle.api.data.BarData;
@@ -21,9 +22,11 @@ class StockDetailManager {
 
     private final TradingController ctrl;
     private final List<CandleData> currentCandles = new ArrayList<>();
+    private final Map<String, Map<String, CachedChart>> chartCache = new ConcurrentHashMap<>();
     String selectedTimeframe = "1Min";
     private static final ZoneId NYSE_ZONE = ZoneId.of("America/New_York");
     private static final DateTimeFormatter API_TIME_FORMAT = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+    private static final long CHART_CACHE_TTL_MS = 60_000L;
 
     StockDetailManager(TradingController ctrl) {
         this.ctrl = ctrl;
@@ -144,9 +147,21 @@ class StockDetailManager {
     /** Fetches the last 60 one-minute bars and renders them as a candlestick chart. */
     void loadChart(String symbol) {
         final int gen = ctrl.chartLoadGeneration;
+        String timeframe = selectedTimeframe;
+        CachedChart cached = getCachedChart(symbol, timeframe);
+        if (cached != null) {
+            Platform.runLater(() -> {
+                if (gen != ctrl.chartLoadGeneration || !symbol.equals(ctrl.selectedSymbol)) return;
+                currentCandles.clear();
+                currentCandles.addAll(cached.candles);
+                ctrl.priceChart.setCandles(cached.candles);
+                ctrl.currentVolume = cached.volume;
+                ctrl.volumeLabel.setText(formatVolume(cached.volume));
+            });
+            return;
+        }
         new Thread(() -> {
             try {
-                String timeframe = selectedTimeframe;
                 ZonedDateTime nowNyse = ZonedDateTime.now(NYSE_ZONE);
                 TimeRange range = resolveTimeRange(timeframe, nowNyse);
 
@@ -158,7 +173,8 @@ class StockDetailManager {
                 Collections.reverse(bars);
 
                 List<BarData> last60 = bars.size() > 60
-                    ? bars.subList(bars.size() - 60, bars.size()) : bars;
+                    ? bars.subList(bars.size() - 60, bars.size())
+                    : bars;
 
                 long timeframeVolume = 0L;
                 for (BarData bar : last60) {
@@ -175,6 +191,7 @@ class StockDetailManager {
                     candles.add(new CandleData(
                         nyseTime.format(fmt), bar.open, bar.high, bar.low, bar.close));
                 }
+                putCachedChart(symbol, timeframe, candles, volumeToShow);
                 Platform.runLater(() -> {
                     if (gen != ctrl.chartLoadGeneration || !symbol.equals(ctrl.selectedSymbol)) return;
                     currentCandles.clear();
@@ -200,14 +217,16 @@ class StockDetailManager {
     private TimeRange resolveTimeRange(String timeframe, ZonedDateTime end) {
         ZonedDateTime start;
         switch (timeframe) {
-            case "1Min" -> start = end.minusDays(1);
-            case "5Min" -> start = end.minusDays(2);
-            case "10Min"-> start = end.minusDays(3);
-            case "1Hour" -> start = end.minusDays(7);
-            case "1Day" -> start = end.minusDays(75);
+            case "1Min" -> start = end.minusDays(3);
+            case "5Min" -> start = end.minusDays(5);
+            case "10Min"-> start = end.minusDays(6);
+            case "1Hour" -> start = end.minusDays(10);
+            case "1Day" -> start = end.minusDays(78);
             case "1Month" -> start = ZonedDateTime.of(LocalDate.of(2000, 1, 1),
                 java.time.LocalTime.MIDNIGHT, NYSE_ZONE);
-            default -> start = end.minusDays(1);
+            case "All" -> start = ZonedDateTime.of(LocalDate.of(2000, 1, 1),
+                java.time.LocalTime.MIDNIGHT, NYSE_ZONE);
+            default -> start = end.minusDays(3);
         }
 
         return new TimeRange(start, end);
@@ -238,6 +257,39 @@ class StockDetailManager {
         return String.format("%.1fT", volume / 1_000_000_000_000.0);
     }
 
+    private CachedChart getCachedChart(String symbol, String timeframe) {
+        Map<String, CachedChart> byTimeframe = chartCache.get(symbol);
+        if (byTimeframe == null) {
+            return null;
+        }
+        CachedChart cached = byTimeframe.get(timeframe);
+        if (cached == null) {
+            return null;
+        }
+        if (System.currentTimeMillis() - cached.cachedAtMs > CHART_CACHE_TTL_MS) {
+            byTimeframe.remove(timeframe);
+            return null;
+        }
+        return cached;
+    }
+
+    private void putCachedChart(String symbol, String timeframe, List<CandleData> candles, long volume) {
+        chartCache
+            .computeIfAbsent(symbol, key -> new ConcurrentHashMap<>())
+            .put(timeframe, new CachedChart(new ArrayList<>(candles), volume, System.currentTimeMillis()));
+    }
+
+    private static class CachedChart {
+        private final List<CandleData> candles;
+        private final long volume;
+        private final long cachedAtMs;
+
+        private CachedChart(List<CandleData> candles, long volume, long cachedAtMs) {
+            this.candles = candles;
+            this.volume = volume;
+            this.cachedAtMs = cachedAtMs;
+        }
+    }
     private static class TimeRange {
         private final ZonedDateTime start;
         private final ZonedDateTime end;
