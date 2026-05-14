@@ -24,6 +24,7 @@ class StockDetailManager {
     private final Map<String, Map<String, CachedChart>> chartCache = new ConcurrentHashMap<>();
     String selectedTimeframe = "1Min";
     private static final ZoneId NYSE_ZONE = ZoneId.of("America/New_York");
+    private static final ZoneId BRIS_ZONE = ZoneId.of("Australia/Brisbane");
     private static final DateTimeFormatter API_TIME_FORMAT = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
     private static final long CHART_CACHE_TTL_MS = 60_000L;
 
@@ -145,41 +146,53 @@ class StockDetailManager {
     // Chart
     /** Fetches the last 60 one-minute bars and renders them as a candlestick chart. */
     void loadChart(String symbol) {
+        loadChart(symbol, false);
+    }
+
+    void loadChart(String symbol, boolean forceRefresh) {
         final int gen = ctrl.chartLoadGeneration;
         String timeframe = selectedTimeframe;
 
         ZonedDateTime nowNyse = ZonedDateTime.now(NYSE_ZONE);
-        System.out.println("Current NYSE time: " + nowNyse);
-        java.time.LocalTime marketOpen = java.time.LocalTime.of(9, 30);
-        ZonedDateTime effectiveNow = nowNyse.toLocalTime().isBefore(marketOpen)
-            ? nowNyse.minusDays(1).with(java.time.LocalTime.of(16, 0))
-            : nowNyse;
+        ZonedDateTime nowBris = ZonedDateTime.now(BRIS_ZONE);
+        java.time.LocalTime brisTimeOfDay = nowBris.toLocalTime();
+        LocalDate sessionDate = nowNyse.toLocalDate().minusDays(1);
+        ZonedDateTime marketClose = sessionDate.atTime(16, 0).atZone(NYSE_ZONE);
 
-        CachedChart cached = getCachedChart(symbol, timeframe);
-        if (cached != null) {
-            List<CandleData> candles = buildCandles(cached.bars, timeframe, effectiveNow);
-            long volume = buildVolume(cached.bars, timeframe, effectiveNow);
-            Platform.runLater(() -> {
-                if (gen != ctrl.chartLoadGeneration || !symbol.equals(ctrl.selectedSymbol)) return;
-                currentCandles.clear();
-                currentCandles.addAll(candles);
-                ctrl.priceChart.setCandles(candles);
-                ctrl.currentVolume = volume;
-                ctrl.volumeLabel.setText(formatVolume(volume));
-            });
-            return;
+        ZonedDateTime endTimeCandidate = sessionDate.atTime(brisTimeOfDay).atZone(NYSE_ZONE);
+        if (endTimeCandidate.isAfter(marketClose)) {
+            endTimeCandidate = marketClose;
+        }
+        final ZonedDateTime endTime = endTimeCandidate;
+
+
+        if (!forceRefresh) {
+            CachedChart cached = getCachedChart(symbol, timeframe);
+            if (cached != null) {
+                List<CandleData> candles = buildCandles(cached.bars, timeframe, endTime);
+                long volume = buildVolume(cached.bars, timeframe, endTime);
+                Platform.runLater(() -> {
+                    if (gen != ctrl.chartLoadGeneration || !symbol.equals(ctrl.selectedSymbol)) return;
+                    currentCandles.clear();
+                    currentCandles.addAll(candles);
+                    ctrl.priceChart.setCandles(candles);
+                    ctrl.currentVolume = volume;
+                    ctrl.volumeLabel.setText(formatVolume(volume));
+                });
+                return;
+            }
         }
         new Thread(() -> {
             try {
-                TimeRange range = resolveTimeRange(timeframe, effectiveNow);
+                TimeRange range = resolveTimeRange(timeframe, endTime);
                 String start = range.start.format(API_TIME_FORMAT);
                 String end = range.end.format(API_TIME_FORMAT);
                 List<BarData> bars = ctrl.historicalDataService.getHistoricalBars(
                     symbol, start, end, timeframe, "iex");
 
                 putCachedChart(symbol, timeframe, bars);
-                List<CandleData> candles = buildCandles(bars, timeframe, effectiveNow);
-                long volumeToShow = buildVolume(bars, timeframe, effectiveNow);
+                List<CandleData> candles = buildCandles(bars, timeframe, endTime);
+                long volumeToShow = buildVolume(bars, timeframe, endTime);
 
                 Platform.runLater(() -> {
                     if (gen != ctrl.chartLoadGeneration || !symbol.equals(ctrl.selectedSymbol)) return;
@@ -200,7 +213,7 @@ class StockDetailManager {
         if (!symbol.equals(ctrl.selectedSymbol)) {
             return;
         }
-        loadChart(symbol);
+        loadChart(symbol, true);
     }
 
     private TimeRange resolveTimeRange(String timeframe, ZonedDateTime end) {

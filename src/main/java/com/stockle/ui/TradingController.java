@@ -124,7 +124,7 @@ public class TradingController {
                 }
             },
             "iex",
-            30L
+            15L
         );
         tradingUpdater.start();
 
