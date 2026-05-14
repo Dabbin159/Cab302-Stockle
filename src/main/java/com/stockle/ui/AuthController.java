@@ -135,7 +135,7 @@ public class AuthController {
 
             if (success)
             {
-                User user = userDAO.login(username, password);
+                User user = userDAO.login(email, password);
                 SessionManager.getInstance().setCurrentUser(user);
                 SceneManager.applyTheme(authRoot);
                 SceneManager.switchTo("dashboard/dashboard-view.fxml");
