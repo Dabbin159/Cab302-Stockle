@@ -1,4 +1,4 @@
-com.stockle.model
+com.stockle.database
 com.stockle.ui
 com.stockle.api
-com.stockle.database
+com.stockle.model
