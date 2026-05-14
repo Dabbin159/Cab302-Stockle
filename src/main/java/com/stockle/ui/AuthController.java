@@ -125,7 +125,7 @@ public class AuthController {
         if (fullName.isEmpty() || email.isEmpty() || password.isEmpty()
                 || confirmPassword.isEmpty())
         {
-            signupErrorLabel.setText("Signup failed. An account with this email already exists.");
+            signupErrorLabel.setText("Signup failed. Please fill all the sections. ");
             return;
         }
         else
@@ -142,7 +142,7 @@ public class AuthController {
             }
             else
             {
-                signupErrorLabel.setText("Signup failed. Username may be taken. ");
+                signupErrorLabel.setText("Signup failed. An account with this email already exists.");
             }
         }
     }
