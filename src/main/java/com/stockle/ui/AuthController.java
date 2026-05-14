@@ -125,7 +125,7 @@ public class AuthController {
         if (fullName.isEmpty() || email.isEmpty() || password.isEmpty()
                 || confirmPassword.isEmpty())
         {
-            signupErrorLabel.setText("Signup failed. Username may be taken.");
+            signupErrorLabel.setText("Signup failed. Please fill all the sections. ");
             return;
         }
         else
@@ -135,14 +135,14 @@ public class AuthController {
 
             if (success)
             {
-                User user = userDAO.login(username, password);
+                User user = userDAO.login(email, password);
                 SessionManager.getInstance().setCurrentUser(user);
                 SceneManager.applyTheme(authRoot);
                 SceneManager.switchTo("dashboard/dashboard-view.fxml");
             }
             else
             {
-                signupErrorLabel.setText("Signup failed. Username may be taken. ");
+                signupErrorLabel.setText("Signup failed. An account with this email already exists.");
             }
         }
     }
