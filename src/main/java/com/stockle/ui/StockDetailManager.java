@@ -41,7 +41,6 @@ class StockDetailManager {
         ctrl.favoriteBtn.getStyleClass().setAll("fav-btn");
         ctrl.buyButton.setText("Buy "  + asset.symbol);
         ctrl.sellButton.setText("Sell " + asset.symbol);
-        ctrl.alertStockLabel.setText("Alert price for " + asset.symbol);
 
         ctrl.orderManager.clearTradeStatus();
         ctrl.chartLoadGeneration++;

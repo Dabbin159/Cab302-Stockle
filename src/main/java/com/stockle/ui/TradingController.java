@@ -50,7 +50,6 @@ public class TradingController {
 
     @FXML TextField searchField;
     @FXML CheckBox favoritesOnly;
-    @FXML Label alertStockLabel;
     @FXML VBox recentlyViewedContainer;
     @FXML VBox stockListContainer;
     @FXML ScrollPane stockListScroll;
@@ -185,7 +184,6 @@ public class TradingController {
     @FXML void applyLiveSearch() { listManager.applyLiveSearch(); }
     @FXML void handleBuy() { orderManager.handleBuy(); }
     @FXML void handleSell() { orderManager.handleSell(); }
-    @FXML void handleSetAlert() {}
 
     @FXML
     private void toggleFavorite() {
