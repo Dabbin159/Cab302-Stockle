@@ -50,7 +50,6 @@ public class TradingController {
 
     @FXML TextField searchField;
     @FXML CheckBox favoritesOnly;
-    @FXML VBox recentlyViewedContainer;
     @FXML VBox stockListContainer;
     @FXML ScrollPane stockListScroll;
     @FXML private javafx.scene.image.ImageView darkModeIcon;
@@ -110,8 +109,6 @@ public class TradingController {
         stockListScroll.vvalueProperty().addListener((obs, o, n) -> {
             if (n.doubleValue() >= 0.9 && !isLoadingPage) listManager.loadNextPage();
         });
-
-        recentlyViewedContainer.getChildren().clear();
 
         new Thread(() -> {
             try {

@@ -212,19 +212,11 @@
                             </VBox>
                         </VBox>
 
-                        <!-- Recently Viewed -->
-                        <VBox styleClass="card">
-                            <Label text="Recently Viewed" styleClass="card-title"
-                                   style="-fx-padding: 16 16 8 16;"/>
-                            <VBox fx:id="recentlyViewedContainer" spacing="4"
-                                  style="-fx-padding: 0 12 12 12;"/>
-                        </VBox>
-
                         <!-- All Stocks -->
                         <VBox styleClass="card">
                             <Label text="All Stocks" styleClass="card-title"
                                    style="-fx-padding: 16 16 8 16;"/>
-                            <ScrollPane fx:id="stockListScroll" prefHeight="500" fitToWidth="true"
+                            <ScrollPane fx:id="stockListScroll" prefHeight="550" fitToWidth="true"
                                         styleClass="stocks-scroll" hbarPolicy="NEVER">
                                 <VBox fx:id="stockListContainer" spacing="4"
                                       style="-fx-padding: 0 12 12 12;"/>
