@@ -1,14 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="CONTROLLER_NAME"
-            prefHeight="400.0" prefWidth="600.0">
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            xmlns="http://javafx.com/javafx"
+            fx:controller="com.stockle.ui.ProfileController"
+            stylesheets="profile.css">
 
-</AnchorPane>
+    <left>
+        <VBox styleClass="sidebar">
+            <padding><Insets top="24" bottom="16" left="16" right="16"/></padding>
+            <Label text="Stockle" styleClass="sidebar-logo"/>
+
+            <VBox spacing="2" styleClass="nav-section">
+                <Button text="Dashboard" maxWidth="Infinity" styleClass="nav-item" onAction="#handleBack"/>
+                <Button text="Profile" maxWidth="Infinity" styleClass="nav-item-active"/>
+            </VBox>
+        </VBox>
+    </left>
+
+    <!-- Main Content -->
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="main-scroll" hbarPolicy="NEVER">
+            <VBox spacing="20" styleClass="main-content">
+                <padding><Insets top="28" bottom="36" left="28" right="28"/></padding>
+
+                <!-- Header -->
+                <VBox spacing="4">
+                    <Label text="Account Settings" styleClass="page-title"/>
+                    <Label text="Update your username, email, or password." styleClass="page-subtitle"/>
+                </VBox>
+
+                <!-- Form card -->
+                <VBox styleClass="card" spacing="16">
+                    <padding><Insets top="24" bottom="24" right="24" /></padding>
+
+                    <Label text="Username" styleClass="form-label"/>
+                    <TextField fx:id="usernameField" promptText="Username" styleClass="form-input"/>
+
+                    <Label text="Email" styleClass="form-label"/>
+                    <TextField fx:id="emailField" promptText="Email" styleClass="form-input"/>
+
+                    <Label text="New Password" styleClass="form-label"/>
+                    <PasswordField fx:id="newPasswordField" promptText="Leave blank to keep current password" styleClass="form-input"/>
+
+                    <Label text="Confirm New Password" styleClass="form-label"/>
+                    <PasswordField fx:id="confirmPasswordField" promptText="Confirm new password" styleClass="form-input"/>
+
+                    <!-- Feedback label for success/error messages -->
+                    <Label fx:id="feedbackLabel" styleClass="feedback-label"/>
+
+                    <HBox spacing="12">
+                        <Button text="Save Changes" styleClass="btn-primary" onAction="#handleSave"/>
+                        <Button text="Back to Dashboard" styleClass="btn-secondary" onAction="#handleBack"/>
+                    </HBox>
+                </VBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>
+
+
+
+
