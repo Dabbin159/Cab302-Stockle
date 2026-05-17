@@ -25,7 +25,7 @@
                 <Button text="Leaderboard" maxWidth="Infinity" styleClass="nav-item" onAction="#navLeaderboard"/>
                 <Button text="AI Chat" maxWidth="Infinity" styleClass="nav-item" onAction="#navAI"/>
                 <Button text="News" maxWidth="Infinity" styleClass="nav-item" onAction="#navNews"/>
-                <Button text="Profile" maxWidth="Infinity" styleClass="nav-item"/>
+                <Button text="Profile" maxWidth="Infinity" styleClass="nav-item" onAction="#navProfile"/>
             </VBox>
 
             <Region VBox.vgrow="ALWAYS"/>
