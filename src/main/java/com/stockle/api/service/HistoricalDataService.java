@@ -65,8 +65,8 @@ public class HistoricalDataService {
                 urlBuilder.append("&timeframe=").append(timeframe);
                 urlBuilder.append("&start=").append(startDate);
                 urlBuilder.append("&end=").append(endDate);
-                urlBuilder.append("&limit=60");
-                urlBuilder.append("&sort=desc");
+                urlBuilder.append("&limit=100");
+                urlBuilder.append("&sort=asc");
                 urlBuilder.append("&feed=").append(feed);
 
                 if (nextPageToken != null) {
