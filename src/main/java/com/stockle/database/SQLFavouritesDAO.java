@@ -12,7 +12,7 @@ public class SQLFavouritesDAO implements FavouritesDAO {
 
     private static SQLFavouritesDAO instance;
     private Connection connection;
-    
+
     private SQLFavouritesDAO() {
         connection = SqliteConnection.getInstance(); // Retrive the current database connection
     }
@@ -27,6 +27,7 @@ public class SQLFavouritesDAO implements FavouritesDAO {
     private static final String INSERT_UPDATE_FAVOURITES = "INSERT INTO favourites (userID, favouritesList) VALUES " +
             "(?, ?)" + "ON CONFLICT(userID) DO UPDATE SET favouritesList = excluded.favouritesList";
     private static final String GET_FAVOURITES = "SELECT favouritesList FROM favourites where userID = ?";
+    private static final String DELETE_USER_FAVOURITES = "DELETE FROM FAVOURITES WHERE userID = ?";
 
     @Override
     public void addFavourite(int userID, List<String> favourites) {
@@ -60,9 +61,8 @@ public class SQLFavouritesDAO implements FavouritesDAO {
         }
     }
 
-
     @Override
-    public List<String> getFavourites(int userID){
+    public List<String> getFavourites(int userID) {
         try {
             PreparedStatement statement = connection.prepareStatement(GET_FAVOURITES);
             statement.setInt(1, userID);
@@ -82,5 +82,15 @@ public class SQLFavouritesDAO implements FavouritesDAO {
             ex.printStackTrace();
         }
         return new ArrayList<>();
+    }
+
+    public void clearFavourites(int userID) {
+        try {
+            PreparedStatement statement = connection.prepareStatement(DELETE_USER_FAVOURITES);
+            statement.setInt(1, userID);
+            statement.executeUpdate();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
     }
 }
