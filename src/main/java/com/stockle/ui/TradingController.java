@@ -114,7 +114,7 @@ public class TradingController {
                 public void onPriceUpdate(String symbol, com.stockle.api.data.BarData bar) {
                     Platform.runLater(() -> {
                         detailManager.applyLivePriceUpdate(symbol, bar);
-                        detailManager.updateChartWithNewBar(symbol, bar);  // ← Add this
+                        detailManager.updateChartWithNewBar(symbol, bar);
                     });
                 }
 
@@ -126,8 +126,7 @@ public class TradingController {
             "iex",
             15L
         );
-        tradingUpdater.start();
-
+        // Live updates disabled to avoid background threads.
         searchField.textProperty().addListener((obs, o, n) -> listManager.applyLiveSearch());
         buySharesField.textProperty().addListener((obs, o, n) -> orderManager.updateBuyEstimate());
         sellSharesField.textProperty().addListener((obs, o, n) -> orderManager.updateSellEstimate());
@@ -138,23 +137,19 @@ public class TradingController {
 
         recentlyViewedContainer.getChildren().clear();
 
-        new Thread(() -> {
-            try {
-                List<Asset> assets = assetService.getAllAssets();
-                liveAssets = assets.stream()
-                    .filter(a -> a.tradable && "us_equity".equals(a.assetClass) && a.symbol != null)
-                    .collect(java.util.stream.Collectors.toList());
-                Platform.runLater(() -> {
-                    listManager.loadNextPage();
-                    liveAssets.stream()
-                        .filter(a -> "AAPL".equals(a.symbol))
-                        .findFirst()
-                        .ifPresent(detailManager::selectStock);
-                });
-            } catch (Exception e) {
-                System.err.println("Failed to load assets: " + e.getMessage());
-            }
-        }).start();
+        try {
+            List<Asset> assets = assetService.getAllAssets();
+            liveAssets = assets.stream()
+                .filter(a -> a.tradable && "us_equity".equals(a.assetClass) && a.symbol != null)
+                .collect(java.util.stream.Collectors.toList());
+            listManager.loadNextPage();
+            liveAssets.stream()
+                .filter(a -> "AAPL".equals(a.symbol))
+                .findFirst()
+                .ifPresent(detailManager::selectStock);
+        } catch (Exception e) {
+            System.err.println("Failed to load assets: " + e.getMessage());
+        }
     }
 
     @FXML

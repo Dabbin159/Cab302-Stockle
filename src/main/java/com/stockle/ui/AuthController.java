@@ -50,6 +50,7 @@ public class AuthController {
     /* Database access for user operations */
     private final SQLUserDAO userDAO = SQLUserDAO.getInstance();
 
+
     /**
      * Called Automatically by JavaFX when Authentication screen loads.
      * Attaches a listener to clear stale error messages when the user switches tabs.
@@ -65,6 +66,7 @@ public class AuthController {
                     signupErrorLabel.setText("");
                 }
         );
+
     }
 
     @FXML private void toggleDarkMode() {
