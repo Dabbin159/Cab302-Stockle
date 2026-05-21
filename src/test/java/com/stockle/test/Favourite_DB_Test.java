@@ -18,8 +18,7 @@ public class Favourite_DB_Test {
     public void setUp() {
         favouritesDAO = SQLFavouritesDAO.getInstance();
         // Clear favourites for userID 1 before each test
-        List<String> emptyList = new ArrayList<>();
-        favouritesDAO.deleteFavourite(1, String.join(",", emptyList));
+        favouritesDAO.clearFavourites(1);
     }
         
     @Test
