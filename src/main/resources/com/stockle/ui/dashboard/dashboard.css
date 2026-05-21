@@ -54,9 +54,7 @@
 .dark-theme .card,
 .dark-theme .stat-card,
 .dark-theme .row-card,
-.dark-theme .quick-card-blue,
-.dark-theme .quick-card-purple,
-.dark-theme .quick-card-green {
+.dark-theme .quick-card-blue {
     -fx-background-color: #0A0A0A; /* slightly lighter than page for contrast */
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 24, 0, 0, 6);
     -fx-border-color: #262626;
@@ -121,8 +119,6 @@
 
 /* Quick action icons in dark */
 .dark-theme .quick-icon-blue { -fx-background-color: rgba(96,165,250,0.08); }
-.dark-theme .quick-icon-purple { -fx-background-color: rgba(192,132,252,0.06); }
-.dark-theme .quick-icon-green { -fx-background-color: rgba(52,211,153,0.06); }
 
 /* small polish: outlines and hover states */
 .dark-theme .nav-signout:hover { -fx-background-color: rgba(255,255,255,0.02); }
@@ -335,7 +331,7 @@
 }
 
 /* Quick Action Cards */
-.quick-card-blue, .quick-card-purple, .quick-card-green {
+.quick-card-blue {
     -fx-background-color: white;
     -fx-background-radius: 12;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 2);
@@ -343,28 +339,14 @@
     -fx-cursor: hand;
 }
 
-.quick-card-blue:hover   { -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 16, 0, 0, 4); }
-.quick-card-purple:hover { -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 16, 0, 0, 4); }
-.quick-card-green:hover  { -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 16, 0, 0, 4); }
+.quick-card-blue:hover { -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 16, 0, 0, 4); }
 
 .quick-icon-blue {
     -fx-background-color: #dbeafe;
     -fx-background-radius: 24;
 }
 
-.quick-icon-purple {
-    -fx-background-color: #f3e8ff;
-    -fx-background-radius: 24;
-}
-
-.quick-icon-green {
-    -fx-background-color: #dcfce7;
-    -fx-background-radius: 24;
-}
-
-.quick-icon-blue .quick-icon-lbl   { -fx-font-size: 18px; -fx-text-fill: #2563eb; }
-.quick-icon-purple .quick-icon-lbl { -fx-font-size: 18px; -fx-text-fill: #9333ea; }
-.quick-icon-green .quick-icon-lbl  { -fx-font-size: 18px; -fx-text-fill: #16a34a; }
+.quick-icon-blue .quick-icon-lbl { -fx-font-size: 18px; -fx-text-fill: #2563eb; }
 
 .quick-title {
     -fx-font-size: 14px;

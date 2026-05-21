@@ -16,8 +16,6 @@
             <VBox spacing="2" styleClass="nav-section">
                 <Button text="Dashboard" maxWidth="Infinity" styleClass="nav-item" onAction="#navDashboard"/>
                 <Button text="Trading" maxWidth="Infinity" styleClass="nav-item" onAction="#navTrading"/>
-                <Button text="Practice" maxWidth="Infinity" styleClass="nav-item"/>
-                <Button text="Leaderboard" maxWidth="Infinity" styleClass="nav-item" onAction="#navLeaderboard"/>
                 <Button text="AI Chat" maxWidth="Infinity" styleClass="nav-item" onAction="#navAI"/>
                 <Button text="News" maxWidth="Infinity" styleClass="nav-item-active"/>
                 <Button text="Profile" maxWidth="Infinity" styleClass="nav-item"/>
