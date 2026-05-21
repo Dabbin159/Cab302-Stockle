@@ -64,7 +64,11 @@
                             <HBox styleClass="card-header-row" alignment="CENTER_LEFT">
                                 <VBox spacing="2" HBox.hgrow="ALWAYS">
                                     <HBox alignment="CENTER_LEFT" spacing="8">
-                                        <Label fx:id="stockSymbolLabel" text="AAPL" styleClass="stock-symbol"/>
+                                        <Label fx:id="stockSymbolLabel" text="AAPL" styleClass="stock-symbol">
+                                        <tooltip>
+                                            <Tooltip text = "Shows a candlestick view of this stock ask the AI for more info" style="-fx-font-size: 10px;"/>
+                                        </tooltip>
+                                        </Label>
                                         <Button fx:id="favoriteBtn" text="☆" styleClass="fav-btn" onAction="#toggleFavorite"/>
                                     </HBox>
                                     <Label fx:id="stockNameLabel" text="Apple Inc." styleClass="stock-name"/>
@@ -124,7 +128,6 @@
                                 <!-- Buy Tab -->
                                 <Tab text="Buy">
                                     <VBox spacing="14" styleClass="tab-content">
-
                                         <VBox spacing="4">
                                             <Label text="Number of Shares" styleClass="field-label"/>
                                             <TextField fx:id="buySharesField" promptText="0"
