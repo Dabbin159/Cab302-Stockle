@@ -53,7 +53,11 @@
                         <Label text="Welcome back! Here's your portfolio overview." styleClass="page-subtitle"/>
                     </VBox>
                     <HBox styleClass="market-status-pill" alignment="CENTER_LEFT" spacing="10">
-                        <Label fx:id="marketStatusLabel" text="CLOSED" styleClass="market-status-badge market-closed"/>
+                        <Label fx:id="marketStatusLabel" text="CLOSED" styleClass="market-status-badge market-closed">
+                            <tooltip>
+                                <Tooltip text = "The market is closed all data for prices is stale and based on last data" style="-fx-font-size: 10px;"/>
+                            </tooltip>
+                        </Label>
                         <Label text="9:30 AM – 4:00 PM EST" styleClass="market-status-hours"/>
                     </HBox>
                 </HBox>
@@ -72,7 +76,11 @@
                         <HBox alignment="CENTER_LEFT">
                             <Label text="Total Portfolio Value" styleClass="stat-label" HBox.hgrow="ALWAYS"/>
                         </HBox>
-                        <Label fx:id="totalValueLabel" text="" styleClass="stat-value"/>
+                        <Label fx:id="totalValueLabel" text="" styleClass="stat-value">
+                            <tooltip>
+                                    <Tooltip text = "Buying power plus current market value of all holdings" style="-fx-font-size: 10px;"/>
+                            </tooltip>
+                        </Label>
                         <Label fx:id="totalGainLabel"  text="" styleClass="stat-positive"/>
                     </VBox>
 
@@ -81,7 +89,11 @@
                         <HBox alignment="CENTER_LEFT">
                             <Label text="Buying Power" styleClass="stat-label" HBox.hgrow="ALWAYS"/>
                         </HBox>
-                        <Label fx:id="buyingPowerLabel" text="" styleClass="stat-value"/>
+                        <Label fx:id="buyingPowerLabel" text="" styleClass="stat-value">
+                        <tooltip>
+                                    <Tooltip text = "Uninvested money avaliable to trade" style="-fx-font-size: 10px;"/>
+                            </tooltip>
+                        </Label>
                         <Label text="Available to trade" styleClass="stat-neutral"/>
                     </VBox>
 
@@ -90,7 +102,11 @@
                         <HBox alignment="CENTER_LEFT">
                             <Label text="Total Trades" styleClass="stat-label" HBox.hgrow="ALWAYS"/>
                         </HBox>
-                        <Label fx:id="totalTradesLabel" text="0" styleClass="stat-value"/>
+                        <Label fx:id="totalTradesLabel" text="0" styleClass="stat-value">
+                        <tooltip>
+                                    <Tooltip text = "Amount of times you have bought or sold stocks" style="-fx-font-size: 10px;"/>
+                            </tooltip>
+                        </Label>
                         <Label fx:id="totalTradesSubLabel" text="0 this month" styleClass="stat-neutral"/>
                     </VBox>
 
@@ -101,7 +117,11 @@
                                 <Label text=":)" styleClass="quick-icon-lbl"/>
                             </StackPane>
                             <VBox spacing="2">
-                                <Label text="Compare Stocks" styleClass="quick-title"/>
+                                <Label text="Compare Stocks" styleClass="quick-title">
+                                <tooltip>
+                                    <Tooltip text = "Compare candlestick and other data between two stocks" style="-fx-font-size: 10px;"/>
+                                </tooltip>
+                                </Label>
                                 <Label text="Side-by-side analysis" styleClass="quick-desc"/>
                             </VBox>
                         </HBox>
@@ -111,7 +131,11 @@
                 <!-- Portfolio Chart -->
                 <VBox styleClass="card">
                     <Label text="Portfolio Performance" styleClass="card-title"
-                           style="-fx-padding: 16 16 8 16;"/>
+                           style="-fx-padding: 16 16 8 16;">
+                    <tooltip>
+                            <Tooltip text = "Chart of total portfolio value over time" style="-fx-font-size: 10px;"/>
+                        </tooltip>
+                    </Label>
                     <AreaChart fx:id="portfolioChart" styleClass="portfolio-chart"
                                legendVisible="false" prefHeight="260" animated="false">
                         <xAxis><CategoryAxis/></xAxis>
@@ -123,13 +147,22 @@
                 <HBox spacing="16">
                     <VBox styleClass="card" HBox.hgrow="ALWAYS">
                         <Label text="Current Holdings" styleClass="card-title"
-                               style="-fx-padding: 16 16 12 16;"/>
+                               style="-fx-padding: 16 16 12 16;">
+                        <tooltip>
+                            <Tooltip text = "All of your holdings and their most recent market price" style="-fx-font-size: 10px;"/>
+                        </tooltip>
+
+                    </Label>
                         <VBox fx:id="holdingsContainer" spacing="8"
                               style="-fx-padding: 0 16 16 16;"/>
                     </VBox>
                     <VBox styleClass="card" HBox.hgrow="ALWAYS">
                         <Label text="Recent Trades" styleClass="card-title"
-                               style="-fx-padding: 16 16 12 16;"/>
+                               style="-fx-padding: 16 16 12 16;">
+                        <tooltip>
+                            <Tooltip text = "Your most recent trades" style="-fx-font-size: 10px;"/>
+                        </tooltip>
+                        </Label>
                         <VBox fx:id="tradesContainer" spacing="8"
                               style="-fx-padding: 0 16 16 16;"/>
                     </VBox>
