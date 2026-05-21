@@ -51,8 +51,6 @@ public class TradingController {
 
     @FXML TextField searchField;
     @FXML CheckBox favoritesOnly;
-    @FXML Label alertStockLabel;
-    @FXML VBox recentlyViewedContainer;
     @FXML VBox stockListContainer;
     @FXML ScrollPane stockListScroll;
     @FXML private javafx.scene.image.ImageView darkModeIcon;
@@ -136,8 +134,6 @@ public class TradingController {
             if (n.doubleValue() >= 0.9 && !isLoadingPage) listManager.loadNextPage();
         });
 
-        recentlyViewedContainer.getChildren().clear();
-
         new Thread(() -> {
             try {
                 List<Asset> assets = assetService.getAllAssets();
@@ -209,7 +205,6 @@ public class TradingController {
     @FXML void applyLiveSearch() { listManager.applyLiveSearch(); }
     @FXML void handleBuy() { orderManager.handleBuy(); }
     @FXML void handleSell() { orderManager.handleSell(); }
-    @FXML void handleSetAlert() {}
 
     @FXML
     private void handleTimeframe(javafx.event.ActionEvent event) {

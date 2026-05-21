@@ -20,8 +20,6 @@
             <VBox spacing="2" styleClass="nav-section">
                 <Button text="Dashboard" maxWidth="Infinity" styleClass="nav-item" onAction="#navDashboard"/>
                 <Button text="Trading" maxWidth="Infinity" styleClass="nav-item-active"/>
-                <Button text="Practice" maxWidth="Infinity" styleClass="nav-item"/>
-                <Button text="Leaderboard" maxWidth="Infinity" styleClass="nav-item" onAction="#navLeaderboard"/>
                 <Button text="AI Chat" maxWidth="Infinity" styleClass="nav-item" onAction="#navAI"/>
                 <Button text="News" maxWidth="Infinity" styleClass="nav-item" onAction="#navNews"/>
                 <Button text="Profile" maxWidth="Infinity" styleClass="nav-item"/>
@@ -224,33 +222,11 @@
                             </VBox>
                         </VBox>
 
-                        <!-- Price Alert -->
-                        <VBox styleClass="card">
-                            <Label text="Price Alert" styleClass="card-title"
-                                   style="-fx-padding: 16 16 8 16;"/>
-                            <VBox spacing="10" style="-fx-padding: 0 16 16 16;">
-                                <Label fx:id="alertStockLabel" text="Alert price for AAPL"
-                                       styleClass="field-label"/>
-                                <TextField fx:id="alertPriceField" promptText="0.00"
-                                           styleClass="trade-input"/>
-                                <Button text="Set Alert" styleClass="alert-btn" maxWidth="Infinity"
-                                        onAction="#handleSetAlert"/>
-                            </VBox>
-                        </VBox>
-
-                        <!-- Recently Viewed -->
-                        <VBox styleClass="card">
-                            <Label text="Recently Viewed" styleClass="card-title"
-                                   style="-fx-padding: 16 16 8 16;"/>
-                            <VBox fx:id="recentlyViewedContainer" spacing="4"
-                                  style="-fx-padding: 0 12 12 12;"/>
-                        </VBox>
-
                         <!-- All Stocks -->
                         <VBox styleClass="card">
                             <Label text="All Stocks" styleClass="card-title"
                                    style="-fx-padding: 16 16 8 16;"/>
-                            <ScrollPane fx:id="stockListScroll" prefHeight="300" fitToWidth="true"
+                            <ScrollPane fx:id="stockListScroll" prefHeight="550" fitToWidth="true"
                                         styleClass="stocks-scroll" hbarPolicy="NEVER">
                                 <VBox fx:id="stockListContainer" spacing="4"
                                       style="-fx-padding: 0 12 12 12;"/>
