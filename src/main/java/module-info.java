@@ -19,5 +19,6 @@ module com.stockle {
     exports com.stockle.ui;
     exports com.stockle.model;
     exports com.stockle.api;
+    exports com.stockle.api.service;
     exports com.stockle.database;
 }
