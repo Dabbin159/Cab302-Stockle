@@ -1,5 +1,6 @@
 module:com.stockle
 com.stockle.api
+com.stockle.api.service
 com.stockle.database
 com.stockle.model
 com.stockle.ui
