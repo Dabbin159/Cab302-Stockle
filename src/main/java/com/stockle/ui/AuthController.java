@@ -80,16 +80,11 @@ public class AuthController {
         loginPasswordField.setText("Admin123");
         loginPasswordText.setText("Admin123");
 
-        try {
-            this.apiClient = new ApiClient();
-            this.objectMapper = new ObjectMapper();
-            MarketDataService marketDataService = new MarketDataService(apiClient, objectMapper);
-            this.assetService = new AssetService(apiClient, objectMapper, marketDataService);
-            System.out.println("Asset services initialized successfully");
-        } catch (Exception e) {
-            System.err.println("Failed to initialize asset services: " + e.getMessage());
-            e.printStackTrace();
-        }
+        this.apiClient = new ApiClient();
+        this.objectMapper = new ObjectMapper();
+        MarketDataService marketDataService = new MarketDataService(apiClient, objectMapper);
+        this.assetService = new AssetService(apiClient, objectMapper, marketDataService);
+
         authTabPane.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldTab, newTab) -> {
                     // Clears both the error labels when tabs switch
@@ -141,33 +136,24 @@ public class AuthController {
                 });
 
                 // Preload assets in background
-                try {
-                    SessionManager.getInstance().setCurrentUser(user);
+                SessionManager.getInstance().setCurrentUser(user);
                     
-                    if (assetService != null) {
-                        List<Asset> assets = assetService.getAllAssets();
-                        SessionManager.getInstance().setCachedAssets(assets);
-                        System.out.println("Assets preloaded: " + assets.size() + " stocks cached");
-                    }
-                    
-                    // Asset loading complete - navigate to dashboard
-                    Platform.runLater(() -> {
-                        try {
-                            hideLoading();
-                            SceneManager.applyTheme(authRoot);
-                            SceneManager.switchTo("dashboard/dashboard-view.fxml");
-                        } catch (IOException e) {
-                            System.err.println("Failed to navigate to dashboard: " + e.getMessage());
-                            hideLoading();
-                        }
-                    });
-                } catch (Exception e) {
-                    System.err.println("Failed to preload assets: " + e.getMessage());
-                    Platform.runLater(() -> {
-                        hideLoading();
-                        loginErrorLabel.setText("Error loading application data");
-                    });
+                if (assetService != null) {
+                    List<Asset> assets = assetService.getAllAssets();
+                    SessionManager.getInstance().setCachedAssets(assets);
                 }
+                
+                // Asset loading complete - navigate to dashboard
+                Platform.runLater(() -> {
+                    try {
+                        hideLoading();
+                        SceneManager.applyTheme(authRoot);
+                        SceneManager.switchTo("dashboard/dashboard-view.fxml");
+                    } catch (IOException e) {
+                        System.err.println("Failed to navigate to dashboard: " + e.getMessage());
+                        hideLoading();
+                    }
+                });
             }
         }).start();
     }

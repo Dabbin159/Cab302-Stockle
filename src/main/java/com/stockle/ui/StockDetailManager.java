@@ -45,7 +45,6 @@ class StockDetailManager {
         }
         clicked.getStyleClass().add("timeframe-btn-active");
 
-        System.out.println(selectedTimeframe);
         loadChart(ctrl.selectedSymbol);
     }
 
