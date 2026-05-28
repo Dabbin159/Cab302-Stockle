@@ -2,8 +2,14 @@ package com.stockle.ui;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.List;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stockle.SessionManager;
+import com.stockle.api.client.ApiClient;
+import com.stockle.api.data.Asset;
+import com.stockle.api.service.AssetService;
+import com.stockle.api.service.MarketDataService;
 import com.stockle.database.SQLUserDAO;
 import com.stockle.model.User;
 
@@ -50,6 +56,9 @@ public class AuthController {
     /* Database access for user operations */
     private final SQLUserDAO userDAO = SQLUserDAO.getInstance();
 
+    private ApiClient apiClient;
+    private ObjectMapper objectMapper;
+    private AssetService assetService;
 
     /**
      * Called Automatically by JavaFX when Authentication screen loads.
@@ -62,6 +71,16 @@ public class AuthController {
         loginPasswordField.setText("Admin123");
         loginPasswordText.setText("Admin123");
 
+        try {
+            this.apiClient = new ApiClient();
+            this.objectMapper = new ObjectMapper();
+            MarketDataService marketDataService = new MarketDataService(apiClient, objectMapper);
+            this.assetService = new AssetService(apiClient, objectMapper, marketDataService);
+            System.out.println("Asset services initialized successfully");
+        } catch (Exception e) {
+            System.err.println("Failed to initialize asset services: " + e.getMessage());
+            e.printStackTrace();
+        }
         authTabPane.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldTab, newTab) -> {
                     // Clears both the error labels when tabs switch
@@ -69,7 +88,6 @@ public class AuthController {
                     signupErrorLabel.setText("");
                 }
         );
-
     }
 
     @FXML private void toggleDarkMode() {
@@ -98,6 +116,15 @@ public class AuthController {
 
         if (user != null) {
             SessionManager.getInstance().setCurrentUser(user);
+            new Thread(() -> {
+                try {
+                    List<Asset> assets = assetService.getAllAssets();
+                    SessionManager.getInstance().setCachedAssets(assets);
+                    System.out.println("Assets preloaded: " + assets.size() + " stocks cached");
+                } catch (Exception e) {
+                    System.err.println("Failed to preload assets: " + e.getMessage());
+                }
+            }).start();
             SceneManager.applyTheme(authRoot);
             SceneManager.switchTo("dashboard/dashboard-" +
                     "view.fxml");
