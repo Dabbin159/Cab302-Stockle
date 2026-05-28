@@ -3,27 +3,29 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
+ 
     <groupId>com.stockle</groupId>
     <artifactId>Stockle</artifactId>
     <version>1.0-SNAPSHOT</version>
     <name>Stockle</name>
-
+ 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>5.12.1</junit.version>
+        <javafx.version>21.0.6</javafx.version>
+        <materialfx.version>11.17.0</materialfx.version>
     </properties>
-
+ 
     <dependencies>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>21.0.6</version>
+            <version>${javafx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>21.0.6</version>
+            <version>${javafx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.xerial</groupId>
@@ -35,7 +37,12 @@
             <artifactId>jbcrypt</artifactId>
             <version>0.4</version>
             <scope>compile</scope>
-        </dependency>        
+        </dependency>   
+        <dependency>
+            <groupId>io.github.palexdev</groupId>
+            <artifactId>materialfx</artifactId>
+            <version>${materialfx.version}</version>
+        </dependency>     
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
@@ -60,14 +67,14 @@
             <artifactId>httpclient5</artifactId>
             <version>5.3.1</version>
         </dependency>
-
+ 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>2.16.1</version>
         </dependency>
     </dependencies>
-
+ 
     <build>
         <plugins>
             <plugin>
@@ -77,79 +84,39 @@
                 <configuration>
                     <source>21</source>
                     <target>21</target>
+                    <compilerArgs>
+                        <arg>--add-modules</arg>
+                        <arg>javafx.controls,javafx.fxml,ALL-SYSTEM</arg>
+                    </compilerArgs>
                 </configuration>
-                <executions>
-                    <execution>
-                        <id>default-compile</id>
-                        <configuration>
-                            <compilerArgs>
-                                <arg>--add-modules=com.fasterxml.jackson.databind</arg>
-                            </compilerArgs>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>default-testCompile</id>
-                        <configuration>
-                            <compilerArgs>
-                                <arg>--add-modules=com.fasterxml.jackson.databind</arg>
-                            </compilerArgs>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
+ 
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
-                <executions>
-                    <execution>
-                        <!-- Default configuration for running with: mvn clean javafx:run -->
-                        <id>default-cli</id>
-                        <configuration>
-                            <mainClass>com.stockle/com.stockle.ui.HelloApplication</mainClass>
-                            <mainClass>com.stockle.ui.StockleApplication</mainClass>
-                            <mainClass>com.stockle/com.stockle.Launcher</mainClass>
-                            <launcher>app</launcher>
-                            <jlinkZipName>app</jlinkZipName>
-                            <jlinkImageName>app</jlinkImageName>
-                            <noManPages>true</noManPages>
-                            <stripDebug>true</stripDebug>
-                            <noHeaderFiles>true</noHeaderFiles>
-                            <jvmArgs>--add-modules=com.fasterxml.jackson.databind</jvmArgs>
-                        </configuration>
-                    </execution>
-                </executions>
+                <configuration>
+                    <mainClass>com.stockle.ui.StockleApplication</mainClass>
+                    <jvmArgs>--add-modules javafx.controls,javafx.fxml,ALL-SYSTEM</jvmArgs>
+                </configuration>
             </plugin>
+ 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.2.2</version>
+                <version>3.2.5</version>
                 <configuration>
                     <useModulePath>false</useModulePath>
-                    <argLine>--add-modules=ALL-SYSTEM</argLine>
+                    <argLine>--add-modules ALL-SYSTEM</argLine>
                 </configuration>
             </plugin>
+ 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>3.4.0</version>
                 <configuration>
                     <failOnError>false</failOnError>
-                    <destDir>javadoc</destDir>
-                    <reportOutputDirectory>${project.build.directory}/docs</reportOutputDirectory>
-                </configuration>
-            </plugin>
-            
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.2.5</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.4.0</version>
-                <configuration>
                     <destDir>javadoc</destDir>
                     <reportOutputDirectory>${project.build.directory}/docs</reportOutputDirectory>
                 </configuration>

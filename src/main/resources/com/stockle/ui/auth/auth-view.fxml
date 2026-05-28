@@ -6,6 +6,8 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.shape.Arc?>
+<?import javafx.scene.Group?>
 
 <StackPane xmlns:fx="http://javafx.com/fxml"
            xmlns="http://javafx.com/javafx"
@@ -207,4 +209,11 @@
         </VBox>
 
     </HBox>
+    <StackPane fx:id="loadingOverlay" style="-fx-background-color: rgba(0, 0, 0, 0.7);" managed="false" visible="false">
+        <VBox alignment="CENTER" spacing="20">
+            <StackPane prefWidth="80" prefHeight="80" alignment="CENTER">
+                <VBox fx:id="spinnerContainer" alignment="CENTER" prefHeight="80" prefWidth="80"/>
+            </StackPane>
+        </VBox>
+    </StackPane>
 </StackPane>

@@ -1,9 +1,16 @@
 package com.stockle.ui;
 
 import java.io.IOException;
+import java.util.List;
 
 import com.stockle.SessionManager;
 import com.stockle.api.GroqService;
+import com.stockle.database.HoldingDAO;
+import com.stockle.database.SQLHoldingDAO;
+import com.stockle.database.SQLTradeDAO;
+import com.stockle.database.TradeDAO;
+import com.stockle.model.Holding;
+import com.stockle.model.Trade;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -36,6 +43,8 @@ public class AIController {
     @FXML
     private ImageView darkModeIcon;
 
+    private final TradeDAO tradeDAO = SQLTradeDAO.getInstance();
+    private final HoldingDAO holdingDAO = SQLHoldingDAO.getInstance();
     private final GroqService groqService = new GroqService();
 
     @FXML
@@ -56,9 +65,18 @@ public class AIController {
         }
 
         addMessage("You: " + input);
-
-        String response = groqService.askChatbot(input);
-        addMessage("AI: " + response);
+    
+        // Fetch user data
+        int userId = SessionManager.getInstance().getCurrentUser().getId();
+        Trade[] userTrades = tradeDAO.getTradesByUserId(userId);
+        List<Holding> userHoldings = holdingDAO.getUserHoldings(userId);
+        
+        // Format portfolio data
+        String portfolioContext = groqService.formatPortfolioForAI(userTrades, userHoldings);
+        
+        // Chat WITH context instead of plain chat
+        String response = groqService.chatWithPortfolioContext(input, portfolioContext);
+        addMessage("AI Coach: " + response);
 
         userInput.clear();
     }
@@ -83,7 +101,18 @@ public class AIController {
      */
     @FXML
     protected void handleAnalyse() {
-        addMessage("AI: Analysis feature coming soon!");
+        addMessage("AI Coach: Analyzing your trading patterns...");
+        
+        int userId = SessionManager.getInstance().getCurrentUser().getId();
+        Trade[] userTrades = tradeDAO.getTradesByUserId(userId);
+        
+        if (userTrades.length == 0) {
+            addMessage("AI Coach: You haven't made any trades yet. Start trading to get analysis!");
+            return;
+        }
+        
+        String analysis = groqService.analyzeTradingPatterns(userTrades);
+        addMessage("AI Coach: " + analysis);
     }
 
     @FXML
