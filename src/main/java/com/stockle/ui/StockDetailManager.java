@@ -77,16 +77,26 @@ class StockDetailManager {
 
          // Fetch price synchronously first
         new Thread(() -> {
+            System.out.println("[DEBUG] Starting price fetch for: " + asset.symbol);
             try {
+                System.out.println("[DEBUG] Calling snapshotService.getSnapshots()...");
                 Map<String, com.stockle.api.data.SnapshotData> snapshots = 
                     ctrl.snapshotService.getSnapshots(java.util.List.of(asset.symbol), "iex");
                 
-                if (snapshots.containsKey(asset.symbol)) {
+                System.out.println("[DEBUG] Snapshots map received: " + (snapshots != null ? "not null" : "null"));
+                if (snapshots != null) {
+                    System.out.println("[DEBUG] Snapshots keys: " + snapshots.keySet());
+                }
+                
+                if (snapshots != null && snapshots.containsKey(asset.symbol)) {
+                    System.out.println("[DEBUG] Symbol found in snapshots");
                     com.stockle.api.data.SnapshotData snapshot = snapshots.get(asset.symbol);
+                    System.out.println("[DEBUG] Snapshot object: " + (snapshot != null ? "not null" : "null"));
+                    
                     if (snapshot != null && snapshot.latestBar != null) {
+                        System.out.println("[DEBUG] Latest bar found: close=" + snapshot.latestBar.close);
                         BarData bar = snapshot.latestBar;
                         
-                        // Update UI on main thread
                         Platform.runLater(() -> {
                             if (asset.symbol.equals(ctrl.selectedSymbol)) {
                                 ctrl.currentPrice = bar.close;
@@ -103,17 +113,20 @@ class StockDetailManager {
                                 
                                 ctrl.orderManager.updateBuyEstimate();
                                 ctrl.orderManager.updateSellEstimate();
+                                System.out.println("[DEBUG] UI updated successfully");
                             }
                         });
+                    } else {
+                        System.out.println("[DEBUG] Snapshot or latestBar is null");
                     }
+                } else {
+                    System.out.println("[DEBUG] Symbol NOT found in snapshots or snapshots is null");
                 }
             } catch (Exception e) {
-                System.err.println("Error fetching initial price for " + asset.symbol + ": " + e.getMessage());
+                System.err.println("[ERROR] Exception fetching price for " + asset.symbol);
                 e.printStackTrace();
                 Platform.runLater(() -> {
-                    if (asset.symbol.equals(ctrl.selectedSymbol)) {
-                        ctrl.stockPriceLabel.setText("—");
-                    }
+                    ctrl.stockPriceLabel.setText("Error loading price");
                 });
             }
         }).start();
