@@ -21,6 +21,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
@@ -54,6 +55,9 @@ public class TradingController {
     @FXML VBox stockListContainer;
     @FXML ScrollPane stockListScroll;
     @FXML private javafx.scene.image.ImageView darkModeIcon;
+
+    @FXML VBox chartLoadingOverlay;
+    @FXML VBox chartSpinnerContainer;
 
     // Shared state
     String selectedSymbol = "";
@@ -92,8 +96,11 @@ public class TradingController {
     public void initialize() {
         SceneManager.applyTheme(stockSymbolLabel);
         syncThemeButton();
+
+        this.detailManager = new StockDetailManager(this);
+        this.detailManager.setChartSpinnerContainer(chartSpinnerContainer);
+        this.detailManager.setChartLoadingOverlay(chartLoadingOverlay);
         
-        // INITIALIZE SERVICES FIRST!
         apiClient = new ApiClient();
         objectMapper = new ObjectMapper();
         historicalDataService = new HistoricalDataService(apiClient, objectMapper);
@@ -102,7 +109,6 @@ public class TradingController {
         assetService = new AssetService(apiClient, objectMapper, marketDataService);
 
         listManager = new StockListManager(this);
-        detailManager = new StockDetailManager(this);
         orderManager = new OrderFormManager(this);
 
         tradingUpdater = new TradingUpdater(

@@ -109,13 +109,18 @@
                                 <Button text="1D"  styleClass="timeframe-btn" onAction="#handleTimeframe" userData="1Day"/>
                                 <Button text="1M"  styleClass="timeframe-btn" onAction="#handleTimeframe" userData="1Month"/>
                             </HBox>
+                            <StackPane fx:id="chartContainer">
 
-                            <!-- Price chart -->
-                            <CandleStickChart fx:id="priceChart" styleClass="price-chart"
-                                              prefHeight="240">
-                                <xAxis><CategoryAxis/></xAxis>
-                                <yAxis><NumberAxis/></yAxis>
-                            </CandleStickChart>
+                                <!-- Price chart -->
+                                <CandleStickChart fx:id="priceChart" styleClass="price-chart"
+                                                prefHeight="240">
+                                    <xAxis><CategoryAxis/></xAxis>
+                                    <yAxis><NumberAxis/></yAxis>
+                                </CandleStickChart>
+                                <VBox fx:id="chartLoadingOverlay" style="-fx-background-color: rgba(0, 0, 0, 0.3);" alignment="CENTER" visible="false">
+                                    <VBox fx:id="chartSpinnerContainer" alignment="CENTER" prefHeight="80" prefWidth="80"/>
+                                </VBox>
+                            </StackPane>
                         </VBox>
 
                         <!-- Place Order card -->

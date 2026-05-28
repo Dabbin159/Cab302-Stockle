@@ -9,16 +9,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import io.github.palexdev.materialfx.controls.MFXProgressSpinner;
 
 import com.stockle.api.data.Asset;
 import com.stockle.api.data.BarData;
 import com.stockle.model.CandleData;
 
 import javafx.application.Platform;
+import javafx.scene.layout.VBox;
 
 /** Manages the stock detail panel — stock selection, live price fetching, and chart loading. */
 class StockDetailManager {
 
+    private javafx.scene.layout.VBox chartLoadingOverlay;
+    private MFXProgressSpinner chartProgressSpinner;
+    private javafx.scene.layout.VBox chartSpinnerContainer;
     private final TradingController ctrl;
     private final List<CandleData> currentCandles = new ArrayList<>();
     private final Map<String, Map<String, CachedChart>> chartCache = new ConcurrentHashMap<>();
@@ -30,6 +35,35 @@ class StockDetailManager {
 
     StockDetailManager(TradingController ctrl) {
         this.ctrl = ctrl;
+    }
+    
+    void setChartLoadingOverlay(VBox overlay) {
+        this.chartLoadingOverlay = overlay;
+    }
+
+    void setChartSpinnerContainer(VBox container) {
+        this.chartSpinnerContainer = container;
+    }
+
+    private void showChartSpinner() {
+        if (chartSpinnerContainer == null) return;
+        
+        chartProgressSpinner = new MFXProgressSpinner();
+        chartProgressSpinner.setPrefSize(60, 60);
+        chartProgressSpinner.setRadius(25);
+        chartProgressSpinner.setColor1(javafx.scene.paint.Color.web("#FFFFFF"));
+        chartProgressSpinner.setColor2(javafx.scene.paint.Color.web("#FFFFFF"));
+        chartProgressSpinner.setColor3(javafx.scene.paint.Color.web("#FFFFFF"));
+        chartProgressSpinner.setColor4(javafx.scene.paint.Color.web("#FFFFFF"));
+        
+        chartSpinnerContainer.getChildren().clear();
+        chartSpinnerContainer.getChildren().add(chartProgressSpinner);
+    }
+
+    private void hideChartSpinner() {
+        if (chartLoadingOverlay != null) {
+            chartLoadingOverlay.setVisible(false);
+        }
     }
 
     void handleTimeframe(javafx.event.ActionEvent event) {
@@ -163,7 +197,6 @@ class StockDetailManager {
         }
         final ZonedDateTime endTime = endTimeCandidate;
 
-
         if (!forceRefresh) {
             CachedChart cached = getCachedChart(symbol, timeframe);
             if (cached != null) {
@@ -180,6 +213,15 @@ class StockDetailManager {
                 return;
             }
         }
+
+        // Show spinner before fetching
+        Platform.runLater(() -> {
+            if (chartLoadingOverlay != null) {
+                chartLoadingOverlay.setVisible(true);
+                showChartSpinner();
+            }
+        });
+
         new Thread(() -> {
             try {
                 TimeRange range = resolveTimeRange(timeframe, endTime);
@@ -199,9 +241,17 @@ class StockDetailManager {
                     ctrl.priceChart.setCandles(candles);
                     ctrl.currentVolume = volumeToShow;
                     ctrl.volumeLabel.setText(formatVolume(volumeToShow));
+                    if (chartLoadingOverlay != null) {
+                        chartLoadingOverlay.setVisible(false);
+                    }
                 });
             } catch (Exception e) {
                 System.err.println("Error loading chart for " + symbol + ": " + e.getMessage());
+                Platform.runLater(() -> {
+                    if (chartLoadingOverlay != null) {
+                        chartLoadingOverlay.setVisible(false);
+                    }
+                });
             }
         }).start();
     }
