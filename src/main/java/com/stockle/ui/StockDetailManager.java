@@ -58,7 +58,7 @@ class StockDetailManager {
 
         ctrl.stockSymbolLabel.setText(asset.symbol);
         ctrl.stockNameLabel.setText(asset.name != null ? asset.name : asset.symbol);
-        ctrl.stockPriceLabel.setText("—");
+        ctrl.stockPriceLabel.setText("Loading...");  // Show loading state
         ctrl.stockChangeLabel.setText("—");
         ctrl.volumeLabel.setText("—");
         ctrl.marketCapLabel.setText("2.8T");
@@ -74,6 +74,49 @@ class StockDetailManager {
         ctrl.chartLoadGeneration++;
         ctrl.priceLoadGeneration++;
         currentCandles.clear();
+
+         // Fetch price synchronously first
+        new Thread(() -> {
+            try {
+                Map<String, com.stockle.api.data.SnapshotData> snapshots = 
+                    ctrl.snapshotService.getSnapshots(java.util.List.of(asset.symbol), "iex");
+                
+                if (snapshots.containsKey(asset.symbol)) {
+                    com.stockle.api.data.SnapshotData snapshot = snapshots.get(asset.symbol);
+                    if (snapshot != null && snapshot.latestBar != null) {
+                        BarData bar = snapshot.latestBar;
+                        
+                        // Update UI on main thread
+                        Platform.runLater(() -> {
+                            if (asset.symbol.equals(ctrl.selectedSymbol)) {
+                                ctrl.currentPrice = bar.close;
+                                ctrl.currentChange = bar.close - bar.open;
+                                ctrl.currentChangePercent = bar.open != 0 ? ((bar.close - bar.open) / bar.open) * 100 : 0;
+                                
+                                ctrl.stockPriceLabel.setText(String.format("$%.2f", bar.close));
+                                double changePct = ctrl.currentChangePercent;
+                                String sign = changePct >= 0 ? "+" : "";
+                                ctrl.stockChangeLabel.setText(String.format("%s%.2f (%.2f%%)", 
+                                    sign, bar.close - bar.open, changePct));
+                                ctrl.stockChangeLabel.getStyleClass().setAll(
+                                    changePct >= 0 ? "stock-change-pos" : "stock-change-neg");
+                                
+                                ctrl.orderManager.updateBuyEstimate();
+                                ctrl.orderManager.updateSellEstimate();
+                            }
+                        });
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("Error fetching initial price for " + asset.symbol + ": " + e.getMessage());
+                e.printStackTrace();
+                Platform.runLater(() -> {
+                    if (asset.symbol.equals(ctrl.selectedSymbol)) {
+                        ctrl.stockPriceLabel.setText("—");
+                    }
+                });
+            }
+        }).start();
 
         fetchLivePrice(asset.symbol);
         loadChart(asset.symbol);
