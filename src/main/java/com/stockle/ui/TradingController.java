@@ -124,6 +124,7 @@ public class TradingController {
             "iex",
             15L
         );
+        tradingUpdater.start();
         // Live updates disabled to avoid background threads.
         searchField.textProperty().addListener((obs, o, n) -> listManager.applyLiveSearch());
         buySharesField.textProperty().addListener((obs, o, n) -> orderManager.updateBuyEstimate());

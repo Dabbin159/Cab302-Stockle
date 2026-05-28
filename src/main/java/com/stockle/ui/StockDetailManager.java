@@ -58,7 +58,7 @@ class StockDetailManager {
 
         ctrl.stockSymbolLabel.setText(asset.symbol);
         ctrl.stockNameLabel.setText(asset.name != null ? asset.name : asset.symbol);
-        ctrl.stockPriceLabel.setText("Loading...");  // Show loading state
+        ctrl.stockPriceLabel.setText("—");
         ctrl.stockChangeLabel.setText("—");
         ctrl.volumeLabel.setText("—");
         ctrl.marketCapLabel.setText("2.8T");
@@ -74,62 +74,6 @@ class StockDetailManager {
         ctrl.chartLoadGeneration++;
         ctrl.priceLoadGeneration++;
         currentCandles.clear();
-
-         // Fetch price synchronously first
-        new Thread(() -> {
-            System.out.println("[DEBUG] Starting price fetch for: " + asset.symbol);
-            try {
-                System.out.println("[DEBUG] Calling snapshotService.getSnapshots()...");
-                Map<String, com.stockle.api.data.SnapshotData> snapshots = 
-                    ctrl.snapshotService.getSnapshots(java.util.List.of(asset.symbol), "iex");
-                
-                System.out.println("[DEBUG] Snapshots map received: " + (snapshots != null ? "not null" : "null"));
-                if (snapshots != null) {
-                    System.out.println("[DEBUG] Snapshots keys: " + snapshots.keySet());
-                }
-                
-                if (snapshots != null && snapshots.containsKey(asset.symbol)) {
-                    System.out.println("[DEBUG] Symbol found in snapshots");
-                    com.stockle.api.data.SnapshotData snapshot = snapshots.get(asset.symbol);
-                    System.out.println("[DEBUG] Snapshot object: " + (snapshot != null ? "not null" : "null"));
-                    
-                    if (snapshot != null && snapshot.latestBar != null) {
-                        System.out.println("[DEBUG] Latest bar found: close=" + snapshot.latestBar.close);
-                        BarData bar = snapshot.latestBar;
-                        
-                        Platform.runLater(() -> {
-                            if (asset.symbol.equals(ctrl.selectedSymbol)) {
-                                ctrl.currentPrice = bar.close;
-                                ctrl.currentChange = bar.close - bar.open;
-                                ctrl.currentChangePercent = bar.open != 0 ? ((bar.close - bar.open) / bar.open) * 100 : 0;
-                                
-                                ctrl.stockPriceLabel.setText(String.format("$%.2f", bar.close));
-                                double changePct = ctrl.currentChangePercent;
-                                String sign = changePct >= 0 ? "+" : "";
-                                ctrl.stockChangeLabel.setText(String.format("%s%.2f (%.2f%%)", 
-                                    sign, bar.close - bar.open, changePct));
-                                ctrl.stockChangeLabel.getStyleClass().setAll(
-                                    changePct >= 0 ? "stock-change-pos" : "stock-change-neg");
-                                
-                                ctrl.orderManager.updateBuyEstimate();
-                                ctrl.orderManager.updateSellEstimate();
-                                System.out.println("[DEBUG] UI updated successfully");
-                            }
-                        });
-                    } else {
-                        System.out.println("[DEBUG] Snapshot or latestBar is null");
-                    }
-                } else {
-                    System.out.println("[DEBUG] Symbol NOT found in snapshots or snapshots is null");
-                }
-            } catch (Exception e) {
-                System.err.println("[ERROR] Exception fetching price for " + asset.symbol);
-                e.printStackTrace();
-                Platform.runLater(() -> {
-                    ctrl.stockPriceLabel.setText("Error loading price");
-                });
-            }
-        }).start();
 
         fetchLivePrice(asset.symbol);
         loadChart(asset.symbol);
