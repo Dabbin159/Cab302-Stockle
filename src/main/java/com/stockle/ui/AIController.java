@@ -43,44 +43,13 @@ public class AIController {
     @FXML
     private ImageView darkModeIcon;
 
-    private final TradeDAO tradeDAO = new SQLTradeDAO();
-    private final HoldingDAO holdingDAO = new SQLHoldingDAO();
+    private final TradeDAO tradeDAO = SQLTradeDAO.getInstance();
+    private final HoldingDAO holdingDAO = SQLHoldingDAO.getInstance();
     private final GroqService groqService = new GroqService();
-
-    int userId = SessionManager.getInstance().getCurrentUserId();
-    Trade[] userTrades = tradeDAO.getTradesByUserId(userId);
-    List<Holding> userHoldings = holdingDAO.getUserHoldings(userId);
 
     @FXML
     private void initialize() {
         syncThemeButton();
-    }
-
-    /**
- * Formats portfolio data into a readable string for the AI prompt
- */
-    public String formatPortfolioForAI(Trade[] trades, List<Holding> holdings) {
-        StringBuilder portfolio = new StringBuilder("User Portfolio:\n\n");
-        
-        // Current holdings
-        portfolio.append("Current Holdings:\n");
-        for (Holding h : holdings) {
-            portfolio.append(String.format("- %s: %d shares @ $%.2f avg price\n", 
-                h.getCompanyID(), h.getQuantity(), h.getAveragePrice() / 100.0));
-        }
-        
-        // Recent trades (last 10)
-        portfolio.append("\nRecent Trades:\n");
-        int count = Math.min(10, trades.length);
-        for (int i = trades.length - count; i < trades.length; i++) {
-            Trade t = trades[i];
-            String action = t.isType() ? "SELL" : "BUY";
-            portfolio.append(String.format("- %s: %d shares of %s @ $%.2f total | %s\n",
-                action, t.getQuantity(), t.getStock().getTicker(), 
-                t.getTotalValue() / 100.0, t.getTimeStamp()));
-        }
-        
-        return portfolio.toString();
     }
 
     /**
@@ -98,7 +67,7 @@ public class AIController {
         addMessage("You: " + input);
     
         // Fetch user data
-        int userId = SessionManager.getInstance().getCurrentUserId();
+        int userId = SessionManager.getInstance().getCurrentUser().getId();
         Trade[] userTrades = tradeDAO.getTradesByUserId(userId);
         List<Holding> userHoldings = holdingDAO.getUserHoldings(userId);
         
@@ -134,7 +103,7 @@ public class AIController {
     protected void handleAnalyse() {
         addMessage("AI Coach: Analyzing your trading patterns...");
         
-        int userId = SessionManager.getInstance().getCurrentUserId();
+        int userId = SessionManager.getInstance().getCurrentUser().getId();
         Trade[] userTrades = tradeDAO.getTradesByUserId(userId);
         
         if (userTrades.length == 0) {

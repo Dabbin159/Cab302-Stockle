@@ -4,9 +4,11 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.List;
 
 import com.stockle.model.Trade;
 import com.stockle.model.TradeContext;
+import com.stockle.model.Holding;
 
 /**
  * Small service for talking to the Groq chat API.
@@ -41,6 +43,43 @@ public class GroqService {
         """ + input;
 
         return sendRequest(prompt);
+    }
+
+    /**
+    * Formats portfolio data into a readable string for the AI prompt.
+    * Includes current holdings and recent trades.
+    */
+    public String formatPortfolioForAI(Trade[] trades, List<Holding> holdings) {
+        StringBuilder portfolio = new StringBuilder("User Portfolio Context:\n\n");
+        
+        // Current holdings
+        portfolio.append("Current Holdings:\n");
+        if (holdings != null && !holdings.isEmpty()) {
+            for (Holding h : holdings) {
+                double avgPrice = h.getAveragePrice() / 100.0;
+                portfolio.append(String.format("- %s: %d shares @ $%.2f avg\n", 
+                    h.getCompanyID(), h.getQuantity(), avgPrice));
+            }
+        } else {
+            portfolio.append("- No current holdings\n");
+        }
+        
+        // Recent trades (last 10)
+        portfolio.append("\nRecent Trades (last 10):\n");
+        if (trades != null && trades.length > 0) {
+            int start = Math.max(0, trades.length - 10);
+            for (int i = start; i < trades.length; i++) {
+                Trade t = trades[i];
+                String action = t.isType() ? "SELL" : "BUY";
+                double totalValue = t.getTotalValue() / 100.0;
+                portfolio.append(String.format("- %s: %d shares of %s @ $%.2f | %s\n",
+                    action, t.getQuantity(), t.getStock().getCompanyName(),
+                    totalValue, t.getTimeStamp()));
+            }
+        } else {
+            portfolio.append("- No trades yet\n");
+        }
+        return portfolio.toString();
     }
 
     /**
