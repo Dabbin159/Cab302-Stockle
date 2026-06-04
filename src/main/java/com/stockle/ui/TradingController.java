@@ -21,7 +21,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
@@ -146,7 +145,6 @@ public class TradingController {
         List<Asset> cachedAssets = SessionManager.getInstance().getCachedAssets();
 
         if (cachedAssets != null && !cachedAssets.isEmpty()) {
-            System.out.println("Using cached assets: " + cachedAssets.size() + " stocks");
             liveAssets = cachedAssets.stream()
                 .filter(a -> a.tradable && "us_equity".equals(a.assetClass) && a.symbol != null)
                 .collect(java.util.stream.Collectors.toList());
