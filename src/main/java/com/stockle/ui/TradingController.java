@@ -14,6 +14,7 @@ import com.stockle.api.service.MarketDataService;
 import com.stockle.api.service.SnapshotService;
 import com.stockle.model.TradeController;
 import com.stockle.model.User;
+import com.stockle.updater.TradingUpdater;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -50,8 +51,6 @@ public class TradingController {
 
     @FXML TextField searchField;
     @FXML CheckBox favoritesOnly;
-    @FXML Label alertStockLabel;
-    @FXML VBox recentlyViewedContainer;
     @FXML VBox stockListContainer;
     @FXML ScrollPane stockListScroll;
     @FXML private javafx.scene.image.ImageView darkModeIcon;
@@ -80,6 +79,7 @@ public class TradingController {
     AssetService assetService;
     MarketDataService marketDataService;
     SnapshotService snapshotService;
+    TradingUpdater tradingUpdater;
 
     // Managers
     StockListManager listManager;
@@ -93,6 +93,7 @@ public class TradingController {
         SceneManager.applyTheme(stockSymbolLabel);
         syncThemeButton();
         
+        // INITIALIZE SERVICES FIRST!
         apiClient = new ApiClient();
         objectMapper = new ObjectMapper();
         historicalDataService = new HistoricalDataService(apiClient, objectMapper);
@@ -104,6 +105,29 @@ public class TradingController {
         detailManager = new StockDetailManager(this);
         orderManager = new OrderFormManager(this);
 
+        tradingUpdater = new TradingUpdater(
+            marketDataService,
+            () -> selectedSymbol,
+            new TradingUpdater.Listener() {
+                @Override
+                public void onPriceUpdate(String symbol, com.stockle.api.data.BarData bar) {
+                    Platform.runLater(() -> {
+                        detailManager.applyLivePriceUpdate(symbol, bar);
+                        detailManager.updateChartWithNewBar(symbol, bar);
+                    });
+                }
+
+                @Override
+                public void onError(String symbol, Exception exception) {
+                    System.err.println("Live price update failed for " + symbol + ": " + exception.getMessage());
+                }
+            },
+            "iex",
+            15L
+        );
+        tradingUpdater.start();
+        
+        // Setup listeners
         searchField.textProperty().addListener((obs, o, n) -> listManager.applyLiveSearch());
         buySharesField.textProperty().addListener((obs, o, n) -> orderManager.updateBuyEstimate());
         sellSharesField.textProperty().addListener((obs, o, n) -> orderManager.updateSellEstimate());
@@ -112,25 +136,39 @@ public class TradingController {
             if (n.doubleValue() >= 0.9 && !isLoadingPage) listManager.loadNextPage();
         });
 
-        recentlyViewedContainer.getChildren().clear();
+        // NOW check cache and load assets
+        List<Asset> cachedAssets = SessionManager.getInstance().getCachedAssets();
 
-        new Thread(() -> {
-            try {
-                List<Asset> assets = assetService.getAllAssets();
-                liveAssets = assets.stream()
-                    .filter(a -> a.tradable && "us_equity".equals(a.assetClass) && a.symbol != null)
-                    .collect(java.util.stream.Collectors.toList());
-                Platform.runLater(() -> {
-                    listManager.loadNextPage();
-                    liveAssets.stream()
-                        .filter(a -> "AAPL".equals(a.symbol))
-                        .findFirst()
-                        .ifPresent(detailManager::selectStock);
-                });
-            } catch (Exception e) {
-                System.err.println("Failed to load assets: " + e.getMessage());
-            }
-        }).start();
+        if (cachedAssets != null && !cachedAssets.isEmpty()) {
+            System.out.println("Using cached assets: " + cachedAssets.size() + " stocks");
+            liveAssets = cachedAssets.stream()
+                .filter(a -> a.tradable && "us_equity".equals(a.assetClass) && a.symbol != null)
+                .collect(java.util.stream.Collectors.toList());
+            listManager.loadNextPage();
+            liveAssets.stream()
+                .filter(a -> "AAPL".equals(a.symbol))
+                .findFirst()
+                .ifPresent(detailManager::selectStock);
+        } else {
+            System.out.println("Cache not available, loading assets in background...");
+            new Thread(() -> {
+                try {
+                    List<Asset> assets = assetService.getAllAssets();
+                    Platform.runLater(() -> {
+                        liveAssets = assets.stream()
+                            .filter(a -> a.tradable && "us_equity".equals(a.assetClass) && a.symbol != null)
+                            .collect(java.util.stream.Collectors.toList());
+                        listManager.loadNextPage();
+                        liveAssets.stream()
+                            .filter(a -> "AAPL".equals(a.symbol))
+                            .findFirst()
+                            .ifPresent(detailManager::selectStock);
+                    });
+                } catch (Exception e) {
+                    System.err.println("Failed to load assets: " + e.getMessage());
+                }
+            }).start();
+        }
     }
 
     @FXML
@@ -185,7 +223,11 @@ public class TradingController {
     @FXML void applyLiveSearch() { listManager.applyLiveSearch(); }
     @FXML void handleBuy() { orderManager.handleBuy(); }
     @FXML void handleSell() { orderManager.handleSell(); }
-    @FXML void handleSetAlert() {}
+
+    @FXML
+    private void handleTimeframe(javafx.event.ActionEvent event) {
+        detailManager.handleTimeframe(event);
+    }
 
     @FXML
     private void toggleFavorite() {
@@ -228,7 +270,11 @@ public class TradingController {
 
     @FXML
     private void handleSignOut() throws IOException {
+        if (tradingUpdater != null) {
+            tradingUpdater.stop();
+        }
         SessionManager.getInstance().logout();
         SceneManager.switchTo("auth/auth-view.fxml");
     }
+    
 }

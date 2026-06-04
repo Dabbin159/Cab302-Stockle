@@ -21,11 +21,9 @@
             <VBox spacing="2" styleClass="nav-section">
                 <Button fx:id="navDashboard" text="Dashboard" maxWidth="Infinity" styleClass="nav-item-active" onAction="#navDashboard"/>
                 <Button text="Trading" maxWidth="Infinity" styleClass="nav-item" onAction="#navTrading"/>
-                <Button text="Practice" maxWidth="Infinity" styleClass="nav-item"/>
-                <Button text="Leaderboard" maxWidth="Infinity" styleClass="nav-item" onAction="#navLeaderboard"/>
                 <Button text="AI Chat" maxWidth="Infinity" styleClass="nav-item" onAction="#navAI"/>
                 <Button text="News" maxWidth="Infinity" styleClass="nav-item" onAction="#navNews"/>
-                <Button text="Profile" maxWidth="Infinity" styleClass="nav-item"/>
+                <Button text="Profile" maxWidth="Infinity" styleClass="nav-item" onAction="#navProfile"/>
             </VBox>
 
             <Region VBox.vgrow="ALWAYS"/>
@@ -55,7 +53,11 @@
                         <Label text="Welcome back! Here's your portfolio overview." styleClass="page-subtitle"/>
                     </VBox>
                     <HBox styleClass="market-status-pill" alignment="CENTER_LEFT" spacing="10">
-                        <Label fx:id="marketStatusLabel" text="CLOSED" styleClass="market-status-badge market-closed"/>
+                        <Label fx:id="marketStatusLabel" text="CLOSED" styleClass="market-status-badge market-closed">
+                            <tooltip>
+                                <Tooltip text = "The market is closed all data for prices is stale and based on last data" style="-fx-font-size: 10px;"/>
+                            </tooltip>
+                        </Label>
                         <Label text="9:30 AM – 4:00 PM EST" styleClass="market-status-hours"/>
                     </HBox>
                 </HBox>
@@ -74,7 +76,11 @@
                         <HBox alignment="CENTER_LEFT">
                             <Label text="Total Portfolio Value" styleClass="stat-label" HBox.hgrow="ALWAYS"/>
                         </HBox>
-                        <Label fx:id="totalValueLabel" text="" styleClass="stat-value"/>
+                        <Label fx:id="totalValueLabel" text="" styleClass="stat-value">
+                            <tooltip>
+                                    <Tooltip text = "Buying power plus current market value of all holdings" style="-fx-font-size: 10px;"/>
+                            </tooltip>
+                        </Label>
                         <Label fx:id="totalGainLabel"  text="" styleClass="stat-positive"/>
                     </VBox>
 
@@ -83,7 +89,11 @@
                         <HBox alignment="CENTER_LEFT">
                             <Label text="Buying Power" styleClass="stat-label" HBox.hgrow="ALWAYS"/>
                         </HBox>
-                        <Label fx:id="buyingPowerLabel" text="" styleClass="stat-value"/>
+                        <Label fx:id="buyingPowerLabel" text="" styleClass="stat-value">
+                        <tooltip>
+                                    <Tooltip text = "Uninvested money avaliable to trade" style="-fx-font-size: 10px;"/>
+                            </tooltip>
+                        </Label>
                         <Label text="Available to trade" styleClass="stat-neutral"/>
                     </VBox>
 
@@ -92,24 +102,40 @@
                         <HBox alignment="CENTER_LEFT">
                             <Label text="Total Trades" styleClass="stat-label" HBox.hgrow="ALWAYS"/>
                         </HBox>
-                        <Label fx:id="totalTradesLabel" text="0" styleClass="stat-value"/>
+                        <Label fx:id="totalTradesLabel" text="0" styleClass="stat-value">
+                        <tooltip>
+                                    <Tooltip text = "Amount of times you have bought or sold stocks" style="-fx-font-size: 10px;"/>
+                            </tooltip>
+                        </Label>
                         <Label fx:id="totalTradesSubLabel" text="0 this month" styleClass="stat-neutral"/>
                     </VBox>
 
-                    <!-- Win Rate -->
-                    <VBox styleClass="stat-card" spacing="6" GridPane.columnIndex="3">
-                        <HBox alignment="CENTER_LEFT">
-                            <Label text="Win Rate" styleClass="stat-label" HBox.hgrow="ALWAYS"/>
+                    <!-- Compare Stocks -->
+                    <VBox styleClass="quick-card-blue" GridPane.columnIndex="3">
+                        <HBox spacing="14" alignment="CENTER_LEFT">
+                            <StackPane styleClass="quick-icon-blue" minWidth="48" minHeight="48" maxWidth="48" maxHeight="48">
+                                <Label text=":)" styleClass="quick-icon-lbl"/>
+                            </StackPane>
+                            <VBox spacing="2">
+                                <Label text="Compare Stocks" styleClass="quick-title">
+                                <tooltip>
+                                    <Tooltip text = "Compare candlestick and other data between two stocks" style="-fx-font-size: 10px;"/>
+                                </tooltip>
+                                </Label>
+                                <Label text="Side-by-side analysis" styleClass="quick-desc"/>
+                            </VBox>
                         </HBox>
-                        <Label text="68.5%" styleClass="stat-value"/>
-                        <Label text="+2.3% from last month" styleClass="stat-positive"/>
                     </VBox>
                 </GridPane>
 
                 <!-- Portfolio Chart -->
                 <VBox styleClass="card">
                     <Label text="Portfolio Performance" styleClass="card-title"
-                           style="-fx-padding: 16 16 8 16;"/>
+                           style="-fx-padding: 16 16 8 16;">
+                    <tooltip>
+                            <Tooltip text = "Chart of total portfolio value over time" style="-fx-font-size: 10px;"/>
+                        </tooltip>
+                    </Label>
                     <AreaChart fx:id="portfolioChart" styleClass="portfolio-chart"
                                legendVisible="false" prefHeight="260" animated="false">
                         <xAxis><CategoryAxis/></xAxis>
@@ -121,56 +147,27 @@
                 <HBox spacing="16">
                     <VBox styleClass="card" HBox.hgrow="ALWAYS">
                         <Label text="Current Holdings" styleClass="card-title"
-                               style="-fx-padding: 16 16 12 16;"/>
+                               style="-fx-padding: 16 16 12 16;">
+                        <tooltip>
+                            <Tooltip text = "All of your holdings and their most recent market price" style="-fx-font-size: 10px;"/>
+                        </tooltip>
+
+                    </Label>
                         <VBox fx:id="holdingsContainer" spacing="8"
                               style="-fx-padding: 0 16 16 16;"/>
                     </VBox>
                     <VBox styleClass="card" HBox.hgrow="ALWAYS">
                         <Label text="Recent Trades" styleClass="card-title"
-                               style="-fx-padding: 16 16 12 16;"/>
+                               style="-fx-padding: 16 16 12 16;">
+                        <tooltip>
+                            <Tooltip text = "Your most recent trades" style="-fx-font-size: 10px;"/>
+                        </tooltip>
+                        </Label>
                         <VBox fx:id="tradesContainer" spacing="8"
                               style="-fx-padding: 0 16 16 16;"/>
                     </VBox>
                 </HBox>
 
-                <!-- Quick Actions -->
-                <HBox spacing="16">
-                    <VBox styleClass="quick-card-blue" HBox.hgrow="ALWAYS">
-                        <HBox spacing="14" alignment="CENTER_LEFT">
-                            <StackPane styleClass="quick-icon-blue" minWidth="48" minHeight="48" maxWidth="48" maxHeight="48">
-                                <Label text=":)" styleClass="quick-icon-lbl"/>
-                            </StackPane>
-                            <VBox spacing="2">
-                                <Label text="Compare Stocks" styleClass="quick-title"/>
-                                <Label text="Side-by-side analysis" styleClass="quick-desc"/>
-                            </VBox>
-                        </HBox>
-                    </VBox>
-
-                    <VBox styleClass="quick-card-purple" HBox.hgrow="ALWAYS">
-                        <HBox spacing="14" alignment="CENTER_LEFT">
-                            <StackPane styleClass="quick-icon-purple" minWidth="48" minHeight="48" maxWidth="48" maxHeight="48">
-                                <Label text=":)" styleClass="quick-icon-lbl"/>
-                            </StackPane>
-                            <VBox spacing="2">
-                                <Label text="Trade Summary" styleClass="quick-title"/>
-                                <Label text="View analytics" styleClass="quick-desc"/>
-                            </VBox>
-                        </HBox>
-                    </VBox>
-
-                    <VBox styleClass="quick-card-green" HBox.hgrow="ALWAYS">
-                        <HBox spacing="14" alignment="CENTER_LEFT">
-                            <StackPane styleClass="quick-icon-green" minWidth="48" minHeight="48" maxWidth="48" maxHeight="48">
-                                <Label text=":)" styleClass="quick-icon-lbl"/>
-                            </StackPane>
-                            <VBox spacing="2">
-                                <Label text="Price Alerts" styleClass="quick-title"/>
-                                <Label text="Set notifications" styleClass="quick-desc"/>
-                            </VBox>
-                        </HBox>
-                    </VBox>
-                </HBox>
             </VBox>
         </ScrollPane>
     </center>

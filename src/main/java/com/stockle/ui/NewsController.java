@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stockle.api.client.ApiClient;
 import com.stockle.api.data.NewsArticle;
 import com.stockle.api.service.NewsService;
+import com.stockle.updater.NewsUpdater;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -39,6 +40,8 @@ public class NewsController {
     private String currentSymbol = null;
     private boolean isLoading = false;
 
+    private NewsUpdater newsUpdater;
+
     private final Label loadingLabel = styledLabel("Loading…", "article-loading");
     private final Label emptyLabel   = styledLabel("No articles found.", "article-empty");
 
@@ -64,6 +67,51 @@ public class NewsController {
         });
 
         resetAndLoad(null);
+
+        // Initialize and start the auto-update news poller
+        newsUpdater = new NewsUpdater(
+            newsService,
+            () -> currentSymbol,  // supplier: polls whatever symbol is currently selected
+            new NewsUpdater.Listener() {
+                @Override
+                public void onNewsUpdate(String symbol, java.util.List<NewsArticle> articles) {
+                    // Update UI on FX thread with fresh articles for the symbol
+                    if (!symbol.equals(currentSymbol)) {
+                        return;  // discard stale updates
+                    }
+                    Platform.runLater(() -> {
+                        articleList.getChildren().remove(emptyLabel);
+                        articleList.getChildren().remove(loadingLabel);
+                        articleList.getChildren().clear();
+                        if (articles.isEmpty()) {
+                            articleList.getChildren().add(emptyLabel);
+                        } else {
+                            for (NewsArticle article : articles) {
+                                articleList.getChildren().add(buildArticleCard(article));
+                            }
+                        }
+                        nextPageToken = null;
+                    });
+                }
+
+                @Override
+                public void onError(String symbol, Exception exception) {
+                    System.err.println("News auto-update error for " + symbol + ": " + exception.getMessage());
+                }
+            },
+            20,   // newsLimit: fetch 20 articles per update
+            300    // intervalSeconds: poll every 5 minutes
+        );
+        newsUpdater.start();
+    }
+
+    /**
+     * Cleanup: stop the news updater when the controller is destroyed.
+     */
+    public void shutdown() {
+        if (newsUpdater != null) {
+            newsUpdater.stop();
+        }
     }
 
     //  Loading

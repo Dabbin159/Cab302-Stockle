@@ -9,6 +9,7 @@ module com.stockle {
     requires org.xerial.sqlitejdbc;
     requires org.json;
     requires jbcrypt;
+    requires MaterialFX;
 
     opens com.stockle.api to javafx.fxml;
     opens com.stockle.ui to javafx.fxml;
@@ -19,5 +20,6 @@ module com.stockle {
     exports com.stockle.ui;
     exports com.stockle.model;
     exports com.stockle.api;
+    exports com.stockle.api.service;
     exports com.stockle.database;
 }

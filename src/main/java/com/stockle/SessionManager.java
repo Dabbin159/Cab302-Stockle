@@ -1,5 +1,7 @@
 package com.stockle;
 
+import java.util.List;
+
 import com.stockle.database.SQLUserDAO;
 import com.stockle.model.User;
 
@@ -11,6 +13,10 @@ public class SessionManager {
     private static SessionManager instance;
     private User currentUser;
     private boolean darkModeEnabled = false;
+    private List<com.stockle.api.data.Asset> cachedAssets; // Cache for asset data to avoid redundant API calls
+
+    public List<com.stockle.api.data.Asset> getCachedAssets() { return cachedAssets; }
+    public void setCachedAssets(List<com.stockle.api.data.Asset> assets) { this.cachedAssets = assets; }    
 
     private SessionManager() {}; //Prevents any external creation
 
