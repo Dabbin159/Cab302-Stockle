@@ -13,10 +13,12 @@ public class SQLFavouritesDAO implements FavouritesDAO {
     private static SQLFavouritesDAO instance;
     private Connection connection;
 
+    // Private constructor - use getInstance() to get the DAO
     private SQLFavouritesDAO() {
         connection = SqliteConnection.getInstance(); // Retrive the current database connection
     }
 
+    // Singleton - only one instance of this DAO needed
     public static SQLFavouritesDAO getInstance() {
         if (instance == null) {
             instance = new SQLFavouritesDAO();
@@ -24,12 +26,16 @@ public class SQLFavouritesDAO implements FavouritesDAO {
         return instance;
     }
 
+    // Inserts a new row or updates the existing one if userID already exists
     private static final String INSERT_UPDATE_FAVOURITES = "INSERT INTO favourites (userID, favouritesList) VALUES " +
             "(?, ?)" + "ON CONFLICT(userID) DO UPDATE SET favouritesList = excluded.favouritesList";
     private static final String GET_FAVOURITES = "SELECT favouritesList FROM favourites where userID = ?";
+
+    // Wipes the whole favourites row for a user - used for test cleanup
     private static final String DELETE_USER_FAVOURITES = "DELETE FROM FAVOURITES WHERE userID = ?";
 
     @Override
+    // Adds stocks to the user's favourites list, skips any that are already in there
     public void addFavourite(int userID, List<String> favourites) {
         try {
             List<String> current = getFavourites(userID);
@@ -47,6 +53,7 @@ public class SQLFavouritesDAO implements FavouritesDAO {
     }
 
     @Override
+    // Removes a single stock from the user's favourites list
     public void deleteFavourite(int userID, String favourites) {
         try {
             List<String> current = getFavourites(userID);
@@ -62,6 +69,7 @@ public class SQLFavouritesDAO implements FavouritesDAO {
     }
 
     @Override
+    // Returns the user's favourites as a list, empty list if they have none
     public List<String> getFavourites(int userID) {
         try {
             PreparedStatement statement = connection.prepareStatement(GET_FAVOURITES);
@@ -84,6 +92,7 @@ public class SQLFavouritesDAO implements FavouritesDAO {
         return new ArrayList<>();
     }
 
+    // Deletes the entire favourites row for a user - mainly used to reset state in tests
     public void clearFavourites(int userID) {
         try {
             PreparedStatement statement = connection.prepareStatement(DELETE_USER_FAVOURITES);
