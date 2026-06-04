@@ -3,17 +3,26 @@ import java.io.IOException;
 import java.text.NumberFormat;
 import java.time.DayOfWeek;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stockle.SessionManager;
 import com.stockle.api.client.ApiClient;
+import com.stockle.api.data.BarData;
+import com.stockle.api.data.QuoteData;
 import com.stockle.api.service.AssetService;
+import com.stockle.api.service.HistoricalDataService;
+import com.stockle.api.service.MarketDataService;
 import com.stockle.database.SQLHoldingDAO;
 import com.stockle.database.SQLTradeDAO;
 import com.stockle.database.SQLUserDAO;
@@ -184,16 +193,31 @@ public class DashboardController {
 
         AssetService assetService = new AssetService(new ApiClient(), new ObjectMapper(), null);
 
+        // Creates a set of all companys the user Holds
+        Set<String> allCompanyIds = holdings.stream()
+            .map(Holding::getCompanyID)
+            .collect(Collectors.toSet());
+        // Gets the quotes for each symbol reduces calls by queirying all at once
+        MarketDataService marketDataService = new MarketDataService(new ApiClient(), new ObjectMapper());
+        Map<String, QuoteData> quotesForSymbols = marketDataService.getLatestQuotes(new ArrayList<>(allCompanyIds), "iex");
+        HistoricalDataService historicalDataService = new HistoricalDataService(new ApiClient(), new ObjectMapper());
+
         for (Holding holding : holdings) {
-            long costBasis = (long) holding.getAveragePrice() * holding.getQuantity();
+            QuoteData quote = quotesForSymbols.get(holding.getCompanyID());
+            double pricePerShare = resolveHoldingPrice(holding.getCompanyID(), quote, historicalDataService);
+            long costBasis = Math.round(pricePerShare * holding.getQuantity());
             totalHoldingsValue += costBasis;
+
             String companyId = holding.getCompanyID();
             String companyName = companyId;
+            // A call for each asset must be done as querying name only avaliable on single Symbol calls
             try {
+                // Gets symbols company name
                 com.stockle.api.data.Asset asset = assetService.getAsset(companyId);
                 if (asset != null && asset.name != null && !asset.name.isBlank()) {
                     companyName = asset.name;
                 }
+                // Gets symbols buy price
             } catch (Exception ignored) {
                 companyName = companyId;
             }
@@ -210,6 +234,28 @@ public class DashboardController {
         }
 
         return totalHoldingsValue;
+    }
+
+    /**
+     * If the GetLatestQuote endpoint does not work will call gethistorical bars to get this data to display on dashboard
+     * @param companyId The company ID which will have its value found
+     * @param quote The previous quote found through the get latests quotes end point
+     * @param historicalDataService Service used to fetch historical bars 
+     * @return the most recent price of the given holding from get historical bars
+     */
+    private double resolveHoldingPrice(String companyId, QuoteData quote, HistoricalDataService historicalDataService) {
+        if (quote != null && quote.bidPrice > 0.0) {
+            return quote.bidPrice;
+        }
+
+        String startDate = LocalDate.now(MARKET_ZONE).minusDays(30).toString();
+        String endDate = LocalDate.now(MARKET_ZONE).toString();
+        List<BarData> bars = historicalDataService.getHistoricalBars(companyId, startDate, endDate, "1Day", "iex");
+        if (bars != null && !bars.isEmpty()) {
+            return bars.get(bars.size() - 1).close;
+        }
+
+        return 0.0;
     }
 
     private void loadTrades(int userId) {
