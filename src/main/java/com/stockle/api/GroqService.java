@@ -4,8 +4,11 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.List;
 
+import com.stockle.model.Trade;
 import com.stockle.model.TradeContext;
+import com.stockle.model.Holding;
 
 /**
  * Small service for talking to the Groq chat API.
@@ -39,6 +42,131 @@ public class GroqService {
         User:
         """ + input;
 
+        return sendRequest(prompt);
+    }
+
+    /**
+    * Formats portfolio data into a readable string for the AI prompt.
+    * Includes current holdings and recent trades.
+    */
+    public String formatPortfolioForAI(Trade[] trades, List<Holding> holdings) {
+        StringBuilder portfolio = new StringBuilder("User Portfolio Context:\n\n");
+        
+        // Current holdings
+        portfolio.append("Current Holdings:\n");
+        if (holdings != null && !holdings.isEmpty()) {
+            for (Holding h : holdings) {
+                double avgPrice = h.getAveragePrice() / 100.0;
+                portfolio.append(String.format("- %s: %d shares @ $%.2f avg\n", 
+                    h.getCompanyID(), h.getQuantity(), avgPrice));
+            }
+        } else {
+            portfolio.append("- No current holdings\n");
+        }
+        
+        // Recent trades (last 10)
+        portfolio.append("\nRecent Trades (last 10):\n");
+        if (trades != null && trades.length > 0) {
+            int start = Math.max(0, trades.length - 10);
+            for (int i = start; i < trades.length; i++) {
+                Trade t = trades[i];
+                String action = t.isType() ? "SELL" : "BUY";
+                double totalValue = t.getTotalValue() / 100.0;
+                portfolio.append(String.format("- %s: %d shares of %s @ $%.2f | %s\n",
+                    action, t.getQuantity(), t.getStock().getCompanyName(),
+                    totalValue, t.getTimeStamp()));
+            }
+        } else {
+            portfolio.append("- No trades yet\n");
+        }
+        return portfolio.toString();
+    }
+
+    /**
+    * Analyzes trading patterns and gives coaching advice
+    */
+    public String analyzeTradesAndCoach(String portfolioData, String userQuestion) {
+        String prompt = """
+        You are an experienced trading coach and mentor.
+        
+        %s
+        
+        User Question: %s
+        
+        Provide coaching advice based on their portfolio and trading history:
+        1. Identify patterns in their buying/selling
+        2. Note risk management observations
+        3. Suggest improvements
+        4. Give actionable tips
+        
+        Keep it practical and supportive—no predictions of future prices.
+        """.formatted(portfolioData, userQuestion);
+        
+        return sendRequest(prompt);
+    }
+
+    /**
+     * Analyzes buying/selling patterns
+     */
+    public String analyzeTradingPatterns(Trade[] trades) {
+        StringBuilder analysisData = new StringBuilder();
+        
+        int buyCount = 0, sellCount = 0;
+        long totalBuyValue = 0, totalSellValue = 0;
+        
+        for (Trade t : trades) {
+            if (t.isType()) { // sell
+                sellCount++;
+                totalSellValue += t.getTotalValue();
+            } else { // buy
+                buyCount++;
+                totalBuyValue += t.getTotalValue();
+            }
+        }
+        
+        analysisData.append(String.format("""
+            Trading Summary:
+            - Total Trades: %d
+            - Buys: %d (Total: $%.2f)
+            - Sells: %d (Total: $%.2f)
+            - Buy/Sell Ratio: %.2f
+            """, 
+            trades.length, buyCount, totalBuyValue / 100.0, 
+            sellCount, totalSellValue / 100.0,
+            buyCount > 0 ? (double) buyCount / sellCount : 0));
+        
+        String prompt = """
+        You are a trading pattern analyst.
+        
+        %s
+        
+        Based on this trading history, what patterns do you observe?
+        - Are they buying before selling? (Good timing?)
+        - Any concentration in certain stocks?
+        - Risk management observations
+        - Suggestions for improvement
+        
+        Be constructive and educational.
+        """.formatted(analysisData.toString());
+        
+        return sendRequest(prompt);
+    }
+
+    /**
+     * Chat with portfolio context—the main new feature!
+     */
+    public String chatWithPortfolioContext(String userMessage, String portfolioData) {
+        String prompt = """
+        You are a helpful stock market coach and mentor.
+        
+        %s
+        
+        User's Question: %s
+        
+        Answer their question thoughtfully, considering their portfolio and trading history.
+        Keep answers practical and educational. Avoid predictions.
+        """.formatted(portfolioData, userMessage);
+        
         return sendRequest(prompt);
     }
 

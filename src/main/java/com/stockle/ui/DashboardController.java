@@ -359,6 +359,15 @@ public class DashboardController {
         SceneManager.switchTo("trading/trading-view.fxml");
     }
 
+    /**
+     * Navigates to the profile/account settings screen.
+     * @throws IOException
+     */
+    @FXML
+    private void navProfile() throws IOException {
+        SceneManager.switchTo("profile/profile-view.fxml");
+    }
+
     @FXML private void navAI() throws IOException {
         SceneManager.switchTo("ai/ai-view.fxml");
     }

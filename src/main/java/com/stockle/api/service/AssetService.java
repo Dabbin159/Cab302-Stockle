@@ -19,6 +19,8 @@ import com.stockle.api.data.BarData;
  * 
  */
 public class AssetService {
+    private List<Asset> cachedAssets;
+    private boolean isCaching = false;
     private final ApiClient apiClient;
     private final ObjectMapper objectMapper;
     private final MarketDataService marketDataService;
@@ -47,6 +49,9 @@ public class AssetService {
      * @return a list of all active assets available for trading
      */
     public List<Asset> getAllAssets() {
+        if (cachedAssets != null) {
+            return cachedAssets;
+        }
         List<Asset> assets = new ArrayList<>();
 
         try {
@@ -70,6 +75,7 @@ public class AssetService {
                     assets.add(asset);
                 }
             }
+            cachedAssets = assets;
         } catch (Exception e) {
             System.err.println("Error fetching all assets: " + e.getMessage());
         }

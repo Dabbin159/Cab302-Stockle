@@ -16,6 +16,20 @@
     -fx-padding: 4 0 0 0;
 }
 
+#loadingOverlay {
+    -fx-background-color: rgba(0, 0, 0, 0.75);
+}
+
+#loadingSpinner {
+    -fx-padding: 20;
+}
+
+#loadingLabel {
+    -fx-text-fill: white;
+    -fx-font-size: 14;
+    -fx-font-weight: bold;
+}
+
 .nav-item {
     -fx-background-color: transparent;
     -fx-text-fill: #374151;
