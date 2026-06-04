@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.text.NumberFormat;
 import java.time.DayOfWeek;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -17,8 +18,10 @@ import java.util.stream.Collectors;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stockle.SessionManager;
 import com.stockle.api.client.ApiClient;
+import com.stockle.api.data.BarData;
 import com.stockle.api.data.QuoteData;
 import com.stockle.api.service.AssetService;
+import com.stockle.api.service.HistoricalDataService;
 import com.stockle.api.service.MarketDataService;
 import com.stockle.database.SQLHoldingDAO;
 import com.stockle.database.SQLTradeDAO;
@@ -197,14 +200,12 @@ public class DashboardController {
         // Gets the quotes for each symbol reduces calls by queirying all at once
         MarketDataService marketDataService = new MarketDataService(new ApiClient(), new ObjectMapper());
         Map<String, QuoteData> quotesForSymbols = marketDataService.getLatestQuotes(new ArrayList<>(allCompanyIds), "iex");
-
-        // TODO: if map has no bidprice then need to go to historical bars implementation
+        HistoricalDataService historicalDataService = new HistoricalDataService(new ApiClient(), new ObjectMapper());
 
         for (Holding holding : holdings) {
-            // Gets current value of holding
             QuoteData quote = quotesForSymbols.get(holding.getCompanyID());
-            double bidPrice = quote != null ? quote.bidPrice : 0.0;
-            long costBasis = (long) bidPrice * holding.getQuantity();
+            double pricePerShare = resolveHoldingPrice(holding.getCompanyID(), quote, historicalDataService);
+            long costBasis = Math.round(pricePerShare * holding.getQuantity());
             totalHoldingsValue += costBasis;
 
             String companyId = holding.getCompanyID();
@@ -233,6 +234,28 @@ public class DashboardController {
         }
 
         return totalHoldingsValue;
+    }
+
+    /**
+     * If the GetLatestQuote endpoint does not work will call gethistorical bars to get this data to display on dashboard
+     * @param companyId The company ID which will have its value found
+     * @param quote The previous quote found through the get latests quotes end point
+     * @param historicalDataService Service used to fetch historical bars 
+     * @return the most recent price of the given holding from get historical bars
+     */
+    private double resolveHoldingPrice(String companyId, QuoteData quote, HistoricalDataService historicalDataService) {
+        if (quote != null && quote.bidPrice > 0.0) {
+            return quote.bidPrice;
+        }
+
+        String startDate = LocalDate.now(MARKET_ZONE).minusDays(30).toString();
+        String endDate = LocalDate.now(MARKET_ZONE).toString();
+        List<BarData> bars = historicalDataService.getHistoricalBars(companyId, startDate, endDate, "1Day", "iex");
+        if (bars != null && !bars.isEmpty()) {
+            return bars.get(bars.size() - 1).close;
+        }
+
+        return 0.0;
     }
 
     private void loadTrades(int userId) {
