@@ -20,13 +20,9 @@ public class NewsArticle {
     public String updated_at;
     public List<String> symbols;
 
-<<<<<<< HEAD
     /**
      * Constructor for empty news article
      */
     public NewsArticle() {
     }
-=======
-    public NewsArticle() {}
->>>>>>> e27b0e69b8ee6121a6382dd9085b60b2d0e3a1c9
 }
