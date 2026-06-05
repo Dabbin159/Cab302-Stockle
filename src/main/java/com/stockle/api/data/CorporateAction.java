@@ -4,8 +4,6 @@ import java.util.Map;
 
 /**
  * Data model for Alpaca corporate action records.
- *
- * Fields are intentionally aligned to common API keys and may be null depending on action type.
  */
 public class CorporateAction {
     public String id;
@@ -27,6 +25,9 @@ public class CorporateAction {
 
     public Map<String, Object> raw;
 
+    /**
+     * Constructor for empty corporate action
+     */
     public CorporateAction() {
     }
 }

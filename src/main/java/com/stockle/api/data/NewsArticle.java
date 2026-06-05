@@ -16,6 +16,9 @@ public class NewsArticle {
     public String image_url;
     public List<String> symbols;
 
+    /**
+     * Constructor for empty news article
+     */
     public NewsArticle() {
     }
 }
