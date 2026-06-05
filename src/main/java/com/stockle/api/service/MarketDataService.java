@@ -87,8 +87,8 @@ public class MarketDataService {
      *
      * @param symbols the list of stock symbols to fetch (e.g., ["AAPL","MSFT"])
      * @param feed the market data feed to use (e.g., "sip" or "iex")
-     * @return a map from symbol to the latest `QuoteData` for that symbol; symbols
-     * without data will be absent from the map
+     * @return a map from symbol to the latest `QuoteData` for that symbol
+     * symbols without data will be absent from the map
      */
     public Map<String, QuoteData> getLatestQuotes(List<String> symbols, String feed) {
 
