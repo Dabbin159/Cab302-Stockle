@@ -1,13 +1,28 @@
 package com.stockle.ui;
 import java.io.IOException;
 import java.text.NumberFormat;
+import java.time.DayOfWeek;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stockle.SessionManager;
+import com.stockle.api.client.ApiClient;
+import com.stockle.api.data.BarData;
+import com.stockle.api.data.QuoteData;
+import com.stockle.api.service.AssetService;
+import com.stockle.api.service.HistoricalDataService;
+import com.stockle.api.service.MarketDataService;
 import com.stockle.database.SQLHoldingDAO;
 import com.stockle.database.SQLTradeDAO;
 import com.stockle.database.SQLUserDAO;
@@ -15,9 +30,10 @@ import com.stockle.model.Holding;
 import com.stockle.model.Trade;
 import com.stockle.model.User;
 
-import com.stockle.SessionManager;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.chart.AreaChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
@@ -28,19 +44,30 @@ import javafx.scene.layout.VBox;
 
 @SuppressWarnings("unused")
 public class DashboardController {
+    private static final ZoneId MARKET_ZONE = ZoneId.of("America/New_York");
+    private static final LocalTime MARKET_OPEN = LocalTime.of(9, 30);
+    private static final LocalTime MARKET_CLOSE = LocalTime.of(16, 0);
+
     private static final NumberFormat CURRENCY = NumberFormat.getCurrencyInstance();
     private static final DateTimeFormatter TRADE_TIME_FMT =
         DateTimeFormatter.ofPattern("MMM d, HH:mm").withZone(ZoneId.systemDefault());
 
+    @FXML private Label marketStatusLabel;
     @FXML private Label totalValueLabel;
     @FXML private Label totalGainLabel;
     @FXML private Label buyingPowerLabel;
+    @FXML private Label totalTradesLabel;
+    @FXML private Label totalTradesSubLabel;
     @FXML private AreaChart<String, Number> portfolioChart;
     @FXML private VBox holdingsContainer;
     @FXML private VBox tradesContainer;
+    @FXML private javafx.scene.control.Button darkModeBtn;
+    @FXML private javafx.scene.image.ImageView darkModeIcon;
 
     @FXML
     public void initialize() {
+        updateMarketStatus();
+        syncThemeButton();
         loadChart();
 
         User currentUser = SessionManager.getInstance().getCurrentUser();
@@ -61,6 +88,56 @@ public class DashboardController {
         loadSummary(freshUser, holdingsValue);
     }
 
+    @FXML
+    private void toggleDarkMode() {
+        if (marketStatusLabel == null) return;
+        Scene scene = marketStatusLabel.getScene();
+        if (scene == null) return;
+        Parent root = scene.getRoot();
+
+        SessionManager sessionManager = SessionManager.getInstance();
+        sessionManager.setDarkModeEnabled(!sessionManager.isDarkModeEnabled());
+        SceneManager.applyTheme(root);
+        syncThemeButton();
+    }
+
+    private void syncThemeButton() {
+        if (darkModeIcon == null) {
+            return;
+        }
+
+        boolean darkModeEnabled = SessionManager.getInstance().isDarkModeEnabled();
+        String iconResource = darkModeEnabled
+            ? "/com/stockle/ui/images/light-mode-button.png"
+            : "/com/stockle/ui/images/dark-mode-button.png";
+
+        java.net.URL iconUrl = getClass().getResource(iconResource);
+        if (iconUrl != null) {
+            darkModeIcon.setImage(new javafx.scene.image.Image(iconUrl.toExternalForm()));
+        }
+    }
+
+    public static boolean isMarketOpenAtEt(ZonedDateTime etNow) {
+        DayOfWeek d = etNow.getDayOfWeek();
+        LocalTime t = etNow.toLocalTime();
+        boolean weekday = d != DayOfWeek.SATURDAY && d != DayOfWeek.SUNDAY;
+        return weekday && !t.isBefore(LocalTime.of(9, 30)) && t.isBefore(LocalTime.of(16, 0));
+    }
+
+    private void updateMarketStatus() {
+        ZonedDateTime nowEt = ZonedDateTime.now(MARKET_ZONE);
+        DayOfWeek day = nowEt.getDayOfWeek();
+        LocalTime time = nowEt.toLocalTime();
+
+        boolean weekday = day != DayOfWeek.SATURDAY && day != DayOfWeek.SUNDAY;
+        boolean inSession = !time.isBefore(MARKET_OPEN) && !time.isAfter(MARKET_CLOSE);
+        boolean open = weekday && inSession;
+
+        marketStatusLabel.setText(open ? "OPEN" : "CLOSED");
+        marketStatusLabel.getStyleClass().removeAll("market-open", "market-closed");
+        marketStatusLabel.getStyleClass().add(open ? "market-open" : "market-closed");
+    }
+
     private void loadMockSummaryAndLists() {
         MockData.DashboardSummary summary = MockData.dashboardSummary();
         totalValueLabel.setText(summary.totalValue());
@@ -71,10 +148,12 @@ public class DashboardController {
     }
 
     private void loadChart() {
+        portfolioChart.getData().clear();
         XYChart.Series<String, Number> series = new XYChart.Series<>();
         for (MockData.DashboardChartPoint point : MockData.dashboardChart()) {
             series.getData().add(new XYChart.Data<>(point.label(), point.value()));
         }
+
         portfolioChart.getData().add(series);
     }
 
@@ -110,15 +189,42 @@ public class DashboardController {
             holdingsContainer.getChildren().add(styledLabel("No holdings yet", "row-sub"));
             return 0L;
         }
-
         long totalHoldingsValue = 0L;
+
+        AssetService assetService = new AssetService(new ApiClient(), new ObjectMapper(), null);
+
+        // Creates a set of all companys the user Holds
+        Set<String> allCompanyIds = holdings.stream()
+            .map(Holding::getCompanyID)
+            .collect(Collectors.toSet());
+        // Gets the quotes for each symbol reduces calls by queirying all at once
+        MarketDataService marketDataService = new MarketDataService(new ApiClient(), new ObjectMapper());
+        Map<String, QuoteData> quotesForSymbols = marketDataService.getLatestQuotes(new ArrayList<>(allCompanyIds), "iex");
+        HistoricalDataService historicalDataService = new HistoricalDataService(new ApiClient(), new ObjectMapper());
+
         for (Holding holding : holdings) {
-            long costBasis = (long) holding.getAveragePrice() * holding.getQuantity();
+            QuoteData quote = quotesForSymbols.get(holding.getCompanyID());
+            double pricePerShare = resolveHoldingPrice(holding.getCompanyID(), quote, historicalDataService);
+            long costBasis = Math.round(pricePerShare * holding.getQuantity());
             totalHoldingsValue += costBasis;
+
+            String companyId = holding.getCompanyID();
+            String companyName = companyId;
+            // A call for each asset must be done as querying name only avaliable on single Symbol calls
+            try {
+                // Gets symbols company name
+                com.stockle.api.data.Asset asset = assetService.getAsset(companyId);
+                if (asset != null && asset.name != null && !asset.name.isBlank()) {
+                    companyName = asset.name;
+                }
+                // Gets symbols buy price
+            } catch (Exception ignored) {
+                companyName = companyId;
+            }
             holdingsContainer.getChildren().add(
                 holdingRow(
-                    holding.getCompanyID(),
-                    holding.getCompanyID(),
+                    companyId,
+                    companyName + " (" + companyId + ")",
                     holding.getQuantity() + " shares",
                     CURRENCY.format(holding.getAveragePrice()),
                     CURRENCY.format(costBasis),
@@ -126,7 +232,30 @@ public class DashboardController {
                 )
             );
         }
+
         return totalHoldingsValue;
+    }
+
+    /**
+     * If the GetLatestQuote endpoint does not work will call gethistorical bars to get this data to display on dashboard
+     * @param companyId The company ID which will have its value found
+     * @param quote The previous quote found through the get latests quotes end point
+     * @param historicalDataService Service used to fetch historical bars 
+     * @return the most recent price of the given holding from get historical bars
+     */
+    private double resolveHoldingPrice(String companyId, QuoteData quote, HistoricalDataService historicalDataService) {
+        if (quote != null && quote.bidPrice > 0.0) {
+            return quote.bidPrice;
+        }
+
+        String startDate = LocalDate.now(MARKET_ZONE).minusDays(30).toString();
+        String endDate = LocalDate.now(MARKET_ZONE).toString();
+        List<BarData> bars = historicalDataService.getHistoricalBars(companyId, startDate, endDate, "1Day", "iex");
+        if (bars != null && !bars.isEmpty()) {
+            return bars.get(bars.size() - 1).close;
+        }
+
+        return 0.0;
     }
 
     private void loadTrades(int userId) {
@@ -158,6 +287,17 @@ public class DashboardController {
         String sign = totalProfit >= 0 ? "+" : "-";
         totalGainLabel.setText(sign + CURRENCY.format(Math.abs(totalProfit)));
         totalGainLabel.getStyleClass().setAll(totalProfit >= 0 ? "stat-positive" : "stat-negative");
+
+        // Load trade statistics (total trades and this month's trades)
+        loadTradeStats(user.getId());
+    }
+
+    private void loadTradeStats(int userId) {
+        if (totalTradesLabel == null || totalTradesSubLabel == null) return;
+        int total = SQLTradeDAO.getInstance().getTotalTradesCountByUser(userId);
+        int monthCount = SQLTradeDAO.getInstance().getTradesCountByUserLastMonth(userId);
+        totalTradesLabel.setText(String.valueOf(total));
+        totalTradesSubLabel.setText(monthCount + " this month");
     }
 
     private String formatTradeTime(String timestamp) {
@@ -219,8 +359,25 @@ public class DashboardController {
         SceneManager.switchTo("trading/trading-view.fxml");
     }
 
+    /**
+     * Navigates to the profile/account settings screen.
+     * @throws IOException
+     */
+    @FXML
+    private void navProfile() throws IOException {
+        SceneManager.switchTo("profile/profile-view.fxml");
+    }
+
     @FXML private void navAI() throws IOException {
         SceneManager.switchTo("ai/ai-view.fxml");
+    }
+
+    @FXML private void navNews() throws IOException {
+        SceneManager.switchTo("news/news-view.fxml");
+    }
+
+    @FXML private void navLeaderboard() throws IOException {
+        SceneManager.switchTo("leaderboard/leaderboard-view.fxml");
     }
 
     // Signs User out, Sends to Login page and syncs user data

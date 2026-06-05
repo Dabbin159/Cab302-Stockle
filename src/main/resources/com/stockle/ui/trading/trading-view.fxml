@@ -2,6 +2,8 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.chart.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.geometry.Insets?>
 <?import com.stockle.ui.CandleStickChart?>
 
@@ -18,13 +20,21 @@
             <VBox spacing="2" styleClass="nav-section">
                 <Button text="Dashboard" maxWidth="Infinity" styleClass="nav-item" onAction="#navDashboard"/>
                 <Button text="Trading" maxWidth="Infinity" styleClass="nav-item-active"/>
-                <Button text="Practice" maxWidth="Infinity" styleClass="nav-item"/>
-                <Button text="Leaderboard" maxWidth="Infinity" styleClass="nav-item"/>
                 <Button text="AI Chat" maxWidth="Infinity" styleClass="nav-item" onAction="#navAI"/>
-                <Button text="News" maxWidth="Infinity" styleClass="nav-item"/>
+                <Button text="News" maxWidth="Infinity" styleClass="nav-item" onAction="#navNews"/>
                 <Button text="Profile" maxWidth="Infinity" styleClass="nav-item"/>
             </VBox>
             <Region VBox.vgrow="ALWAYS"/>
+            <Button fx:id="darkModeBtn" mnemonicParsing="false" onAction="#toggleDarkMode"
+                    styleClass="dark-mode-btn">
+                <graphic>
+                    <ImageView fx:id="darkModeIcon" fitHeight="14.0" fitWidth="14.0" pickOnBounds="true" preserveRatio="true">
+                        <image>
+                            <Image url="@../images/dark-mode-button.png" />
+                        </image>
+                    </ImageView>
+                </graphic>
+            </Button>
             <Button text="Sign Out" maxWidth="Infinity" styleClass="nav-signout" onAction="#handleSignOut"/>
         </VBox>
     </left>
@@ -54,7 +64,11 @@
                             <HBox styleClass="card-header-row" alignment="CENTER_LEFT">
                                 <VBox spacing="2" HBox.hgrow="ALWAYS">
                                     <HBox alignment="CENTER_LEFT" spacing="8">
-                                        <Label fx:id="stockSymbolLabel" text="AAPL" styleClass="stock-symbol"/>
+                                        <Label fx:id="stockSymbolLabel" text="AAPL" styleClass="stock-symbol">
+                                        <tooltip>
+                                            <Tooltip text = "Shows a candlestick view of this stock ask the AI for more info" style="-fx-font-size: 10px;"/>
+                                        </tooltip>
+                                        </Label>
                                         <Button fx:id="favoriteBtn" text="☆" styleClass="fav-btn" onAction="#toggleFavorite"/>
                                     </HBox>
                                     <Label fx:id="stockNameLabel" text="Apple Inc." styleClass="stock-name"/>
@@ -86,6 +100,16 @@
                                 </VBox>
                             </GridPane>
 
+                            <!-- Timeframe selector -->
+                            <HBox styleClass="timeframe-bar" spacing="4">
+                                <Button text="1m"  styleClass="timeframe-btn,timeframe-btn-active" onAction="#handleTimeframe" userData="1Min"/>
+                                <Button text="5m"  styleClass="timeframe-btn" onAction="#handleTimeframe" userData="5Min"/>
+                                <Button text="10m" styleClass="timeframe-btn" onAction="#handleTimeframe" userData="10Min"/>
+                                <Button text="1h"  styleClass="timeframe-btn" onAction="#handleTimeframe" userData="1Hour"/>
+                                <Button text="1D"  styleClass="timeframe-btn" onAction="#handleTimeframe" userData="1Day"/>
+                                <Button text="1M"  styleClass="timeframe-btn" onAction="#handleTimeframe" userData="1Month"/>
+                            </HBox>
+
                             <!-- Price chart -->
                             <CandleStickChart fx:id="priceChart" styleClass="price-chart"
                                               prefHeight="240">
@@ -104,7 +128,6 @@
                                 <!-- Buy Tab -->
                                 <Tab text="Buy">
                                     <VBox spacing="14" styleClass="tab-content">
-
                                         <VBox spacing="4">
                                             <Label text="Number of Shares" styleClass="field-label"/>
                                             <TextField fx:id="buySharesField" promptText="0"
@@ -202,33 +225,11 @@
                             </VBox>
                         </VBox>
 
-                        <!-- Price Alert -->
-                        <VBox styleClass="card">
-                            <Label text="Price Alert" styleClass="card-title"
-                                   style="-fx-padding: 16 16 8 16;"/>
-                            <VBox spacing="10" style="-fx-padding: 0 16 16 16;">
-                                <Label fx:id="alertStockLabel" text="Alert price for AAPL"
-                                       styleClass="field-label"/>
-                                <TextField fx:id="alertPriceField" promptText="0.00"
-                                           styleClass="trade-input"/>
-                                <Button text="Set Alert" styleClass="alert-btn" maxWidth="Infinity"
-                                        onAction="#handleSetAlert"/>
-                            </VBox>
-                        </VBox>
-
-                        <!-- Recently Viewed -->
-                        <VBox styleClass="card">
-                            <Label text="Recently Viewed" styleClass="card-title"
-                                   style="-fx-padding: 16 16 8 16;"/>
-                            <VBox fx:id="recentlyViewedContainer" spacing="4"
-                                  style="-fx-padding: 0 12 12 12;"/>
-                        </VBox>
-
                         <!-- All Stocks -->
                         <VBox styleClass="card">
                             <Label text="All Stocks" styleClass="card-title"
                                    style="-fx-padding: 16 16 8 16;"/>
-                            <ScrollPane fx:id="stockListScroll" prefHeight="300" fitToWidth="true"
+                            <ScrollPane fx:id="stockListScroll" prefHeight="550" fitToWidth="true"
                                         styleClass="stocks-scroll" hbarPolicy="NEVER">
                                 <VBox fx:id="stockListContainer" spacing="4"
                                       style="-fx-padding: 0 12 12 12;"/>

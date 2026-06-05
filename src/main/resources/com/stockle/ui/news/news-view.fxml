@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            xmlns="http://javafx.com/javafx"
+            fx:controller="com.stockle.ui.NewsController"
+            stylesheets="@news.css">
+    <!-- Sidebar -->
+    <left>
+        <VBox styleClass="sidebar">
+            <padding><Insets top="24" bottom="16" left="16" right="16"/></padding>
+            <Label text="Stockle" styleClass="sidebar-logo"/>
+            <VBox spacing="2" styleClass="nav-section">
+                <Button text="Dashboard" maxWidth="Infinity" styleClass="nav-item" onAction="#navDashboard"/>
+                <Button text="Trading" maxWidth="Infinity" styleClass="nav-item" onAction="#navTrading"/>
+                <Button text="AI Chat" maxWidth="Infinity" styleClass="nav-item" onAction="#navAI"/>
+                <Button text="News" maxWidth="Infinity" styleClass="nav-item-active"/>
+                <Button text="Profile" maxWidth="Infinity" styleClass="nav-item"/>
+            </VBox>
+            <Region VBox.vgrow="ALWAYS"/>
+            <Button fx:id="darkModeBtn" mnemonicParsing="false" onAction="#toggleDarkMode" styleClass="dark-mode-btn">
+                <graphic>
+                    <ImageView fx:id="darkModeIcon" fitHeight="14.0" fitWidth="14.0" pickOnBounds="true" preserveRatio="true">
+                        <image>
+                            <Image url="@../images/dark-mode-button.png" />
+                        </image>
+                    </ImageView>
+                </graphic>
+            </Button>
+            <Button text="Sign Out" maxWidth="Infinity" styleClass="nav-signout" onAction="#handleSignOut"/>
+        </VBox>
+    </left>
+    <!-- Main content -->
+    <center>
+        <ScrollPane fx:id="mainScroll" fitToWidth="true" styleClass="main-scroll" hbarPolicy="NEVER">
+            <VBox spacing="20" styleClass="main-content">
+                <padding><Insets top="28" bottom="36" left="28" right="28"/></padding>
+
+                <!-- Header -->
+                <VBox spacing="2">
+                    <Label text="Market News" styleClass="page-title"/>
+                    <Label text="Stay up to date with the latest financial news and market updates." styleClass="page-subtitle"/>
+                </VBox>
+                <!-- Search bar -->
+                <TextField fx:id="searchField" promptText="Search by symbol e.g. AAPL"
+                           styleClass="trade-input"/>
+                <!-- Article list -->
+                <VBox fx:id="articleList" spacing="14"/>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

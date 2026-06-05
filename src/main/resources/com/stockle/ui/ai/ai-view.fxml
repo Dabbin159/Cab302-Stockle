@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.geometry.Insets?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
@@ -16,13 +18,21 @@
             <VBox spacing="2" styleClass="nav-section">
                 <Button text="Dashboard" maxWidth="Infinity" styleClass="nav-item" onAction="#navDashboard"/>
                 <Button text="Trading" maxWidth="Infinity" styleClass="nav-item" onAction="#navTrading"/>
-                <Button text="Practice" maxWidth="Infinity" styleClass="nav-item"/>
-                <Button text="Leaderboard" maxWidth="Infinity" styleClass="nav-item"/>
                 <Button text="AI Chat" maxWidth="Infinity" styleClass="nav-item-active"/>
-                <Button text="News" maxWidth="Infinity" styleClass="nav-item"/>
+                <Button text="News" maxWidth="Infinity" styleClass="nav-item" onAction="#navNews"/>
                 <Button text="Profile" maxWidth="Infinity" styleClass="nav-item"/>
             </VBox>
             <Region VBox.vgrow="ALWAYS"/>
+            <Button fx:id="darkModeBtn" mnemonicParsing="false" onAction="#toggleDarkMode"
+                    styleClass="dark-mode-btn">
+                <graphic>
+                    <ImageView fx:id="darkModeIcon" fitHeight="14.0" fitWidth="14.0" pickOnBounds="true" preserveRatio="true">
+                        <image>
+                            <Image url="@../images/dark-mode-button.png" />
+                        </image>
+                    </ImageView>
+                </graphic>
+            </Button>
             <Button text="Sign Out" maxWidth="Infinity" styleClass="nav-signout" onAction="#handleSignOut"/>
         </VBox>
     </left>
@@ -95,7 +105,7 @@
                                         styleClass="suggestion-btn" maxWidth="Infinity"
                                         wrapText="true" onAction="#handleSuggest"/>
                                 <Button text="Analyse my last trade"
-                                        styleClass="suggestion-btn suggestion-btn-trade"
+                                        styleClass="suggestion-btn-trade"
                                         maxWidth="Infinity" onAction="#handleSuggest"/>
                             </VBox>
                         </VBox>

@@ -1,8 +1,16 @@
 package com.stockle.ui;
 
 import java.io.IOException;
+import java.util.List;
 
+import com.stockle.SessionManager;
 import com.stockle.api.GroqService;
+import com.stockle.database.HoldingDAO;
+import com.stockle.database.SQLHoldingDAO;
+import com.stockle.database.SQLTradeDAO;
+import com.stockle.database.TradeDAO;
+import com.stockle.model.Holding;
+import com.stockle.model.Trade;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -10,6 +18,8 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -30,7 +40,17 @@ public class AIController {
     @FXML
     private TextField userInput;
 
-    private GroqService groqService = new GroqService();
+    @FXML
+    private ImageView darkModeIcon;
+
+    private final TradeDAO tradeDAO = SQLTradeDAO.getInstance();
+    private final HoldingDAO holdingDAO = SQLHoldingDAO.getInstance();
+    private final GroqService groqService = new GroqService();
+
+    @FXML
+    private void initialize() {
+        syncThemeButton();
+    }
 
     /**
      * Sends the user's message to the AI and shows both messages in the chat.
@@ -45,9 +65,18 @@ public class AIController {
         }
 
         addMessage("You: " + input);
-
-        String response = groqService.askChatbot(input);
-        addMessage("AI: " + response);
+    
+        // Fetch user data
+        int userId = SessionManager.getInstance().getCurrentUser().getId();
+        Trade[] userTrades = tradeDAO.getTradesByUserId(userId);
+        List<Holding> userHoldings = holdingDAO.getUserHoldings(userId);
+        
+        // Format portfolio data
+        String portfolioContext = groqService.formatPortfolioForAI(userTrades, userHoldings);
+        
+        // Chat WITH context instead of plain chat
+        String response = groqService.chatWithPortfolioContext(input, portfolioContext);
+        addMessage("AI Coach: " + response);
 
         userInput.clear();
     }
@@ -72,7 +101,30 @@ public class AIController {
      */
     @FXML
     protected void handleAnalyse() {
-        addMessage("AI: Analysis feature coming soon!");
+        addMessage("AI Coach: Analyzing your trading patterns...");
+        
+        int userId = SessionManager.getInstance().getCurrentUser().getId();
+        Trade[] userTrades = tradeDAO.getTradesByUserId(userId);
+        
+        if (userTrades.length == 0) {
+            addMessage("AI Coach: You haven't made any trades yet. Start trading to get analysis!");
+            return;
+        }
+        
+        String analysis = groqService.analyzeTradingPatterns(userTrades);
+        addMessage("AI Coach: " + analysis);
+    }
+
+    @FXML
+    private void toggleDarkMode() {
+        if (chatBox == null || chatBox.getScene() == null) {
+            return;
+        }
+
+        SessionManager sessionManager = SessionManager.getInstance();
+        sessionManager.setDarkModeEnabled(!sessionManager.isDarkModeEnabled());
+        SceneManager.applyTheme(chatBox.getScene().getRoot());
+        syncThemeButton();
     }
 
     /**
@@ -116,6 +168,22 @@ public class AIController {
         }
     }
 
+    private void syncThemeButton() {
+        if (darkModeIcon == null) {
+            return;
+        }
+
+        boolean darkModeEnabled = SessionManager.getInstance().isDarkModeEnabled();
+        String iconPath = darkModeEnabled
+            ? "/com/stockle/ui/images/light-mode-button.png"
+            : "/com/stockle/ui/images/dark-mode-button.png";
+
+        java.net.URL iconUrl = getClass().getResource(iconPath);
+        if (iconUrl != null) {
+            darkModeIcon.setImage(new Image(iconUrl.toExternalForm()));
+        }
+    }
+
     // Navigation
 
     /**
@@ -141,6 +209,14 @@ public class AIController {
      *
      * @throws IOException if the FXML file cannot be loaded
      */
+    @FXML private void navNews() throws IOException {
+        SceneManager.switchTo("news/news-view.fxml");
+    }
+
+    @FXML private void navLeaderboard() throws IOException {
+        SceneManager.switchTo("leaderboard/leaderboard-view.fxml");
+    }
+
     @FXML private void handleSignOut() throws IOException {
         SceneManager.switchTo("auth/auth-view.fxml");
     }

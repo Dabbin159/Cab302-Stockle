@@ -1,16 +1,193 @@
 @import "../global.css";
 
+/* Dark theme toggled by .dark-theme on the root (DashboardController.toggleDarkMode) */
+.dark-theme .sidebar {
+    -fx-background-color: #101828;
+    -fx-effect: none;
+}
+
+.dark-theme .nav-item,
+.dark-theme .nav-signout {
+    -fx-text-fill: #99A1AF;    /* muted text like auth dark */
+}
+
+.dark-theme .nav-item:hover {
+    -fx-background-color: rgba(255,255,255,0.02);
+}
+
+.dark-theme .nav-item-active {
+    -fx-background-color: transparent;
+    -fx-text-fill: #60A5FA;    /* blue accent for active item */
+    -fx-font-weight: bold;
+}
+
+/* Make the dark-mode button appear as a compact icon matching the navbar */
+.sidebar Button {
+    -fx-background-color: transparent;
+    -fx-padding: 6;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+}
+
+.sidebar Button:hover {
+    -fx-background-color: rgba(255,255,255,0.03);
+    -fx-background-radius: 6;
+}
+
+/* Target ImageView inside the sidebar to display as a small icon */
+.sidebar ImageView {
+    -fx-fit-width: 14;   /* default compact icon size */
+    -fx-fit-height: 14;
+    -fx-preserve-ratio: true;
+    -fx-smooth: true;
+}
+
+/* Page content and scroll area background */
+.dark-theme .main-scroll,
+.dark-theme .main-scroll .viewport,
+.dark-theme .main-content {
+    -fx-background-color: #030712;
+    -fx-background: #030712;
+}
+
+/* Card and row backgrounds */
+.dark-theme .card,
+.dark-theme .stat-card,
+.dark-theme .row-card,
+.dark-theme .quick-card-blue {
+    -fx-background-color: #0A0A0A; /* slightly lighter than page for contrast */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 24, 0, 0, 6);
+    -fx-border-color: #262626;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+}
+
+/* Text colours in dark mode */
+.dark-theme .page-title,
+.dark-theme .card-title,
+.dark-theme .stat-value,
+.dark-theme .row-symbol,
+.dark-theme .row-price {
+    -fx-text-fill: #FAFAFA;
+}
+
+.dark-theme .sidebar-logo,
+.dark-theme .quick-title {
+    -fx-text-fill: #FAFAFA;
+}
+
+.dark-theme .row-card {
+    -fx-background-radius: 8;
+    -fx-padding: 10 12;
+    -fx-background-color: #101828;
+}
+
+.dark-theme .page-subtitle,
+.dark-theme .hint-text,
+.dark-theme .market-status-hours,
+.dark-theme .card-description,
+.dark-theme .row-sub,
+.dark-theme .trade-time{
+    -fx-text-fill: #99A1AF;
+}
+
+/* Market status badges keep positive/negative colours */
+.dark-theme .stat-positive,
+.dark-theme .row-positive,
+.dark-theme .stock-row-pos { -fx-text-fill: #16a34a; }
+.dark-theme .stat-negative,
+.dark-theme .row-negative,
+.dark-theme .stock-row-neg { -fx-text-fill: #dc2626; }
+
+/* Chart adjustments for dark background */
+.dark-theme .portfolio-chart .chart-plot-background,
+.dark-theme .portfolio-chart .chart-content {
+    -fx-background-color: transparent;
+}
+.dark-theme .portfolio-chart .axis {
+    -fx-tick-label-fill: #99A1AF;
+}
+.dark-theme .portfolio-chart .chart-horizontal-grid-lines {
+    -fx-stroke: rgba(255,255,255,0.04);
+}
+.dark-theme .portfolio-chart .chart-series-area-line {
+    -fx-stroke: #60A5FA;
+}
+.dark-theme .portfolio-chart .chart-series-area-fill {
+    -fx-fill: linear-gradient(from 0% 0% to 0% 100%, rgba(96,165,250,0.14), rgba(96,165,250,0));
+}
+
+/* Quick action icons in dark */
+.dark-theme .quick-icon-blue { -fx-background-color: rgba(96,165,250,0.08); }
+
+/* small polish: outlines and hover states */
+.dark-theme .nav-signout:hover { -fx-background-color: rgba(255,255,255,0.02); }
+
+/* Dark mode button styling */
+.dark-mode-btn {
+    -fx-background-color: transparent;
+    -fx-padding: 8 8 8 8;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+}
+
+.dark-mode-btn:hover {
+    -fx-background-color: rgba(255,255,255,0.05);
+}
+
+/* Light mode icon (default) */
+#darkModeIconLight {
+    -fx-opacity: 1;
+}
+
+/* Apply white tint to icon in dark mode */
+.dark-theme #darkModeIconLight {
+    -fx-effect: dropshadow(gaussian, white, 3, 0.8, 0, 0);
+}
+
+.dark-theme .market-status-pill {
+    -fx-background-color: #0A0A0A;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 12, 0, 0, 4);
+    -fx-border-color: #262626;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+}
+
+.dark-theme .market-status-hours {
+    -fx-font-size: 12px;
+    -fx-text-fill: white;
+}
+
+
 /* Header */
 
-.market-badge {
-    -fx-font-size: 12px;
-    -fx-text-fill: #374151;
+.market-status-pill {
     -fx-background-color: white;
-    -fx-background-radius: 20;
-    -fx-border-color: #e5e7eb;
-    -fx-border-radius: 20;
-    -fx-border-width: 1;
-    -fx-padding: 4 12;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 8, 0, 0, 2);
+    -fx-padding: 8 14;
+}
+
+.market-status-badge {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+/* Market Open */
+.market-open {
+    -fx-text-fill: #16a34a;
+}
+
+/* Market Closed */
+.market-closed {
+    -fx-text-fill: #dc2626;
+}
+
+.market-status-hours {
+    -fx-font-size: 12px;
+    -fx-text-fill: #6b7280;
 }
 
 /* Stat Cards */
@@ -154,7 +331,7 @@
 }
 
 /* Quick Action Cards */
-.quick-card-blue, .quick-card-purple, .quick-card-green {
+.quick-card-blue {
     -fx-background-color: white;
     -fx-background-radius: 12;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 2);
@@ -162,28 +339,14 @@
     -fx-cursor: hand;
 }
 
-.quick-card-blue:hover   { -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 16, 0, 0, 4); }
-.quick-card-purple:hover { -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 16, 0, 0, 4); }
-.quick-card-green:hover  { -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 16, 0, 0, 4); }
+.quick-card-blue:hover { -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 16, 0, 0, 4); }
 
 .quick-icon-blue {
     -fx-background-color: #dbeafe;
     -fx-background-radius: 24;
 }
 
-.quick-icon-purple {
-    -fx-background-color: #f3e8ff;
-    -fx-background-radius: 24;
-}
-
-.quick-icon-green {
-    -fx-background-color: #dcfce7;
-    -fx-background-radius: 24;
-}
-
-.quick-icon-blue .quick-icon-lbl   { -fx-font-size: 18px; -fx-text-fill: #2563eb; }
-.quick-icon-purple .quick-icon-lbl { -fx-font-size: 18px; -fx-text-fill: #9333ea; }
-.quick-icon-green .quick-icon-lbl  { -fx-font-size: 18px; -fx-text-fill: #16a34a; }
+.quick-icon-blue .quick-icon-lbl { -fx-font-size: 18px; -fx-text-fill: #2563eb; }
 
 .quick-title {
     -fx-font-size: 14px;

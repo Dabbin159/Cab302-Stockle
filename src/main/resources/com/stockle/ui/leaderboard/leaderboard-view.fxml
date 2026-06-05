@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.Insets?>
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            xmlns="http://javafx.com/javafx"
+            fx:controller="com.stockle.ui.LeaderboardController"
+            stylesheets="@leaderboard.css">
+
+    <!-- Sidebar -->
+    <left>
+        <VBox styleClass="sidebar">
+            <padding><Insets top="24" bottom="16" left="16" right="16"/></padding>
+            <Label text="Stockle" styleClass="sidebar-logo"/>
+            <VBox spacing="2" styleClass="nav-section">
+                <Button text="Dashboard" maxWidth="Infinity" styleClass="nav-item" onAction="#navDashboard"/>
+                <Button text="Trading" maxWidth="Infinity" styleClass="nav-item" onAction="#navTrading"/>
+                <Button text="Leaderboard" maxWidth="Infinity" styleClass="nav-item-active"/>
+                <Button text="AI Chat" maxWidth="Infinity" styleClass="nav-item" onAction="#navAI"/>
+                <Button text="News" maxWidth="Infinity" styleClass="nav-item" onAction="#navNews"/>
+                <Button text="Profile" maxWidth="Infinity" styleClass="nav-item"/>
+            </VBox>
+            <Region VBox.vgrow="ALWAYS"/>
+            <Button fx:id="darkModeBtn" mnemonicParsing="false" onAction="#toggleDarkMode" styleClass="dark-mode-btn">
+                <graphic>
+                    <ImageView fx:id="darkModeIcon" fitHeight="14.0" fitWidth="14.0" pickOnBounds="true" preserveRatio="true">
+                        <image>
+                            <Image url="@../images/dark-mode-button.png" />
+                        </image>
+                    </ImageView>
+                </graphic>
+            </Button>
+            <Button text="Sign Out" maxWidth="Infinity" styleClass="nav-signout" onAction="#handleSignOut"/>
+        </VBox>
+    </left>
+
+    <!-- Main content -->
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="main-scroll" hbarPolicy="NEVER">
+            <VBox spacing="24" styleClass="main-content">
+                <padding><Insets top="28" bottom="36" left="28" right="28"/></padding>
+
+                <!-- Header -->
+                <VBox spacing="2">
+                    <Label text="Leaderboard" styleClass="page-title"/>
+                    <Label text="Compete with traders worldwide" styleClass="page-subtitle"/>
+                </VBox>
+
+                <!-- Podium top 3 -->
+                <HBox fx:id="podiumContainer" spacing="16" alignment="BOTTOM_CENTER"/>
+
+                <!-- Full rankings -->
+                <VBox styleClass="card">
+                    <Label text="Global Rankings" styleClass="card-title"
+                           style="-fx-padding: 16 16 12 16;"/>
+                    <VBox fx:id="rankingsContainer" spacing="0"
+                          style="-fx-padding: 0 16 16 16;"/>
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

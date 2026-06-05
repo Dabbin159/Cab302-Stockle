@@ -1,6 +1,5 @@
 package com.stockle.api.service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +48,7 @@ public class HistoricalDataService {
      * @param feed the market data feed to use (e.g., "sip" or "iex")
      * @return a list of BarData objects representing historical bars
      */
-    public List<BarData> getHistoricalBars(String symbol, LocalDate startDate, LocalDate endDate, String timeframe, String feed) {
+    public List<BarData> getHistoricalBars(String symbol, String startDate, String endDate, String timeframe, String feed) {
         List<BarData> bars = new ArrayList<>();
         String nextPageToken = null;
         int maxIterations = 100;
@@ -66,7 +65,7 @@ public class HistoricalDataService {
                 urlBuilder.append("&timeframe=").append(timeframe);
                 urlBuilder.append("&start=").append(startDate);
                 urlBuilder.append("&end=").append(endDate);
-                urlBuilder.append("&limit=10000");
+                urlBuilder.append("&limit=100");
                 urlBuilder.append("&sort=asc");
                 urlBuilder.append("&feed=").append(feed);
 
@@ -130,7 +129,7 @@ public class HistoricalDataService {
      * @param feed the market data feed to use (e.g., "sip" or "iex")
      * @return a list of QuoteData objects representing historical quotes
      */
-    public List<QuoteData> getHistoricalQuotes(String symbol, LocalDate startDate, LocalDate endDate, String feed) {
+    public List<QuoteData> getHistoricalQuotes(String symbol, String startDate, String endDate, String feed) {
         List<QuoteData> quotes = new ArrayList<>();
         String nextPageToken = null;
         int maxIterations = 10;
@@ -210,7 +209,7 @@ public class HistoricalDataService {
      * @param feed the market data feed to use (e.g., "sip" or "iex")
      * @return a list of TradeData objects representing historical trades
      */
-    public List<TradeData> getHistoricalTrades(String symbol, LocalDate startDate, LocalDate endDate, String feed) {
+    public List<TradeData> getHistoricalTrades(String symbol, String startDate, String endDate, String feed) {
         List<TradeData> trades = new ArrayList<>();
         String nextPageToken = null;
         int maxIterations = 100;

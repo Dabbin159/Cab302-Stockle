@@ -1,9 +1,231 @@
 @import "../global.css";
 
+/* Default/light background */
+.auth-root {
+    -fx-background-color: #f9fafb;
+}
+
+/* Dark mode background:
+   top-right -> bottom-left diagonal */
+.auth-root.dark-mode {
+    -fx-background-color: linear-gradient(
+        from 108% -8% to -8% 108%,
+        #030712 0%,
+        #030712 14%,
+        #081228 26%,
+        #101828 42%,
+        #13203A 56%,
+        #101828 70%,
+        #081228 84%,
+        #030712 100%
+    );
+}
+
+/* Dark mode text styles */
+.auth-root.dark-mode .headline {
+    -fx-text-fill: white;
+}
+
+.auth-root.dark-mode .brand-title {
+    -fx-text-fill: white;
+}
+
+.auth-root.dark-mode .body-text {
+    -fx-text-fill: #99A1AF;
+}
+
+.auth-root.dark-mode .feature-title {
+    -fx-text-fill: white;
+}
+
+.auth-root.dark-mode .feature-box-blue,
+.auth-root.dark-mode .feature-box-purple,
+.auth-root.dark-mode .feature-box-green {
+    -fx-background-color: transparent;
+}
+
+.auth-root.dark-mode .feature-box-blue .feature-icon {
+    -fx-text-fill: #60A5FA;
+}
+
+.auth-root.dark-mode .feature-box-purple .feature-icon {
+    -fx-text-fill: #C084FC;
+}
+
+.auth-root.dark-mode .feature-box-green .feature-icon {
+    -fx-text-fill: #34D399;
+}
+
+/* Dark mode card */
+.auth-root.dark-mode .card {
+    -fx-background-color: #0A0A0A;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 32, 0, 0, 8);
+}
+
+.auth-root.dark-mode .card-header {
+    -fx-border-color: transparent transparent #262626 transparent;
+}
+
+.auth-root.dark-mode .card-title {
+    -fx-text-fill: #FAFAFA;
+}
+
+.auth-root.dark-mode .card-description {
+    -fx-text-fill: #99A1AF;
+}
+
+/* Dark mode tabs */
+.auth-root.dark-mode .auth-tabs .tab-header-background {
+    -fx-background-color: #0F0F0F;
+}
+
+.auth-root.dark-mode .auth-tabs .tab {
+    -fx-text-fill: #A1A1A1;
+}
+
+.auth-root.dark-mode .auth-tabs .tab .tab-label {
+    -fx-text-fill: #A1A1A1;
+}
+
+.auth-root.dark-mode .auth-tabs .tab:selected {
+    -fx-background-color: #262626;
+    -fx-text-fill: #FAFAFA;
+}
+
+.auth-root.dark-mode .auth-tabs .tab:selected .tab-label {
+    -fx-text-fill: #FAFAFA;
+}
+
+/* Dark mode form inputs */
+.auth-root.dark-mode .auth-input {
+    -fx-background-color: #262626;
+    -fx-border-color: rgba(255,255,255,0.1);
+    -fx-text-fill: #A1A1A1;
+}
+
+.auth-root.dark-mode .auth-input:focused {
+    -fx-border-color: #2563eb;
+    -fx-background-color: #1A1A1A;
+    -fx-text-fill: #FAFAFA;
+}
+
+.auth-root.dark-mode .auth-input -fx-prompt-text-fill {
+    -fx-text-fill: #666666;
+}
+
+/* Dark mode password container */
+.auth-root.dark-mode .password-container {
+    -fx-background-color: #262626;
+    -fx-border-color: rgba(255,255,255,0.1);
+}
+
+.auth-root.dark-mode .password-container:focused-within {
+    -fx-border-color: #2563eb;
+    -fx-background-color: #1A1A1A;
+}
+
+.auth-root.dark-mode .auth-input-inner {
+    -fx-text-fill: #A1A1A1;
+    -fx-prompt-text-fill: #666666;
+}
+
+.auth-root.dark-mode .toggle-btn {
+    -fx-text-fill: #666666;
+}
+
+.auth-root.dark-mode .toggle-btn:hover {
+    -fx-text-fill: #A1A1A1;
+    -fx-background-color: rgba(255,255,255,0.05);
+}
+
+.auth-root.dark-mode .outline-btn {
+    -fx-background-color: #262626;
+    -fx-text-fill: #FAFAFA;
+    -fx-border-color: rgba(255,255,255,0.1);
+}
+
+.auth-root.dark-mode .outline-btn:hover {
+    -fx-background-color: #333333;
+}
+
+/* Dark mode buttons */
+.auth-root.dark-mode .login-signup-btn {
+    -fx-background-color: white;
+    -fx-text-fill: #374151;
+    -fx-border-color: rgba(255,255,255,0.1);
+}
+
+.auth-root.dark-mode .login-signup-btn:hover {
+    -fx-background-color: #f9fafb;
+}
+
+.auth-root.dark-mode .link-btn {
+    -fx-text-fill: #60A5FA;
+}
+
+/* Dark mode divider */
+.auth-root.dark-mode .divider-line {
+    -fx-background-color: #262626;
+}
+
+.auth-root.dark-mode .divider-label {
+    -fx-text-fill: #666666;
+}
+
+/* Dark mode misc */
+.auth-root.dark-mode .terms-text {
+    -fx-text-fill: #A1A1A1;
+}
+
+.auth-root.dark-mode .field-label {
+    -fx-text-fill: #FAFAFA;
+}
+
+.auth-root.dark-mode .hint-text {
+    -fx-text-fill: #666666;
+}
+
+/* Dark mode datepicker */
+.auth-root.dark-mode .auth-datepicker {
+    -fx-background-color: #262626;
+    -fx-border-color: rgba(255,255,255,0.1);
+}
+
+.auth-root.dark-mode .auth-datepicker .text-field {
+    -fx-text-fill: #A1A1A1;
+    -fx-prompt-text-fill: #666666;
+}
+
+.auth-root.dark-mode .auth-datepicker:focused {
+    -fx-border-color: #2563eb;
+    -fx-background-color: #1A1A1A;
+}
+
+.auth-root.dark-mode .auth-datepicker .arrow-button .arrow {
+    -fx-background-color: #A1A1A1;
+}
+
+/* Dark mode checkbox */
+.auth-root.dark-mode .auth-checkbox,
+.auth-root.dark-mode .fav-check {
+    -fx-text-fill: #A1A1A1;
+}
+
+.auth-root.dark-mode .auth-checkbox .box,
+.auth-root.dark-mode .fav-check .box {
+    -fx-background-color: #262626;
+    -fx-border-color: rgba(255,255,255,0.1);
+}
+
+.auth-root.dark-mode .auth-checkbox:selected .box,
+.auth-root.dark-mode .fav-check:selected .box {
+    -fx-background-color: #2563eb;
+    -fx-border-color: #2563eb;
+}
+
 /* ── Branding ── */
 .logo-box {
     -fx-background-radius: 16;
-    -fx-border-color: rgba(0, 0, 0, 0.10);
     -fx-border-width: 1;
     -fx-border-radius: 16;
     -fx-background-radius: 16;
@@ -207,6 +429,25 @@
     -fx-cursor: hand;
     -fx-focus-color: transparent;
     -fx-faint-focus-color: transparent;
+}
+
+.login-signup-btn {
+    -fx-background-color: white;
+    -fx-text-fill: #374151;
+    -fx-font-size: 14px;
+    -fx-background-radius: 8;
+    -fx-border-color: rgba(0,0,0,0.15);
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-padding: 10 16;
+    -fx-pref-height: 40;
+    -fx-cursor: hand;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.login-signup-btn:hover {
+    -fx-background-color: #f9fafb;
 }
 
 .outline-btn:hover {

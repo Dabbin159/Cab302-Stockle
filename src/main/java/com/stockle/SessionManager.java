@@ -1,5 +1,7 @@
 package com.stockle;
 
+import java.util.List;
+
 import com.stockle.database.SQLUserDAO;
 import com.stockle.model.User;
 
@@ -10,6 +12,11 @@ import com.stockle.model.User;
 public class SessionManager {
     private static SessionManager instance;
     private User currentUser;
+    private boolean darkModeEnabled = false;
+    private List<com.stockle.api.data.Asset> cachedAssets; // Cache for asset data to avoid redundant API calls
+
+    public List<com.stockle.api.data.Asset> getCachedAssets() { return cachedAssets; }
+    public void setCachedAssets(List<com.stockle.api.data.Asset> assets) { this.cachedAssets = assets; }    
 
     private SessionManager() {}; //Prevents any external creation
 
@@ -40,6 +47,18 @@ public class SessionManager {
      * @return
      */
     public boolean isLoggedIn() {return currentUser != null; } //Determining whether someone is logged io or not
+
+    /**
+     * Returns whether dark mode is enabled for the current session.
+     * @return true when dark mode is enabled
+     */
+    public boolean isDarkModeEnabled() { return darkModeEnabled; }
+
+    /**
+     * Stores the current dark mode preference for the session.
+     * @param enabled whether dark mode should be enabled
+     */
+    public void setDarkModeEnabled(boolean enabled) { this.darkModeEnabled = enabled; }
 
     /**
      * Logs out the current user
