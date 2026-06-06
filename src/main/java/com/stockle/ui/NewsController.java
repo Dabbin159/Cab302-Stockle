@@ -255,6 +255,7 @@ public class NewsController {
     @FXML private void navTrading()     throws IOException { SceneManager.switchTo("trading/trading-view.fxml"); }
     @FXML private void navAI()          throws IOException { SceneManager.switchTo("ai/ai-view.fxml"); }
     @FXML private void navLeaderboard() throws IOException { SceneManager.switchTo("leaderboard/leaderboard-view.fxml"); }
+    @FXML private void navProfile()     throws IOException { SceneManager.switchTo("profile/profile-view.fxml"); }
 
     @FXML
     private void handleSignOut() throws IOException {

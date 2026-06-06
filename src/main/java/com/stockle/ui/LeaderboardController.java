@@ -141,9 +141,10 @@ public class LeaderboardController {
     // Navigation
 
     @FXML private void navDashboard() throws IOException { SceneManager.switchTo("dashboard/dashboard-view.fxml"); }
-    @FXML private void navTrading() throws IOException { SceneManager.switchTo("trading/trading-view.fxml"); }
-    @FXML private void navAI() throws IOException { SceneManager.switchTo("ai/ai-view.fxml"); }
-    @FXML private void navNews() throws IOException { SceneManager.switchTo("news/news-view.fxml"); }
+    @FXML private void navTrading()   throws IOException { SceneManager.switchTo("trading/trading-view.fxml"); }
+    @FXML private void navAI()        throws IOException { SceneManager.switchTo("ai/ai-view.fxml"); }
+    @FXML private void navNews()      throws IOException { SceneManager.switchTo("news/news-view.fxml"); }
+    @FXML private void navProfile()   throws IOException { SceneManager.switchTo("profile/profile-view.fxml"); }
 
     @FXML
     private void handleSignOut() throws IOException {
