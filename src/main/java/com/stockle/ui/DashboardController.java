@@ -42,7 +42,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
-@SuppressWarnings("unused")
 /**
  * Controller for the main dashboard view.
  * loads the user's portfolio summary, holdings, trade history,

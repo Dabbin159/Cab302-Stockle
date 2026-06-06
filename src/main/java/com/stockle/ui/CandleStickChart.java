@@ -13,6 +13,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 
+/**
+ * Custom JavaFX chart for displaying candlestick data. Each candle represents the open, high, low, and close prices for a given time period.
+ */
 public class CandleStickChart extends XYChart<String, Number> {
     private static final Color BULL_FILL   = Color.web("#16a34a");
     private static final Color BULL_STROKE = Color.web("#15803d");

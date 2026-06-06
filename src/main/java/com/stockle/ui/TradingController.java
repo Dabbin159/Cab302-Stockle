@@ -25,7 +25,9 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 
-@SuppressWarnings("unused")
+/** 
+ * Controller for the trading view. Handles stock selection, detail display, and order form interactions. 
+ */
 public class TradingController {
 
     // FXML fields (package-private so managers can access them)
@@ -89,6 +91,9 @@ public class TradingController {
     // Init
 
     @FXML
+    /**
+     * Initializes the trading view: sets up API services, managers, and listeners. Loads the initial stock list from cache or API.
+     */
     public void initialize() {
         SceneManager.applyTheme(stockSymbolLabel);
         syncThemeButton();

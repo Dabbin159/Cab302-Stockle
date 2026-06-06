@@ -22,6 +22,12 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
+/**
+ * Controller for the news feed view.
+ *
+ * Handles searching for news by stock symbol, infinite scrolling through results,
+ * and auto-updating the feed with fresh articles every 5 minutes.
+ */
 public class NewsController {
     @FXML private TextField searchField;
     @FXML private VBox articleList;
@@ -47,6 +53,9 @@ public class NewsController {
 
     // Initialise
     @FXML
+    /**
+     * Initializes the news feed: sets up search handling, infinite scroll, and starts the auto-update poller.
+     */
     public void initialize() {
         syncThemeButton();
         
