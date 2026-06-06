@@ -43,6 +43,8 @@ class StockDetailManager {
         javafx.scene.control.Button clicked = (javafx.scene.control.Button) event.getSource();
         selectedTimeframe = (String) clicked.getUserData();
 
+        ctrl.chartLoadGeneration++;
+
         javafx.scene.layout.HBox bar = (javafx.scene.layout.HBox) clicked.getParent();
         for (javafx.scene.Node node : bar.getChildren()) {
             if (node instanceof javafx.scene.control.Button btn) {
@@ -175,16 +177,31 @@ class StockDetailManager {
         String timeframe = selectedTimeframe;
 
         ZonedDateTime nowNyse = ZonedDateTime.now(NYSE_ZONE);
-        ZonedDateTime nowBris = ZonedDateTime.now(BRIS_ZONE);
-        java.time.LocalTime brisTimeOfDay = nowBris.toLocalTime();
-        LocalDate sessionDate = nowNyse.toLocalDate().minusDays(1);
-        ZonedDateTime marketClose = sessionDate.atTime(16, 0).atZone(NYSE_ZONE);
+        java.time.LocalTime marketOpen = java.time.LocalTime.of(9, 30);
+        java.time.LocalTime marketCloseTime = java.time.LocalTime.of(16, 0);
 
-        ZonedDateTime endTimeCandidate = sessionDate.atTime(brisTimeOfDay).atZone(NYSE_ZONE);
-        if (endTimeCandidate.isAfter(marketClose)) {
-            endTimeCandidate = marketClose;
+        // Are we in a normal trading session right now?
+        boolean weekday = nowNyse.getDayOfWeek() != java.time.DayOfWeek.SATURDAY
+                    && nowNyse.getDayOfWeek() != java.time.DayOfWeek.SUNDAY;
+        boolean inSession = weekday
+                        && !nowNyse.toLocalTime().isBefore(marketOpen)
+                        && nowNyse.toLocalTime().isBefore(marketCloseTime);
+
+        ZonedDateTime endTime;
+        if (inSession) {
+            // Use current NYSE time while market is open
+            endTime = nowNyse;
+        } else {
+            // Find the most recent trading day (skip weekends)
+            java.time.LocalDate candidate = nowNyse.toLocalDate();
+            // If it's before market open today, step back one day (we want previous trading close)
+            if (nowNyse.toLocalTime().isBefore(marketOpen)) candidate = candidate.minusDays(1);
+            while (candidate.getDayOfWeek() == java.time.DayOfWeek.SATURDAY
+                || candidate.getDayOfWeek() == java.time.DayOfWeek.SUNDAY) {
+                candidate = candidate.minusDays(1);
+            }
+            endTime = candidate.atTime(16, 0).atZone(NYSE_ZONE);
         }
-        final ZonedDateTime endTime = endTimeCandidate;
 
 
         if (!forceRefresh) {
