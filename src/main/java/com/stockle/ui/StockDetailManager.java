@@ -24,7 +24,6 @@ class StockDetailManager {
     private final Map<String, Map<String, CachedChart>> chartCache = new ConcurrentHashMap<>();
     String selectedTimeframe = "1Min";
     private static final ZoneId NYSE_ZONE = ZoneId.of("America/New_York");
-    private static final ZoneId BRIS_ZONE = ZoneId.of("Australia/Brisbane");
     private static final DateTimeFormatter API_TIME_FORMAT = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
     private static final long CHART_CACHE_TTL_MS = 60_000L;
 
@@ -303,7 +302,7 @@ class StockDetailManager {
     /**
      * Resolves the label formatter for the x-axis of the chart based on the selected timeframe.
      * @param timeframe the selected timeframe (e.g. "1Min", "5Min", "1Hour", "1Day", "1Month")
-     * @return the DateTimeFormatter to use for formatting x-axis labels
+     * @return the formatter used for x-axis labels
      */
     private DateTimeFormatter resolveLabelFormatter(String timeframe) {
         return switch (timeframe) {
@@ -437,6 +436,12 @@ class StockDetailManager {
         private final List<BarData> bars;
         private final long cachedAtMs;
 
+        /**
+         * Creates a cached chart entry.
+         *
+         * @param bars the cached raw bar data
+         * @param cachedAtMs the cache time in epoch milliseconds
+         */
         private CachedChart(List<BarData> bars, long cachedAtMs) {
             this.bars = bars;
             this.cachedAtMs = cachedAtMs;
@@ -449,6 +454,12 @@ class StockDetailManager {
         private final ZonedDateTime start;
         private final ZonedDateTime end;
 
+        /**
+         * Creates a new time range.
+         *
+         * @param start the start of the range
+         * @param end the end of the range
+         */
         private TimeRange(ZonedDateTime start, ZonedDateTime end) {
             this.start = start;
             this.end = end;
