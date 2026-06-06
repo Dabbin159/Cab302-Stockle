@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Class to manage favourites-related database operations, such as adding, deleting, updating, and retrieving a user's favourite stock symbols. Implements the FavouritesDAO interface.
+ */
 public class SQLFavouritesDAO implements FavouritesDAO {
 
     private static SQLFavouritesDAO instance;
