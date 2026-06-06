@@ -29,7 +29,7 @@ public class SqliteConnection {
      * @return new SQLiteConnection
      */
     public static Connection getInstance() {
-        if (instance ==null) {
+        if (instance == null) {
             new SqliteConnection(); // Create new connection if it doesn't exist
             databaseSetup();
         }

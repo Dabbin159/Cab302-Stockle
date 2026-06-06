@@ -1,13 +1,10 @@
-package com.stockle.test;
-
-import org.junit.jupiter.api.Test;
+package com.stockle.api.apiTests;
 
 import com.stockle.api.GroqService;
 
 public class AI_API_Test {
 
-    @Test
-    public void testAiApi() {
+    public static void main(String[] args) {
         System.out.println("\n=== AI API Test Suite ===");
         unrelatedQuestionTest();
         askForStrategiesTest();
