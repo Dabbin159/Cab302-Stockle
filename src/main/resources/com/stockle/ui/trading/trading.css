@@ -432,11 +432,18 @@
 
 
 .colour-blind-btn {
-    -fx-background-color: #111827;
-    -fx-text-fill: white;
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #111827;
     -fx-font-size: 13px;
     -fx-font-weight: bold;
     -fx-background-radius: 8;
     -fx-pref-height: 30;
     -fx-cursor: hand;
+}
+
+/* Dark theme override */
+.dark-theme .colour-blind-btn {
+    -fx-background-color: #111827;
+    -fx-text-fill: #E5E7EB;
+    -fx-border-color: transparent;
 }

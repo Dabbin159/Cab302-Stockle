@@ -25,22 +25,16 @@
                 <Button text="Profile" maxWidth="Infinity" styleClass="nav-item"/>
             </VBox>
             <Region VBox.vgrow="ALWAYS"/>
-            <HBox spacing="8">
-                <Button fx:id="darkModeBtn" mnemonicParsing="false" onAction="#toggleDarkMode"
-                        styleClass="dark-mode-btn">
-                    <graphic>
-                        <ImageView fx:id="darkModeIcon" fitHeight="14.0" fitWidth="14.0" pickOnBounds="true" preserveRatio="true">
-                            <image>
-                                <Image url="@../images/dark-mode-button.png" />
-                            </image>
-                        </ImageView>
-                    </graphic>
-                </Button>
-                <Button fx:id="colourBlindBtn" mnemonicParsing="false" text="CB" 
-                    onAction="#toggleColourBlindMode"
-                    styleClass="dark-mode-btn"
-                />
-            </HBox>
+            <Button fx:id="darkModeBtn" mnemonicParsing="false" onAction="#toggleDarkMode"
+                    styleClass="dark-mode-btn">
+                <graphic>
+                    <ImageView fx:id="darkModeIcon" fitHeight="14.0" fitWidth="14.0" pickOnBounds="true" preserveRatio="true">
+                        <image>
+                            <Image url="@../images/dark-mode-button.png" />
+                        </image>
+                    </ImageView>
+                </graphic>
+            </Button>
             <Button text="Sign Out" maxWidth="Infinity" styleClass="nav-signout" onAction="#handleSignOut"/>
         </VBox>
     </left>
@@ -107,13 +101,18 @@
                             </GridPane>
 
                             <!-- Timeframe selector -->
-                            <HBox styleClass="timeframe-bar" spacing="4">
-                                <Button text="1m"  styleClass="timeframe-btn,timeframe-btn-active" onAction="#handleTimeframe" userData="1Min"/>
-                                <Button text="5m"  styleClass="timeframe-btn" onAction="#handleTimeframe" userData="5Min"/>
-                                <Button text="10m" styleClass="timeframe-btn" onAction="#handleTimeframe" userData="10Min"/>
-                                <Button text="1h"  styleClass="timeframe-btn" onAction="#handleTimeframe" userData="1Hour"/>
-                                <Button text="1D"  styleClass="timeframe-btn" onAction="#handleTimeframe" userData="1Day"/>
-                                <Button text="1M"  styleClass="timeframe-btn" onAction="#handleTimeframe" userData="1Month"/>
+                            <HBox styleClass="timeframe-bar" spacing="8" alignment="CENTER_LEFT">
+                                <HBox spacing="4">
+                                    <Button text="1m"  styleClass="timeframe-btn,timeframe-btn-active" onAction="#handleTimeframe" userData="1Min"/>
+                                    <Button text="5m"  styleClass="timeframe-btn" onAction="#handleTimeframe" userData="5Min"/>
+                                    <Button text="10m" styleClass="timeframe-btn" onAction="#handleTimeframe" userData="10Min"/>
+                                    <Button text="1h"  styleClass="timeframe-btn" onAction="#handleTimeframe" userData="1Hour"/>
+                                    <Button text="1D"  styleClass="timeframe-btn" onAction="#handleTimeframe" userData="1Day"/>
+                                    <Button text="1M"  styleClass="timeframe-btn" onAction="#handleTimeframe" userData="1Month"/>
+                                </HBox>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Button fx:id="colourBlindBtn" mnemonicParsing="false" onAction="#toggleColourBlindMode"
+                                        styleClass="colour-blind-btn" text="CB"/>
                             </HBox>
 
                             <!-- Price chart -->
