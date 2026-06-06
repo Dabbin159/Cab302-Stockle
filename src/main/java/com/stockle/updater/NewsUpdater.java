@@ -9,10 +9,28 @@ import java.util.function.Supplier;
 import com.stockle.api.data.NewsArticle;
 import com.stockle.api.service.NewsService;
 
+/**
+ * Updates news articles automatically
+ * Uses news API endpoint
+ */
 public class NewsUpdater {
 
+	/**
+	 * Listener for news updates and errors
+	 */
 	public interface Listener {
+		/**
+		 * Called when news articles are updated
+		 * @param symbol stock symbol that was updated
+		 * @param articles list of news articles for the symbol
+		 */
 		void onNewsUpdate(String symbol, List<NewsArticle> articles);
+
+		/**
+		 * Called when an error occurs during news update
+		 * @param symbol stock symbol that was being updated when the error occurred
+		 * @param exception the exception that was thrown
+		 */
 		void onError(String symbol, Exception exception);
 	}
 
@@ -25,6 +43,14 @@ public class NewsUpdater {
 	private volatile boolean running = false;
 	private volatile ScheduledExecutorService scheduler;
 
+	/**
+	 * Creates a new NewsUpdater
+	 * @param newsService news service to fetch news articles from
+	 * @param symbolSupplier supplier for obtaining stock symbols
+	 * @param listener listener for handling news updates and errors
+	 * @param newsLimit maximum number of news articles to fetch
+	 * @param intervalSeconds interval in seconds between news updates
+	 */
 	public NewsUpdater(
 			NewsService newsService,
 			Supplier<String> symbolSupplier,
@@ -39,6 +65,9 @@ public class NewsUpdater {
 		this.intervalSeconds = Math.max(1L, intervalSeconds);
 	}
 
+	/**
+	 * Starts the news updater
+	 */
 	public synchronized void start() {
 		if (running) {
 			return;
@@ -54,6 +83,9 @@ public class NewsUpdater {
 		scheduler.scheduleAtFixedRate(this::pollOnce, intervalSeconds, intervalSeconds, TimeUnit.SECONDS);
 	}
 
+	/**
+	 * Stops the news updater
+	 */
 	public synchronized void stop() {
 		if (!running) {
 			return;
@@ -66,6 +98,9 @@ public class NewsUpdater {
 		}
 	}
 
+	/**
+	 * Refreshes news immediately
+	 */
 	public void refreshNow() {
 		ScheduledExecutorService current = scheduler;
 		if (!running || current == null || current.isShutdown()) {
@@ -74,6 +109,9 @@ public class NewsUpdater {
 		current.execute(this::pollOnce);
 	}
 
+	/**
+	 * Polls news for current symbol once and notifies listener
+	 */
 	private void pollOnce() {
 		String symbol = symbolSupplier.get();
 		if (symbol == null || symbol.isBlank()) {

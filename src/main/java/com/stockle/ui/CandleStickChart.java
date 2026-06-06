@@ -20,6 +20,31 @@ public class CandleStickChart extends XYChart<String, Number> {
     private static final Color BEAR_STROKE = Color.web("#b91c1c");
     private static final Color WICK_COLOR  = Color.web("#6b7280");
 
+    private static final Color CB_BULL_FILL   = Color.web("#2563eb"); // blue
+    private static final Color CB_BULL_STROKE = Color.web("#1e40af"); // dark blue
+    private static final Color CB_BEAR_FILL   = Color.web("#facc15"); // yellow
+    private static final Color CB_BEAR_STROKE = Color.web("#d4b106"); // dark yellow
+    private static final Color CB_WICK_COLOUR  = Color.web("#374151"); // dark grey for wick
+    private volatile boolean colourBlindMode = false;
+
+    /**
+     * Enables or disables colour-blind mode.
+     * @param enabled
+     */
+    public void setColourBlindMode(boolean enabled) {
+        if (this.colourBlindMode == enabled) return;
+        this.colourBlindMode = enabled;
+        requestLayout();
+    }
+
+    /**
+     * Checks if colour-blind mode is currently enabled.
+     * @return
+     */
+    public boolean isColourBlindMode() {
+        return colourBlindMode;
+    }
+
     /**
      * Constructs a CandleStickChart with the given axes.
      * The @NamedArg annotations allow FXMLLoader to instantiate this chart from FXML.
@@ -132,8 +157,16 @@ public class CandleStickChart extends XYChart<String, Number> {
                 body.setHeight(bodyHeight);
 
                 boolean bullish = cd.close >= cd.open;
-                body.setFill(bullish ? BULL_FILL : BEAR_FILL);
-                body.setStroke(bullish ? BULL_STROKE : BEAR_STROKE);
+                if (colourBlindMode) {
+                    body.setFill(bullish ? CB_BULL_FILL : CB_BEAR_FILL);
+                    body.setStroke(bullish ? CB_BULL_STROKE : CB_BEAR_STROKE);
+                    wick.setStroke(CB_WICK_COLOUR);
+                } else {
+                    body.setFill(bullish ? BULL_FILL : BEAR_FILL);
+                    body.setStroke(bullish ? BULL_STROKE : BEAR_STROKE);
+                    wick.setStroke(WICK_COLOR);
+                }
+
             }
         }
     }
