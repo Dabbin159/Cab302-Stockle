@@ -9,14 +9,26 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+/**
+ * Manages scene transitions and themes
+ */
 public class SceneManager {
 
     private static Stage stage;
 
+    /**
+     * Initialises scene manager
+     * @param primaryStage the primary stage of the application
+     */
     static void init(Stage primaryStage) {
         stage = primaryStage;
     }
 
+    /**
+     * Switches to a new scene defined by the given FXML file
+     * @param fxmlFile the path to the FXML file
+     * @throws IOException if an I/O error occurs
+     */
     public static void switchTo(String fxmlFile) throws IOException {
         double width = stage.getWidth();
         double height = stage.getHeight();
@@ -39,6 +51,10 @@ public class SceneManager {
         });
     }
 
+    /**
+     * Applies the current theme
+     * @param root the root node of the scene to apply the theme to
+     */
     static void applyTheme(Parent root) {
         if (root == null) {
             return;
