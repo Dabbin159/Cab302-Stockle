@@ -1,7 +1,6 @@
 package com.stockle.model;
-
 /**
- * The TradeContext class represents the context of a trade, including the action taken, the change in price, the profit or loss from the trade, and the number of days the position was held.
+ * context of a trade, used for training the AI model
  */
 public class TradeContext {
     public String action;

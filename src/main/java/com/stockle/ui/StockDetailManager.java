@@ -24,17 +24,26 @@ class StockDetailManager {
     private final Map<String, Map<String, CachedChart>> chartCache = new ConcurrentHashMap<>();
     String selectedTimeframe = "1Min";
     private static final ZoneId NYSE_ZONE = ZoneId.of("America/New_York");
-    private static final ZoneId BRIS_ZONE = ZoneId.of("Australia/Brisbane");
     private static final DateTimeFormatter API_TIME_FORMAT = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
     private static final long CHART_CACHE_TTL_MS = 60_000L;
 
+    /**
+     * Creates a new StockDetailManager
+     * @param ctrl main controller to access shared state and services
+     */
     StockDetailManager(TradingController ctrl) {
         this.ctrl = ctrl;
     }
 
+    /**
+     * Handles timeframe selection events
+     * @param event the action event
+     */
     void handleTimeframe(javafx.event.ActionEvent event) {
         javafx.scene.control.Button clicked = (javafx.scene.control.Button) event.getSource();
         selectedTimeframe = (String) clicked.getUserData();
+
+        ctrl.chartLoadGeneration++;
 
         javafx.scene.layout.HBox bar = (javafx.scene.layout.HBox) clicked.getParent();
         for (javafx.scene.Node node : bar.getChildren()) {
@@ -50,7 +59,9 @@ class StockDetailManager {
 
     // Stock selection
 
-    /** Selects a stock, updates the detail panel, and kicks off a live price + chart fetch. */
+    /** Selects a stock, updates the detail panel, and kicks off a live price + chart fetch.
+     * @param asset the selected stock asset
+     */
     void selectStock(Asset asset) {
         ctrl.selectedSymbol  = asset.symbol;
         ctrl.currentExchange = asset.exchange != null ? asset.exchange : "—";
@@ -85,12 +96,17 @@ class StockDetailManager {
 
     // Live price
 
-    /** Fetches the latest bar for a symbol and updates the price labels. Discards stale responses. */
+    /** Fetches the latest bar for a symbol and updates the price labels. Discards stale responses.
+     * @param symbol the stock symbol to fetch price for
+     */
     void fetchLivePrice(String symbol) {
         ctrl.tradingUpdater.refreshNow();
     }
 
-    /** Applies the latest live bar to the currently selected stock detail panel. */
+    /** Applies the latest live bar to the currently selected stock detail panel.
+     * @param symbol the stock symbol of the incoming price update
+     * @param bar the latest price bar data
+     */
     void applyLivePriceUpdate(String symbol, BarData bar) {
         if (!symbol.equals(ctrl.selectedSymbol)) {
             return;
@@ -115,7 +131,9 @@ class StockDetailManager {
         ctrl.orderManager.updateSellEstimate();
     }
 
-    /** Fetches previous day's daily bar data and updates volume display. */
+    /** Fetches previous day's daily bar data and updates volume display.
+     * @param symbol the stock symbol to fetch volume for
+     */
     void loadPreviousDayVolume(String symbol) {
         new Thread(() -> {
             try {
@@ -142,26 +160,48 @@ class StockDetailManager {
     }
 
     // Chart
-    /** Fetches the last 60 one-minute bars and renders them as a candlestick chart. */
+    /** Fetches the last 60 one-minute bars and renders them as a candlestick chart.
+     * @param symbol the stock symbol to load chart for
+     */
     void loadChart(String symbol) {
         loadChart(symbol, false);
     }
 
+    /**
+     * Fetches historical bars for the given symbol and timeframe, builds candles, and updates the chart. Uses caching to avoid unnecessary API calls. Discards stale responses.
+     * @param symbol the stock symbol to load chart for
+     * @param forceRefresh whether to force a refresh of the chart data
+     */
     void loadChart(String symbol, boolean forceRefresh) {
         final int gen = ctrl.chartLoadGeneration;
         String timeframe = selectedTimeframe;
 
         ZonedDateTime nowNyse = ZonedDateTime.now(NYSE_ZONE);
-        ZonedDateTime nowBris = ZonedDateTime.now(BRIS_ZONE);
-        java.time.LocalTime brisTimeOfDay = nowBris.toLocalTime();
-        LocalDate sessionDate = nowNyse.toLocalDate().minusDays(1);
-        ZonedDateTime marketClose = sessionDate.atTime(16, 0).atZone(NYSE_ZONE);
+        java.time.LocalTime marketOpen = java.time.LocalTime.of(9, 30);
+        java.time.LocalTime marketCloseTime = java.time.LocalTime.of(16, 0);
 
-        ZonedDateTime endTimeCandidate = sessionDate.atTime(brisTimeOfDay).atZone(NYSE_ZONE);
-        if (endTimeCandidate.isAfter(marketClose)) {
-            endTimeCandidate = marketClose;
+        // Are we in a normal trading session right now?
+        boolean weekday = nowNyse.getDayOfWeek() != java.time.DayOfWeek.SATURDAY
+                    && nowNyse.getDayOfWeek() != java.time.DayOfWeek.SUNDAY;
+        boolean inSession = weekday
+                        && !nowNyse.toLocalTime().isBefore(marketOpen)
+                        && nowNyse.toLocalTime().isBefore(marketCloseTime);
+
+        ZonedDateTime endTime;
+        if (inSession) {
+            // Use current NYSE time while market is open
+            endTime = nowNyse;
+        } else {
+            // Find the most recent trading day (skip weekends)
+            java.time.LocalDate candidate = nowNyse.toLocalDate();
+            // If it's before market open today, step back one day (we want previous trading close)
+            if (nowNyse.toLocalTime().isBefore(marketOpen)) candidate = candidate.minusDays(1);
+            while (candidate.getDayOfWeek() == java.time.DayOfWeek.SATURDAY
+                || candidate.getDayOfWeek() == java.time.DayOfWeek.SUNDAY) {
+                candidate = candidate.minusDays(1);
+            }
+            endTime = candidate.atTime(16, 0).atZone(NYSE_ZONE);
         }
-        final ZonedDateTime endTime = endTimeCandidate;
 
 
         if (!forceRefresh) {
@@ -206,7 +246,10 @@ class StockDetailManager {
         }).start();
     }
 
-    /** Updates the chart with a new price bar (adds it to the end, removes old one). */
+    /** Updates the chart with a new price bar (adds it to the end, removes old one).
+     * @param symbol the stock symbol of the incoming price update
+     * @param newBar the latest price bar data to add to the chart
+     */
     void updateChartWithNewBar(String symbol, BarData newBar) {
         if (!symbol.equals(ctrl.selectedSymbol)) {
             return;
@@ -214,6 +257,24 @@ class StockDetailManager {
         loadChart(symbol, true);
     }
 
+    /**
+     * Refreshes chart colours
+     */
+    void refreshChartColours() {
+        if (currentCandles.isEmpty()) {
+            return;
+        }
+        ctrl.priceChart.setCandles(new ArrayList<>(currentCandles));
+    }
+
+    /**
+     * Resolves the time range for historical bar fetching based on the selected timeframe and current time. 
+     * Adjusts end time to last market close if currently outside market hours. 
+     * For shorter timeframes, also adjusts start time to limit the number of bars returned.
+     * @param timeframe the selected timeframe (e.g. "1Min", "5Min", "1Hour", "1Day", "1Month")
+     * @param end the candidate end time to base calculations on
+     * @return the resolved time range
+     */
     private TimeRange resolveTimeRange(String timeframe, ZonedDateTime end) {
         ZonedDateTime End = end;
         java.time.LocalTime marketOpen = java.time.LocalTime.of(9, 30);
@@ -238,6 +299,11 @@ class StockDetailManager {
         return new TimeRange(start, End);
     }
 
+    /**
+     * Resolves the label formatter for the x-axis of the chart based on the selected timeframe.
+     * @param timeframe the selected timeframe (e.g. "1Min", "5Min", "1Hour", "1Day", "1Month")
+     * @return the formatter used for x-axis labels
+     */
     private DateTimeFormatter resolveLabelFormatter(String timeframe) {
         return switch (timeframe) {
             case "5Min", "10Min", "1Hour" -> DateTimeFormatter.ofPattern("d/MM HH:mm");
@@ -247,6 +313,11 @@ class StockDetailManager {
         };
     }
 
+    /**
+     * Formats a raw volume number into a human-readable string with appropriate suffixes (K, M, B, T).
+     * @param volume the raw volume number to format
+     * @return the formatted volume string
+     */
     private String formatVolume(long volume) {
         if (volume < 1_000) {
             return String.format("%,d", volume);
@@ -263,6 +334,13 @@ class StockDetailManager {
         return String.format("%.1fT", volume / 1_000_000_000_000.0);
     }
 
+    /**
+     * Retrieves a cached chart for the given symbol and timeframe if it exists and is not stale.
+     * If the cached chart is stale, it is removed from the cache.
+     * @param symbol the stock symbol
+     * @param timeframe the selected timeframe
+     * @return the cached chart or null if not found or stale
+     */
     private CachedChart getCachedChart(String symbol, String timeframe) {
         Map<String, CachedChart> byTimeframe = chartCache.get(symbol);
         if (byTimeframe == null) {
@@ -279,12 +357,26 @@ class StockDetailManager {
         return cached;
     }
 
+    /**
+     * Caches the given chart data for the specified symbol and timeframe.
+     * @param symbol the stock symbol
+     * @param timeframe the selected timeframe
+     * @param bars the bar data to cache
+     */
     private void putCachedChart(String symbol, String timeframe, List<BarData> bars) {
         chartCache
             .computeIfAbsent(symbol, key -> new ConcurrentHashMap<>())
             .put(timeframe, new CachedChart(new ArrayList<>(bars), System.currentTimeMillis()));
     }
 
+    /**
+     * Builds a list of CandleData from the given list of BarData, filtered to the specified timeframe and window end.
+     * Converts timestamps to NYSE time for display. Discards bars outside the window.
+     * @param bars the list of bar data
+     * @param timeframe the selected timeframe
+     * @param windowEnd the end of the display window
+     * @return the list of candle data
+     */
     private List<CandleData> buildCandles(List<BarData> bars, String timeframe, ZonedDateTime windowEnd) {
         List<BarData> windowed = getWindowedBars(bars, timeframe, windowEnd);
         
@@ -292,15 +384,22 @@ class StockDetailManager {
         DateTimeFormatter fmt = resolveLabelFormatter(timeframe);
         List<CandleData> candles = new ArrayList<>();
         for (BarData bar : windowed) {
-            // Convert bar timestamp to NYSE time for display
-            ZonedDateTime nyseTime = bar.timestamp.atZone(ZoneOffset.UTC)
-                .withZoneSameInstant(NYSE_ZONE);
+            // Bar timestamps are parsed without offset, so interpret them as UTC first.
+            ZonedDateTime nyseTime = bar.timestamp.atZone(ZoneOffset.UTC).withZoneSameInstant(NYSE_ZONE);
             candles.add(new CandleData(
                 nyseTime.format(fmt), bar.open, bar.high, bar.low, bar.close));
         }
         return candles;
     }
 
+    /**
+     * Sums the volume from the given list of BarData, filtered to the specified timeframe and window end.
+     * Discards bars outside the window.
+     * @param bars the list of bar data
+     * @param timeframe the selected timeframe
+     * @param windowEnd the end of the display window
+     * @return the total volume for the specified timeframe and window
+     */
     private long buildVolume(List<BarData> bars, String timeframe, ZonedDateTime windowEnd) {
         long timeframeVolume = 0L;
         for (BarData bar : getWindowedBars(bars, timeframe, windowEnd)) {
@@ -309,6 +408,14 @@ class StockDetailManager {
         return timeframeVolume;
     }
 
+    /**
+     * Filters the given list of BarData to those that fall within the display window defined by the selected timeframe and window end.
+     * For shorter timeframes, also limits the number of bars returned to avoid overwhelming the chart.
+     * @param bars the list of bar data
+     * @param timeframe the selected timeframe
+     * @param windowEnd the end of the display window
+     * @return the filtered list of bar data
+     */
     private List<BarData> getWindowedBars(List<BarData> bars, String timeframe, ZonedDateTime windowEnd) {
         if (timeframe.equals("1Min")) {
             ZonedDateTime windowStart = windowEnd.minusHours(1);
@@ -322,19 +429,37 @@ class StockDetailManager {
         return bars.size() > 60 ? bars.subList(bars.size() - 60, bars.size()) : bars;
     }
 
+    /**
+     * cache entry for a chart
+     */
     private static class CachedChart {
         private final List<BarData> bars;
         private final long cachedAtMs;
 
+        /**
+         * Creates a cached chart entry.
+         *
+         * @param bars the cached raw bar data
+         * @param cachedAtMs the cache time in epoch milliseconds
+         */
         private CachedChart(List<BarData> bars, long cachedAtMs) {
             this.bars = bars;
             this.cachedAtMs = cachedAtMs;
         }
     }
+    /**
+     * Represents a time range for filtering bar data.
+     */
     private static class TimeRange {
         private final ZonedDateTime start;
         private final ZonedDateTime end;
 
+        /**
+         * Creates a new time range.
+         *
+         * @param start the start of the range
+         * @param end the end of the range
+         */
         private TimeRange(ZonedDateTime start, ZonedDateTime end) {
             this.start = start;
             this.end = end;

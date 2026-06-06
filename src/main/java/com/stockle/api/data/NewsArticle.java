@@ -6,6 +6,9 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+/**
+ * Represents a news article related to a stock, as returned by the API
+ */
 public class NewsArticle {
     public long id;
     public String headline;

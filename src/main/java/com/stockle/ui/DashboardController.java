@@ -43,6 +43,11 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 @SuppressWarnings("unused")
+/**
+ * Controller for the main dashboard view.
+ * loads the user's portfolio summary, holdings, trade history,
+ * market status, and navigation actions for the dashboard screen.
+ */
 public class DashboardController {
     private static final ZoneId MARKET_ZONE = ZoneId.of("America/New_York");
     private static final LocalTime MARKET_OPEN = LocalTime.of(9, 30);
@@ -64,6 +69,10 @@ public class DashboardController {
     @FXML private javafx.scene.control.Button darkModeBtn;
     @FXML private javafx.scene.image.ImageView darkModeIcon;
 
+    /**
+     * Initializes the dashboard by loading the current theme, market status,
+     * chart data, and either the current user's portfolio data or mock data.
+     */
     @FXML
     public void initialize() {
         updateMarketStatus();
@@ -88,6 +97,9 @@ public class DashboardController {
         loadSummary(freshUser, holdingsValue);
     }
 
+    /**
+     * Toggles the dashboard between light and dark mode.
+     */
     @FXML
     private void toggleDarkMode() {
         if (marketStatusLabel == null) return;
@@ -101,6 +113,9 @@ public class DashboardController {
         syncThemeButton();
     }
 
+    /**
+     * Updates the dark mode button icon to match the current theme state.
+     */
     private void syncThemeButton() {
         if (darkModeIcon == null) {
             return;
@@ -117,6 +132,11 @@ public class DashboardController {
         }
     }
 
+    /**
+     * Determines whether the US market is open for the supplied New York time.
+     * @param etNow the current time in the America/New_York time zone
+     * @return true if the time is within weekday market hours, otherwise false
+     */
     public static boolean isMarketOpenAtEt(ZonedDateTime etNow) {
         DayOfWeek d = etNow.getDayOfWeek();
         LocalTime t = etNow.toLocalTime();
@@ -124,6 +144,9 @@ public class DashboardController {
         return weekday && !t.isBefore(LocalTime.of(9, 30)) && t.isBefore(LocalTime.of(16, 0));
     }
 
+    /**
+     * Updates the market status label and styling based on the current time.
+     */
     private void updateMarketStatus() {
         ZonedDateTime nowEt = ZonedDateTime.now(MARKET_ZONE);
         DayOfWeek day = nowEt.getDayOfWeek();
@@ -138,6 +161,9 @@ public class DashboardController {
         marketStatusLabel.getStyleClass().add(open ? "market-open" : "market-closed");
     }
 
+    /**
+     * Loads mock summary values and sample holdings/trades for the dashboard.
+     */
     private void loadMockSummaryAndLists() {
         MockData.DashboardSummary summary = MockData.dashboardSummary();
         totalValueLabel.setText(summary.totalValue());
@@ -147,6 +173,9 @@ public class DashboardController {
         loadTradesMock();
     }
 
+    /**
+     * Populates the portfolio chart using mock data.
+     */
     private void loadChart() {
         portfolioChart.getData().clear();
         XYChart.Series<String, Number> series = new XYChart.Series<>();
@@ -157,6 +186,9 @@ public class DashboardController {
         portfolioChart.getData().add(series);
     }
 
+    /**
+     * Renders mock holdings rows in the dashboard.
+     */
     private void loadHoldingsMock() {
         holdingsContainer.getChildren().clear();
         for (MockData.DashboardHolding holding : MockData.dashboardHoldings()) {
@@ -173,6 +205,9 @@ public class DashboardController {
         }
     }
 
+    /**
+     * Renders mock trade rows in the dashboard.
+     */
     private void loadTradesMock() {
         tradesContainer.getChildren().clear();
         for (MockData.DashboardTrade trade : MockData.dashboardTrades()) {
@@ -182,6 +217,11 @@ public class DashboardController {
         }
     }
 
+    /**
+     * Loads the current user's holdings and returns their total current value.
+     * @param userId the current user's database identifier
+     * @return the total value of all holdings, or zero if none exist
+     */
     private long loadHoldings(int userId) {
         holdingsContainer.getChildren().clear();
         List<Holding> holdings = SQLHoldingDAO.getInstance().getUserHoldings(userId);
@@ -258,6 +298,10 @@ public class DashboardController {
         return 0.0;
     }
 
+    /**
+     * Loads the current user's recent trades into the dashboard.
+     * @param userId the current user's database identifier
+     */
     private void loadTrades(int userId) {
         tradesContainer.getChildren().clear();
         Trade[] trades = SQLTradeDAO.getInstance().getTradesByUserId(userId);
@@ -278,6 +322,11 @@ public class DashboardController {
         }
     }
 
+    /**
+     * Updates the summary labels for portfolio value, buying power, and profit.
+     * @param user the user whose values should be displayed
+     * @param holdingsValue the current market value of the user's holdings
+     */
     private void loadSummary(User user, long holdingsValue) {
         long portfolioValue = user.getBalance() + holdingsValue;
         totalValueLabel.setText(CURRENCY.format(portfolioValue));
@@ -292,6 +341,10 @@ public class DashboardController {
         loadTradeStats(user.getId());
     }
 
+    /**
+     * Loads the total trades and monthly trade count for the current user.
+     * @param userId the current user's database identifier
+     */
     private void loadTradeStats(int userId) {
         if (totalTradesLabel == null || totalTradesSubLabel == null) return;
         int total = SQLTradeDAO.getInstance().getTotalTradesCountByUser(userId);
@@ -300,6 +353,11 @@ public class DashboardController {
         totalTradesSubLabel.setText(monthCount + " this month");
     }
 
+    /**
+     * Formats a stored trade timestamp for display in the dashboard.
+     * @param timestamp the raw timestamp string stored with the trade
+     * @return a formatted date/time when parsing succeeds, otherwise the original value
+     */
     private String formatTradeTime(String timestamp) {
         try {
             long epochMs = Long.parseLong(timestamp);
@@ -309,7 +367,16 @@ public class DashboardController {
         }
     }
 
-    // Helper method to create a holding row
+    /**
+     * Creates a styled row for a holding entry.
+     * @param symbol the stock symbol
+     * @param name the display name for the holding
+     * @param shares the share count text
+     * @param price the price text to show
+     * @param change the change text to show
+     * @param positive whether the change should be styled as positive
+     * @return a row node ready to add to the holdings container
+     */
     private HBox holdingRow(String symbol, String name, String shares, String price, String change, boolean positive) {
         VBox left = new VBox(2,
             styledLabel(symbol, "row-symbol"),
@@ -325,7 +392,14 @@ public class DashboardController {
         return cardRow(left, spacer(), right);
     }
 
-    // Helper method to create a trading row
+    /**
+     * Creates a styled row for a trade entry.
+     * @param type the trade type label
+     * @param symbol the stock symbol
+     * @param detail the detail text to display
+     * @param time the formatted time string
+     * @return a row node ready to add to the trades container
+     */
     private HBox tradeRow(String type, String symbol, String detail, String time) {
         Label badge = styledLabel(type, type.equals("BUY") ? "badge-buy" : "badge-sell", "trade-badge");
         VBox info = new VBox(2, styledLabel(symbol, "row-symbol"), styledLabel(detail, "row-sub"));
@@ -334,27 +408,48 @@ public class DashboardController {
         return cardRow(badge, info, spacer(), timeLabel);
     }
 
+    /**
+     * Wraps the supplied controls in a standard dashboard card row.
+     * @param children the row content nodes
+     * @return an HBox configured with the row-card style class
+     */
     private HBox cardRow(Node... children) {
         HBox row = new HBox(children);
         row.getStyleClass().add("row-card");
         return row;
     }
 
+    /**
+     * Creates a label with the supplied text and style classes.
+     * @param text the label text
+     * @param styleClasses one or more style classes to apply
+     * @return a configured label
+     */
     private Label styledLabel(String text, String... styleClasses) {
         Label label = new Label(text);
         label.getStyleClass().addAll(styleClasses);
         return label;
     }
 
+    /**
+     * Creates a flexible spacer node for row layouts.
+     * @return a region configured to grow within an HBox
+     */
     private Region spacer() {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
         return spacer;
     }
 
-    // Navigation handlers (placeholders for now)
+    /**
+     * Placeholder navigation handler for the dashboard tab.
+     */
     @FXML private void navDashboard() {}
 
+    /**
+     * Navigates to the trading view.
+     * @throws IOException if the trading FXML cannot be loaded
+     */
     @FXML private void navTrading() throws IOException {
         SceneManager.switchTo("trading/trading-view.fxml");
     }
@@ -368,19 +463,34 @@ public class DashboardController {
         SceneManager.switchTo("profile/profile-view.fxml");
     }
 
+    /**
+     * Navigates to the AI assistant view.
+     * @throws IOException if the AI FXML cannot be loaded
+     */
     @FXML private void navAI() throws IOException {
         SceneManager.switchTo("ai/ai-view.fxml");
     }
 
+    /**
+     * Navigates to the news view.
+     * @throws IOException if the news FXML cannot be loaded
+     */
     @FXML private void navNews() throws IOException {
         SceneManager.switchTo("news/news-view.fxml");
     }
 
+    /**
+     * Navigates to the leaderboard view.
+     * @throws IOException if the leaderboard FXML cannot be loaded
+     */
     @FXML private void navLeaderboard() throws IOException {
         SceneManager.switchTo("leaderboard/leaderboard-view.fxml");
     }
 
-    // Signs User out, Sends to Login page and syncs user data
+    /**
+     * Signs the current user out and returns to the login screen.
+     * @throws IOException if the login FXML cannot be loaded
+     */
     @FXML
     private void handleSignOut() throws IOException {
         SessionManager.getInstance().logout();

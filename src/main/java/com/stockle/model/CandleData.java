@@ -1,7 +1,7 @@
 package com.stockle.model;
 
 /**
- * Represents the candlestick data for a specific time period.
+ * Represents the data for a single candle in the chart
  */
 public class CandleData {
     public final String time;
