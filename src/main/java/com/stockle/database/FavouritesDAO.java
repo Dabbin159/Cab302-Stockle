@@ -2,6 +2,9 @@ package com.stockle.database;
 
 import java.util.List;
 
+/**
+ * The FavouritesDAO interface defines the methods for managing a user's favourite stock symbols in the database.
+ */
 public interface FavouritesDAO {
 
     /**
