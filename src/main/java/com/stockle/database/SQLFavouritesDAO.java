@@ -35,7 +35,11 @@ public class SQLFavouritesDAO implements FavouritesDAO {
     private static final String DELETE_USER_FAVOURITES = "DELETE FROM FAVOURITES WHERE userID = ?";
 
     @Override
-    // Adds stocks to the user's favourites list, skips any that are already in there
+    /**
+     * Adds a list of favourite stock symbols for a user.
+     * @param userID the ID of the user
+     * @param favourites the list of stock symbols to add to the user's favourites
+     */
     public void addFavourite(int userID, List<String> favourites) {
         try {
             List<String> current = getFavourites(userID);
@@ -53,12 +57,16 @@ public class SQLFavouritesDAO implements FavouritesDAO {
     }
 
     @Override
-    // Removes a single stock from the user's favourites list
-    public void deleteFavourite(int userID, String favourites) {
+    /**
+     * Deletes a favourite stock symbol for a user.
+     * @param userID the ID of the user
+     * @param favourite the stock symbol to remove from the user's favourites
+     */
+    public void deleteFavourite(int userID, String favourite) {
         try {
             List<String> current = getFavourites(userID);
             if (current == null || current.isEmpty()) return;
-            current.remove(favourites);
+            current.remove(favourite);
             PreparedStatement statement = connection.prepareStatement(INSERT_UPDATE_FAVOURITES);
             statement.setInt(1, userID);
             statement.setString(2, String.join(",", current));
@@ -70,6 +78,11 @@ public class SQLFavouritesDAO implements FavouritesDAO {
 
     @Override
     // Returns the user's favourites as a list, empty list if they have none
+    /**
+     * Retrieves the list of favourite stock symbols for a user.
+     * @param userID the ID of the user 
+     * @return the list of favourite stock symbols for the user
+     */
     public List<String> getFavourites(int userID) {
         try {
             PreparedStatement statement = connection.prepareStatement(GET_FAVOURITES);
@@ -93,6 +106,10 @@ public class SQLFavouritesDAO implements FavouritesDAO {
     }
 
     // Deletes the entire favourites row for a user - mainly used to reset state in tests
+    /**
+     * Clears all favourite stock symbols for a user.
+     * @param userID the ID of the user whose favourites are to be cleared
+     */
     public void clearFavourites(int userID) {
         try {
             PreparedStatement statement = connection.prepareStatement(DELETE_USER_FAVOURITES);
