@@ -1,11 +1,6 @@
 module:com.stockle
-com.stockle
 com.stockle.api
-com.stockle.api.apiTests
-com.stockle.api.client
-com.stockle.api.data
 com.stockle.api.service
 com.stockle.database
 com.stockle.model
 com.stockle.ui
-com.stockle.updater
