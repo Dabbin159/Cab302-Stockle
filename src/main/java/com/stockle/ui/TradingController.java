@@ -225,11 +225,18 @@ public class TradingController {
     @FXML void handleSell() { orderManager.handleSell(); }
 
     @FXML
+    /**
+     * Handles timeframe selection
+     * @param event
+     */
     private void handleTimeframe(javafx.event.ActionEvent event) {
         detailManager.handleTimeframe(event);
     }
 
     @FXML
+    /**
+     * Toggles the favorite status of the selected stock
+     */
     private void toggleFavorite() {
         if (selectedSymbol.isEmpty()) return;
         if (favorites.contains(selectedSymbol)) favorites.remove(selectedSymbol);
@@ -237,6 +244,25 @@ public class TradingController {
         favoriteBtn.setText(favorites.contains(selectedSymbol) ? "★" : "☆");
         favoriteBtn.getStyleClass().setAll("fav-btn");
         listManager.applyLiveSearch();
+    }
+
+    @FXML private Button colourBlindBtn;
+
+    @FXML
+    /**
+     * Toggles colour-blind mode for the trading view
+     */
+    private void toggleColourBlindMode() {
+        boolean enabled = !priceChart.isColourBlindMode();
+        priceChart.setColourBlindMode(enabled);
+        
+        if (colourBlindBtn != null) {
+            colourBlindBtn.setText(enabled ? "CB ON" : "CB OFF");
+        }
+
+        if (detailManager != null) {
+            detailManager.refreshChartColours();
+        }
     }
 
     // Shared utilities

@@ -242,6 +242,16 @@ class StockDetailManager {
     }
 
     /**
+     * Refreshes chart colours
+     */
+    void refreshChartColours() {
+        if (currentCandles.isEmpty()) {
+            return;
+        }
+        ctrl.priceChart.setCandles(new ArrayList<>(currentCandles));
+    }
+
+    /**
      * Resolves the time range for historical bar fetching based on the selected timeframe and current time. 
      * Adjusts end time to last market close if currently outside market hours. 
      * For shorter timeframes, also adjusts start time to limit the number of bars returned.

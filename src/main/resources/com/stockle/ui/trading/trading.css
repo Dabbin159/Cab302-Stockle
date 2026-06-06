@@ -429,3 +429,14 @@
 }
 
 .dark-theme .alert-btn:hover { -fx-background-color: #0f1724; }
+
+
+.colour-blind-btn {
+    -fx-background-color: #111827;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-pref-height: 30;
+    -fx-cursor: hand;
+}
