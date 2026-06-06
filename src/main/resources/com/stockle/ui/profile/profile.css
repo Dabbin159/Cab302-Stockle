@@ -1,41 +1,95 @@
-/* Profile screen */
+@import "../global.css";
 
-.form-label {
-    -fx-font-size: 13px;
-    -fx-font-weight: bold;
-    -fx-text-fill: -fx-text-primary;
+.profile-input {
+    -fx-background-color: #f3f3f5;
+    -fx-background-radius: 8;
+    -fx-border-color: rgba(0,0,0,0.1);
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-font-size: 14px;
+    -fx-prompt-text-fill: #9ca3af;
+    -fx-pref-height: 40;
+    -fx-padding: 8 12;
+}
+.profile-input:focused {
+    -fx-background-color: white;
+    -fx-border-color: #2563eb;
+    -fx-border-width: 1.5;
 }
 
-.form-input {
-    -fx-pref-height: 36px;
-    -fx-background-radius: 6px;
-    -fx-border-radius: 6px;
-    -fx-border-color: -fx-border;
-    -fx-border-width: 1px;
-    -fx-padding: 0 12 0 12;
-    -fx-font-size: 13px;
+.profile-divider {
+    -fx-background-color: #e5e7eb;
 }
 
 .feedback-label {
     -fx-font-size: 13px;
-    -fx-text-fill: -fx-accent;
-}
-
-.btn-primary {
-    -fx-background-color: -fx-accent;
-    -fx-text-fill: white;
+    -fx-text-fill: #16a34a;
     -fx-font-weight: bold;
-    -fx-background-radius: 6px;
-    -fx-padding: 8 20 8 20;
-    -fx-cursor: hand;
 }
 
-.btn-secondary {
-    -fx-background-color: transparent;
-    -fx-border-color: -fx-border;
-    -fx-border-width: 1px;
-    -fx-border-radius: 6px;
-    -fx-background-radius: 6px;
-    -fx-padding: 8 20 8 20;
+.feedback-label-error {
+    -fx-text-fill: #dc2626;
+}
+
+.profile-save-btn {
+    -fx-background-color: #2563eb;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-pref-height: 40;
+    -fx-padding: 0 24;
     -fx-cursor: hand;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+.profile-save-btn:hover { -fx-background-color: #1d4ed8; }
+
+.profile-back-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #6b7280;
+    -fx-font-size: 14px;
+    -fx-background-radius: 8;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-pref-height: 40;
+    -fx-padding: 0 24;
+    -fx-cursor: hand;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+.profile-back-btn:hover {
+    -fx-background-color: #f9fafb;
+    -fx-border-color: #d1d5db;
+}
+
+/* Dark theme */
+.dark-theme .profile-input {
+    -fx-background-color: #111827;
+    -fx-border-color: rgba(255,255,255,0.08);
+    -fx-text-fill: #f3f4f6;
+    -fx-prompt-text-fill: #64748b;
+}
+.dark-theme .profile-input:focused {
+    -fx-background-color: #0b1220;
+    -fx-border-color: #60a5fa;
+}
+
+.dark-theme .profile-divider {
+    -fx-background-color: #1f2937;
+}
+
+.dark-theme .feedback-label {
+    -fx-text-fill: #4ade80;
+}
+
+.dark-theme .profile-back-btn {
+    -fx-text-fill: #9ca3af;
+    -fx-border-color: #374151;
+}
+
+.dark-theme .profile-back-btn:hover {
+    -fx-background-color: #111827;
+    -fx-border-color: #4b5563;
 }

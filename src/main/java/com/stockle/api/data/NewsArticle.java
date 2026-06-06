@@ -20,5 +20,9 @@ public class NewsArticle {
     public String updated_at;
     public List<String> symbols;
 
-    public NewsArticle() {}
+    /**
+     * Constructor for empty news article
+     */
+    public NewsArticle() {
+    }
 }
