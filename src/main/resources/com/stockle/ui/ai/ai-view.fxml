@@ -20,7 +20,7 @@
                 <Button text="Trading" maxWidth="Infinity" styleClass="nav-item" onAction="#navTrading"/>
                 <Button text="AI Chat" maxWidth="Infinity" styleClass="nav-item-active"/>
                 <Button text="News" maxWidth="Infinity" styleClass="nav-item" onAction="#navNews"/>
-                <Button text="Profile" maxWidth="Infinity" styleClass="nav-item"/>
+                <Button text="Profile" maxWidth="Infinity" styleClass="nav-item" onAction="#navProfile"/>
             </VBox>
             <Region VBox.vgrow="ALWAYS"/>
             <Button fx:id="darkModeBtn" mnemonicParsing="false" onAction="#toggleDarkMode"
