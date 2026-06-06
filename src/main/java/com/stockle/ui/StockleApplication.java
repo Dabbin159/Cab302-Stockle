@@ -6,7 +6,9 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-// random test comment
+/**
+ * The StockleApplication class is the main entry point for the Stockle application. It extends the JavaFX Application class and is responsible for initializing the application with the launcher.
+ */
 public class StockleApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
