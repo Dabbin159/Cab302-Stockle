@@ -2,6 +2,7 @@ package com.stockle.ui;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -384,8 +385,8 @@ class StockDetailManager {
         DateTimeFormatter fmt = resolveLabelFormatter(timeframe);
         List<CandleData> candles = new ArrayList<>();
         for (BarData bar : windowed) {
-            // Convert bar timestamp to NYSE time for display
-            ZonedDateTime nyseTime = bar.timestamp.atZone(NYSE_ZONE);
+            // Bar timestamps are parsed without offset, so interpret them as UTC first.
+            ZonedDateTime nyseTime = bar.timestamp.atZone(ZoneOffset.UTC).withZoneSameInstant(NYSE_ZONE);
             candles.add(new CandleData(
                 nyseTime.format(fmt), bar.open, bar.high, bar.low, bar.close));
         }
@@ -421,7 +422,7 @@ class StockDetailManager {
             ZonedDateTime windowStart = windowEnd.minusHours(1);
             return bars.stream()
                 .filter(b -> {
-                    ZonedDateTime t = b.timestamp.atZone(NYSE_ZONE);
+                    ZonedDateTime t = b.timestamp.atZone(ZoneOffset.UTC).withZoneSameInstant(NYSE_ZONE);
                     return !t.isBefore(windowStart) && !t.isAfter(windowEnd);
                 })
                 .collect(java.util.stream.Collectors.toList());
