@@ -7,7 +7,7 @@ import java.util.List;
 public final class MockData {
 
     /**
-     * Data for the dashboard summary section, showing total portfolio value, gain/loss, and buying power. Used in DashboardController.
+     * Data for the dashboard summary section, showing total portfolio value, gain/loss, and buying power. Used in DashboardController for Inital Development.
      */
     public record DashboardSummary(
         String totalValue,
@@ -16,7 +16,7 @@ public final class MockData {
     ) {}
 
     /**
-     * Data points for the dashboard performance chart. Each point has a label and a value. Used in DashboardController.
+     * Data points for the dashboard performance chart. Each point has a label and a value. Used in DashboardController for Inital Development.
      */
     public record DashboardChartPoint(
         String label,
@@ -24,7 +24,7 @@ public final class MockData {
     ) {}
 
     /**
-     * Data for a holding in the dashboard. Used in DashboardController.
+     * Data for a holding in the dashboard. Used in DashboardController for Inital Development.
      */
     public record DashboardHolding(
         String symbol,
@@ -36,7 +36,7 @@ public final class MockData {
     ) {}
 
     /**
-     * Data for a recent trade in the dashboard. Used in DashboardController.
+     * Data for a recent trade in the dashboard. Used in DashboardController for Inital Development.
      */
     public record DashboardTrade(
         String type,
@@ -46,7 +46,7 @@ public final class MockData {
     ) {}
 
     /**
-     * Data for a stock in the trading view. Used in TradingController.
+     * Data for a stock in the trading view. Used in TradingController for Inital Development.
      */
     public record Stock(
         String symbol,
@@ -149,7 +149,7 @@ public final class MockData {
     };
 
     /**
-     * Data for a leaderboard entry. Used in LeaderboardController. (INDEV)
+     * Data for a leaderboard entry. Used in LeaderboardController for Inital Development. (INDEV)
      */
     public record LeaderboardEntry(
         int rank,
