@@ -9,11 +9,11 @@ public class TradeContext {
     public int holdingDays;
 
     /**
-     * Constructs a TradeContext with the given parameters.
-     * @param action trade action taken
-     * @param priceChangePercent percentage change in price during the trade
-     * @param profitLoss profit or loss from trade
-     * @param holdingDays number of days the stock was held
+     * Constructs a new TradeContext object with the specified values.
+     * @param action the action taken (buy/sell)
+     * @param priceChangePercent the percentage change in price
+     * @param profitLoss the profit or loss from the trade
+     * @param holdingDays the number of days the position was held
      */
     public TradeContext(String action, double priceChangePercent, double profitLoss, int holdingDays) {
         this.action = action;

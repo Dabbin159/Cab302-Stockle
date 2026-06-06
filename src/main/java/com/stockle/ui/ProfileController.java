@@ -8,6 +8,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import java.io.IOException;
 
 /**
  * Controller for the profile/account settings
@@ -23,6 +24,7 @@ public class ProfileController {
 
     // Label to display success or error message
     @FXML private Label feedbackLabel;
+    @FXML private javafx.scene.image.ImageView darkModeIcon;
 
     // Database Access
     private final SQLUserDAO userDAO = SQLUserDAO.getInstance();
@@ -33,11 +35,31 @@ public class ProfileController {
      */
     @FXML
     public void initialize() {
+        syncThemeButton();
         User currentUser = SessionManager.getInstance().getCurrentUser();
         if (currentUser != null) {
             usernameField.setText(currentUser.getUsername());
             emailField.setText(currentUser.getEmail());
         }
+    }
+
+    @FXML
+    private void toggleDarkMode() {
+        if (usernameField == null || usernameField.getScene() == null) return;
+        SessionManager sessionManager = SessionManager.getInstance();
+        sessionManager.setDarkModeEnabled(!sessionManager.isDarkModeEnabled());
+        SceneManager.applyTheme(usernameField.getScene().getRoot());
+        syncThemeButton();
+    }
+
+    private void syncThemeButton() {
+        if (darkModeIcon == null) return;
+        boolean dark = SessionManager.getInstance().isDarkModeEnabled();
+        String iconPath = dark
+            ? "/com/stockle/ui/images/light-mode-button.png"
+            : "/com/stockle/ui/images/dark-mode-button.png";
+        java.net.URL url = getClass().getResource(iconPath);
+        if (url != null) darkModeIcon.setImage(new javafx.scene.image.Image(url.toExternalForm()));
     }
 
     /**
@@ -60,6 +82,7 @@ public class ProfileController {
 
         // Validating that the username and password are not empty
         if (newUsername.isEmpty() || newEmail.isEmpty()) {
+            feedbackLabel.getStyleClass().setAll("feedback-label", "feedback-label-error");
             feedbackLabel.setText("Username and email cannot be empty.");
             return;
         }
@@ -67,6 +90,7 @@ public class ProfileController {
         // If a new password is entered it validates to see if passwords match
         if (!newPassword.isEmpty()) {
             if (!newPassword.equals(confirmPassword)) {
+                feedbackLabel.getStyleClass().setAll("feedback-label", "feedback-label-error");
                 feedbackLabel.setText("The passwords entered do not match");
                 return;
             }
@@ -85,6 +109,7 @@ public class ProfileController {
         // Update the session so the rest of the application reflects the changes
         SessionManager.getInstance().setCurrentUser(currentUser);
 
+        feedbackLabel.getStyleClass().setAll("feedback-label");
         feedbackLabel.setText("Account updated successfully.");
     }
 
@@ -92,7 +117,17 @@ public class ProfileController {
      * Navigates back to the dashboard screen
      */
     @FXML
-    protected void handleBack() throws java.io.IOException {
+    protected void handleBack() throws IOException {
         SceneManager.switchTo("dashboard/dashboard-view.fxml");
+    }
+
+    @FXML private void navTrading()  throws IOException { SceneManager.switchTo("trading/trading-view.fxml"); }
+    @FXML private void navAI()       throws IOException { SceneManager.switchTo("ai/ai-view.fxml"); }
+    @FXML private void navNews()     throws IOException { SceneManager.switchTo("news/news-view.fxml"); }
+
+    @FXML
+    private void handleSignOut() throws IOException {
+        SessionManager.getInstance().logout();
+        SceneManager.switchTo("auth/auth-view.fxml");
     }
 }

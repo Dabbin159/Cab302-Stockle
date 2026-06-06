@@ -11,8 +11,8 @@ public class CandleData {
     public final double close;
 
     /**
-     * Constructs a CandleData with the given parameters.
-     * @param time the time of the candle
+     * Constructs a new CandleData object with the specified time, open, high, low, and close values.
+     * @param time the time of the candlestick data
      * @param open the opening price
      * @param high the highest price
      * @param low the lowest price

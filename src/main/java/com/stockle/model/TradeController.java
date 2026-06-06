@@ -120,21 +120,43 @@ public class TradeController {
     // Trade History
 
     // Read-only helpers used by UI controllers to avoid direct DAO usage
+    /**
+     * Retrieves the holding for a given user and company. Returns null if no holding exists.
+     * @param user The user whose holding is being retrieved
+     * @param companyID The company ID of the stock being checked
+     * @return The holding for the user and company, or null if none exists
+     */
     public Holding getHoldingForUser(User user, String companyID) {
         if (user == null || companyID == null) return null;
         return SQLHoldingDAO.getInstance().getHolding(user.getId(), companyID);
     }
 
+    /**
+     * Retrieves the quantity of a stock owned by a user for a given company. Returns 0 if no holding exists.
+     * @param user The user whose holdings are being checked
+     * @param companyID The company ID of the stock being checked
+     * @return The quantity of the stock owned by the user, or 0 if none exists
+     */
     public int getOwnedQuantity(User user, String companyID) {
         Holding h = getHoldingForUser(user, companyID);
         return h != null ? h.getQuantity() : 0;
     }
 
+    /**
+     * Retrieves the current balance of a user. Returns 0 if user is null.
+     * @param user The user whose balance is being retrieved
+     * @return The current balance of the user, or 0 if user is null
+     */
     public long getUserBalance(User user) {
         if (user == null) return 0L;
         return SQLUserDAO.getInstance().getUserBalance(user.getId());
     }
 
+    /**
+     * Refreshes a user's information from the database. Returns null if user is null.
+     * @param user The user to refresh
+     * @return The refreshed user, or null if user is null
+     */
     public User refreshUserFromDb(User user) {
         if (user == null) return null;
         return SQLUserDAO.getInstance().getUserById(user.getId());

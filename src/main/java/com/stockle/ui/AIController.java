@@ -217,6 +217,10 @@ public class AIController {
         SceneManager.switchTo("leaderboard/leaderboard-view.fxml");
     }
 
+    @FXML private void navProfile() throws IOException {
+        SceneManager.switchTo("profile/profile-view.fxml");
+    }
+
     @FXML private void handleSignOut() throws IOException {
         SceneManager.switchTo("auth/auth-view.fxml");
     }
