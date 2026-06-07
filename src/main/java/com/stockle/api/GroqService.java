@@ -6,9 +6,9 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
 
+import com.stockle.model.Holding;
 import com.stockle.model.Trade;
 import com.stockle.model.TradeContext;
-import com.stockle.model.Holding;
 
 /**
  * Small service for talking to the Groq chat API.
@@ -56,7 +56,7 @@ public class GroqService {
         portfolio.append("Current Holdings:\n");
         if (holdings != null && !holdings.isEmpty()) {
             for (Holding h : holdings) {
-                double avgPrice = h.getAveragePrice() / 100.0;
+                double avgPrice = (double) h.getAveragePrice();
                 portfolio.append(String.format("- %s: %d shares @ $%.2f avg\n", 
                     h.getCompanyID(), h.getQuantity(), avgPrice));
             }
@@ -71,10 +71,10 @@ public class GroqService {
             for (int i = start; i < trades.length; i++) {
                 Trade t = trades[i];
                 String action = t.isType() ? "SELL" : "BUY";
-                double totalValue = t.getTotalValue() / 100.0;
+                double perShare = t.getQuantity() != 0 ? (double) t.getTotalValue() / t.getQuantity() : 0.0;
                 portfolio.append(String.format("- %s: %d shares of %s @ $%.2f | %s\n",
                     action, t.getQuantity(), t.getStock().getCompanyName(),
-                    totalValue, t.getTimeStamp()));
+                    perShare, t.getTimeStamp()));
             }
         } else {
             portfolio.append("- No trades yet\n");
@@ -131,9 +131,9 @@ public class GroqService {
             - Sells: %d (Total: $%.2f)
             - Buy/Sell Ratio: %.2f
             """, 
-            trades.length, buyCount, totalBuyValue / 100.0, 
-            sellCount, totalSellValue / 100.0,
-            buyCount > 0 ? (double) buyCount / sellCount : 0));
+            trades.length, buyCount, (double) totalBuyValue, 
+            sellCount, (double) totalSellValue,
+            sellCount > 0 ? (double) buyCount / sellCount : (buyCount > 0 ? Double.POSITIVE_INFINITY : 0)));
         
         String prompt = """
         You are a trading pattern analyst.

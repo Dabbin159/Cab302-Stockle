@@ -47,6 +47,11 @@ public class AIController {
     private final HoldingDAO holdingDAO = SQLHoldingDAO.getInstance();
     private final GroqService groqService = new GroqService();
 
+    /**
+     * Controller initialization called by the FXML loader.
+     *
+     * Ensures UI state synchronizes with the application session (eg. theme).
+     */
     @FXML
     private void initialize() {
         syncThemeButton();
@@ -95,26 +100,11 @@ public class AIController {
     }
 
     /**
-     * Shows the placeholder analysis message for now.
+     * Toggle the application's dark mode setting and refresh the UI.
      *
-     * The full analysis flow can be swapped in later.
+     * Flips the `darkModeEnabled` flag on the `SessionManager`, reapplies
+     * the theme to the current scene root, and updates the theme icon.
      */
-    @FXML
-    protected void handleAnalyse() {
-        addMessage("AI Coach: Analyzing your trading patterns...");
-        
-        int userId = SessionManager.getInstance().getCurrentUser().getId();
-        Trade[] userTrades = tradeDAO.getTradesByUserId(userId);
-        
-        if (userTrades.length == 0) {
-            addMessage("AI Coach: You haven't made any trades yet. Start trading to get analysis!");
-            return;
-        }
-        
-        String analysis = groqService.analyzeTradingPatterns(userTrades);
-        addMessage("AI Coach: " + analysis);
-    }
-
     @FXML
     private void toggleDarkMode() {
         if (chatBox == null || chatBox.getScene() == null) {
@@ -137,13 +127,18 @@ public class AIController {
      */
     private void addMessage(String text) {
         boolean isUser = text.startsWith("You: ");
-        String body = isUser ? text.substring(5) : text.substring(4);
+        int sep = text.indexOf(": ");
+        String author = sep >= 0 ? text.substring(0, sep) : "";
+        String body = sep >= 0 ? text.substring(sep + 2) : text;
+
+        Label authorLabel = new Label(author + ":");
+        authorLabel.getStyleClass().add(isUser ? "user-msg-author" : "ai-msg-author");
 
         Label msg = new Label(body);
         msg.setWrapText(true);
         msg.getStyleClass().add(isUser ? "user-msg-text" : "ai-msg-text");
 
-        VBox bubble = new VBox(msg);
+        VBox bubble = new VBox(authorLabel, msg);
         bubble.getStyleClass().add(isUser ? "user-bubble" : "ai-bubble");
 
         if (isUser) {
@@ -168,6 +163,11 @@ public class AIController {
         }
     }
 
+    /**
+     * Synchronize the dark mode toggle icon with the current theme.
+     *
+     * If a theme icon resource exists, set it on the `darkModeIcon` ImageView.
+     */
     private void syncThemeButton() {
         if (darkModeIcon == null) {
             return;
@@ -213,15 +213,33 @@ public class AIController {
         SceneManager.switchTo("news/news-view.fxml");
     }
 
-    @FXML private void navLeaderboard() throws IOException {
+    /**
+     * Navigate to the leaderboard screen.
+     *
+     * @throws IOException if the FXML file cannot be loaded
+     */
+    @FXML
+    private void navLeaderboard() throws IOException {
         SceneManager.switchTo("leaderboard/leaderboard-view.fxml");
     }
 
-    @FXML private void navProfile() throws IOException {
+    /**
+     * Navigate to the user's profile screen.
+     *
+     * @throws IOException if the FXML file cannot be loaded
+     */
+    @FXML
+    private void navProfile() throws IOException {
         SceneManager.switchTo("profile/profile-view.fxml");
     }
 
-    @FXML private void handleSignOut() throws IOException {
+    /**
+     * Sign the current user out and navigate to the authentication screen.
+     *
+     * @throws IOException if the FXML file cannot be loaded
+     */
+    @FXML
+    private void handleSignOut() throws IOException {
         SceneManager.switchTo("auth/auth-view.fxml");
     }
 }
