@@ -12,6 +12,9 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
+/**
+ * Controller for the leaderboard view, which displays the top users by portfolio value. Shows a podium for the top 3 and a ranked list below (INDEV).
+ */
 public class LeaderboardController {
 
     @FXML private HBox podiumContainer;

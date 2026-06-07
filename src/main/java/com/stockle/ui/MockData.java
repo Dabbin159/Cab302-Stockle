@@ -1,19 +1,31 @@
 package com.stockle.ui;
 import java.util.List;
 
+/**
+ * MockData to use as sample data throughout development.
+ */
 public final class MockData {
 
+    /**
+     * Data for the dashboard summary section, showing total portfolio value, gain/loss, and buying power. Used in DashboardController for Inital Development.
+     */
     public record DashboardSummary(
         String totalValue,
         String totalGain,
         String buyingPower
     ) {}
 
+    /**
+     * Data points for the dashboard performance chart. Each point has a label and a value. Used in DashboardController for Inital Development.
+     */
     public record DashboardChartPoint(
         String label,
         double value
     ) {}
 
+    /**
+     * Data for a holding in the dashboard. Used in DashboardController for Inital Development.
+     */
     public record DashboardHolding(
         String symbol,
         String name,
@@ -23,6 +35,9 @@ public final class MockData {
         boolean positive
     ) {}
 
+    /**
+     * Data for a recent trade in the dashboard. Used in DashboardController for Inital Development.
+     */
     public record DashboardTrade(
         String type,
         String symbol,
@@ -30,6 +45,9 @@ public final class MockData {
         String time
     ) {}
 
+    /**
+     * Data for a stock in the trading view. Used in TradingController for Inital Development.
+     */
     public record Stock(
         String symbol,
         String name,
@@ -130,6 +148,9 @@ public final class MockData {
         "Jan 22","Jan 23","Jan 24","Jan 27","Jan 28","Jan 29"
     };
 
+    /**
+     * Data for a leaderboard entry. Used in LeaderboardController for Inital Development. (INDEV)
+     */
     public record LeaderboardEntry(
         int rank,
         String displayName,
