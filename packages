@@ -1,10 +1,10 @@
 com.stockle
 com.stockle.ui
-com.stockle.updater
-com.stockle.api.client
-com.stockle.api.service
-com.stockle.api.apiTests
-com.stockle.api
-com.stockle.api.data
 com.stockle.model
+com.stockle.api.service
+com.stockle.api.client
+com.stockle.api.data
+com.stockle.api
+com.stockle.api.apiTests
 com.stockle.database
+com.stockle.updater
