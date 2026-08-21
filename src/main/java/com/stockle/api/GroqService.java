@@ -17,7 +17,7 @@ import com.stockle.model.TradeContext;
  * that the rest of the app can use.
  */
 public class GroqService {
-
+    // This key also doesn't work anymore
     private static final String API_KEY = "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";
     // System.getenv("GROQ_API_KEY");
 

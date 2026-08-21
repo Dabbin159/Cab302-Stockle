@@ -20,8 +20,8 @@ import java.time.Duration;
  * 
  */
 public class ApiClient {
-    public static final String API_KEY = "PK4A3ZKIHWXHTZT54S7O7UZNRF";
-    public static final String SECRET_KEY = "6x4GW4U5ozqS46zvyk1pvay1h4dXswEPakEvZEtBW7Rh";
+    public static final String API_KEY = "PK4A3ZKIHWXHTZT54S7O7UZNRF"; // had hardcoded keys here for easier testing between group members
+    public static final String SECRET_KEY = "6x4GW4U5ozqS46zvyk1pvay1h4dXswEPakEvZEtBW7Rh"; // These keys no longer work
     public static final String BASE_URL = "https://paper-api.alpaca.markets";
     public static final String DATA_URL = "https://data.alpaca.markets";
 
